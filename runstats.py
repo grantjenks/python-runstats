@@ -219,3 +219,10 @@ if __name__ == '__main__':
     print 'StdDev:', beta.stddev()
     print 'Skewness:', beta.skewness()
     print 'Kurtosis:', beta.kurtosis()
+
+__title__ = 'runstats'
+__version__ = '0.0.1'
+__build__ = 0x000001
+__author__ = 'Grant Jenks'
+__license__ = 'Apache 2.0'
+__copyright__ = 'Copyright (c) 2013 Grant Jenks'
