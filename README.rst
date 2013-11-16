@@ -10,7 +10,7 @@ Documentation is available with::
 
 and on `read the docs`_.
 
-.. _read the docs: https://python_runstats.readthedocs.org/
+.. _read the docs: https://python-runstats.readthedocs.org/
 
 Todo
 ----
