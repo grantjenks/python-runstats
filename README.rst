@@ -18,4 +18,4 @@ Todo
 * Full coverage in testing.
 * Create documentation and upload to readthedocs.
 * Provide repr and str functions.
-* Fix tribool link to github from PyPI
+* Add version
