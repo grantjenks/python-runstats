@@ -1,2 +1,5 @@
 # Python byte-code
 *.py[co]
+
+# Ignore Python virtualenv directory
+/env/
