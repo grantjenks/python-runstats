@@ -1,8 +1,12 @@
 # Python byte-code
 *.py[co]
 
-# Ignore Python virtualenv directory
+# Ignore Python virtualenv directories
 /env*/
 
 # Ignore coverage file
 .coverage
+
+# Ignore Python setup sdist and upload directories.
+/dist/
+/runstats.egg-info/
