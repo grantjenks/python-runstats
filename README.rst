@@ -15,7 +15,5 @@ and on `read the docs`_.
 Todo
 ----
 
-* Full coverage in testing.
 * Create documentation and upload to readthedocs.
-* Provide repr and str functions.
-* Add version
+* Post to http://stackoverflow.com/questions/1174984/how-to-efficiently-calculate-a-running-standard-deviation
