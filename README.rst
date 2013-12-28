@@ -11,9 +11,3 @@ Documentation is available with::
 and on `read the docs`_.
 
 .. _read the docs: https://python-runstats.readthedocs.org/
-
-Todo
-----
-
-* Create documentation and upload to readthedocs.
-* Post to http://stackoverflow.com/questions/1174984/how-to-efficiently-calculate-a-running-standard-deviation
