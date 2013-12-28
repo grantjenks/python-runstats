@@ -38,7 +38,7 @@ def error(value, test):
 
 def test_statistics():
 
-    alpha = [random.random() for val in xrange(count)]
+    alpha = [random.random() for val in range(count)]
 
     alpha_stats = Statistics()
     for val in alpha:
@@ -58,7 +58,7 @@ def test_statistics():
     for val in alpha:
         alpha_stats.push(val)
 
-    beta = [random.random() for val in xrange(count)]
+    beta = [random.random() for val in range(count)]
 
     beta_stats = Statistics()
 
@@ -96,7 +96,7 @@ def test_regression():
     alpha, beta, rand = 5.0, 10.0, 20.0
 
     points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
-              for xxx in xrange(count)]
+              for xxx in range(count)]
 
     regr = Regression()
 
@@ -110,7 +110,7 @@ def test_regression():
     regr_copy = regr.copy()
 
     more_points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
-                   for xxx in xrange(count, 2 * count)]
+                   for xxx in range(count, 2 * count)]
 
     for xxx, yyy in more_points:
         regr_copy.push(xxx, yyy)
