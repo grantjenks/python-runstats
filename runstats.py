@@ -12,8 +12,6 @@ These methods are extremely useful for consuming values from generators
 which may not all fit in memory.
 """
 
-from math import sqrt as _sqrt
-
 class Statistics:
     """
     Class for computing statistics in a single pass.
@@ -37,7 +35,7 @@ class Statistics:
         that._phi = self._phi
         return that
 
-    def __len__(self): 
+    def __len__(self):
         """Number of values that have been pushed."""
         return int(self._count)
 
@@ -63,10 +61,10 @@ class Statistics:
         return self._rho / (self._count - 1.0)
 
     def stddev(self):
-        return _sqrt(self.variance())
+        return self.variance() ** 0.5
 
     def skewness(self):
-        return _sqrt(self._count) * self._tau / pow(self._rho, 1.5)
+        return (self._count ** 0.5) * self._tau / pow(self._rho, 1.5)
 
     def kurtosis(self):
         return self._count * self._phi / (self._rho * self._rho) - 3.0
@@ -128,7 +126,7 @@ class Regression:
         that = Regression()
         that._xstats = self._xstats.copy()
         that._ystats = self._ystats.copy()
-        that._count = self._count
+        that._count, that._sxy = self._count, self._sxy
         return that
 
     def __len__(self):
@@ -137,7 +135,7 @@ class Regression:
 
     def push(self, xcoord, ycoord):
         """Add a value to the Regression summary."""
-        self._sxy += (self._xstats.mean() - xcoord) * (self._ystats.mean - ycoord) * self._count / (self._count + 1)
+        self._sxy += (self._xstats.mean() - xcoord) * (self._ystats.mean() - ycoord) * self._count / (self._count + 1)
         self._xstats.push(xcoord)
         self._ystats.push(ycoord)
         self._count += 1
@@ -163,8 +161,8 @@ class Regression:
         sum_ystats = self._ystats + that._ystats
         sum_count = self._count + that._count
 
-        deltax = that._xstats.mean - self._xstats.mean()
-        deltay = that._ystats.mean - self._ystats.mean()
+        deltax = that._xstats.mean() - self._xstats.mean()
+        deltay = that._ystats.mean() - self._ystats.mean()
         sum_sxy = self._sxy + that._sxy \
             + self._count * that._count * deltax * deltay / sum_count
 
@@ -174,51 +172,6 @@ class Regression:
         self._sxy = sum_sxy
 
         return self
-
-if __name__ == '__main__':
-    import sys
-    data = sys.stdin.read()
-    stats = Statistics()
-    for value in (int(val) for val in data.split()):
-        stats.push(value)
-    print 'Count:', len(stats)
-    print 'Mean:', stats.mean()
-    print 'Variance:', stats.variance()
-    print 'StdDev:', stats.stddev()
-    print 'Skewness:', stats.skewness()
-    print 'Kurtosis:', stats.kurtosis()
-
-    beta = stats + stats
-
-    print 'Count:', len(stats)
-    print 'Mean:', stats.mean()
-    print 'Variance:', stats.variance()
-    print 'StdDev:', stats.stddev()
-    print 'Skewness:', stats.skewness()
-    print 'Kurtosis:', stats.kurtosis()
-
-    print 'Count:', len(beta)
-    print 'Mean:', beta.mean()
-    print 'Variance:', beta.variance()
-    print 'StdDev:', beta.stddev()
-    print 'Skewness:', beta.skewness()
-    print 'Kurtosis:', beta.kurtosis()
-
-    beta += stats
-
-    print 'Count:', len(stats)
-    print 'Mean:', stats.mean()
-    print 'Variance:', stats.variance()
-    print 'StdDev:', stats.stddev()
-    print 'Skewness:', stats.skewness()
-    print 'Kurtosis:', stats.kurtosis()
-
-    print 'Count:', len(beta)
-    print 'Mean:', beta.mean()
-    print 'Variance:', beta.variance()
-    print 'StdDev:', beta.stddev()
-    print 'Skewness:', beta.skewness()
-    print 'Kurtosis:', beta.kurtosis()
 
 __title__ = 'runstats'
 __version__ = '0.0.1'
