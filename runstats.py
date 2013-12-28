@@ -13,8 +13,7 @@ which may not all fit in memory.
 """
 
 class Statistics:
-    """
-    Class for computing statistics in a single pass.
+    """Compute statistics in a single pass.
 
     Computes the mean, variance, stddev, skewness, and kurtosis.
     Statistics objects may also be added together and copied.
@@ -24,9 +23,11 @@ class Statistics:
         self.clear()
 
     def clear(self):
+        """Clear Statistics object."""
         self._count = self._eta = self._rho = self._tau = self._phi = 0.0
 
     def copy(self):
+        """Copy Statistics object."""
         that = Statistics()
         that._count = self._count
         that._eta = self._eta
@@ -55,26 +56,33 @@ class Statistics:
         self._rho += term
 
     def mean(self):
+        """Mean of values."""
         return self._eta
 
     def variance(self):
+        """Variance of values."""
         return self._rho / (self._count - 1.0)
 
     def stddev(self):
+        """Standard deviation of values."""
         return self.variance() ** 0.5
 
     def skewness(self):
+        """Skewness of values."""
         return (self._count ** 0.5) * self._tau / pow(self._rho, 1.5)
 
     def kurtosis(self):
+        """Kurtosis of values."""
         return self._count * self._phi / (self._rho * self._rho) - 3.0
 
     def __add__(self, that):
+        """Add two Statistics objects together."""
         sigma = self.copy()
         sigma += that
         return sigma
 
     def __iadd__(self, that):
+        """Add another Statistics object to this one."""
         sum_count = self._count + that._count
 
         delta = that._eta - self._eta
@@ -106,7 +114,7 @@ class Statistics:
 
 class Regression:
     """
-    Class for computing regression in a single pass.
+    Compute simple linear regression in a single pass.
 
     Computes the slope, intercept, and correlation.
     Regression objects may also be added together and copied.
@@ -118,11 +126,13 @@ class Regression:
         self.clear()
 
     def clear(self):
+        """Clear Regression object."""
         self._xstats.clear()
         self._ystats.clear()
         self._count = self._sxy = 0.0
 
     def copy(self):
+        """Copy Regression object."""
         that = Regression()
         that._xstats = self._xstats.copy()
         that._ystats = self._ystats.copy()
@@ -141,22 +151,27 @@ class Regression:
         self._count += 1
 
     def slope(self):
+        """Slope of values."""
         sxx = self._xstats.variance() * (self._count - 1)
         return self._sxy / sxx
 
     def intercept(self):
+        """Intercept of values."""
         return self._ystats.mean() - self.slope() * self._xstats.mean()
 
     def correlation(self):
+        """Correlation of values."""
         term = self._xstats.stddev() * self._ystats.stddev()
         return self._sxy / ((self._count - 1) * term)
 
     def __add__(self, that):
+        """Add two Regression objects together."""
         sigma = self.copy()
         sigma += that
         return sigma
 
     def __iadd__(self, that):
+        """Add another Regression object to this one."""
         sum_xstats = self._xstats + that._xstats
         sum_ystats = self._ystats + that._ystats
         sum_count = self._count + that._count
