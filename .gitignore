@@ -3,3 +3,6 @@
 
 # Ignore Python virtualenv directory
 /env/
+
+# Ignore coverage file
+.coverage
