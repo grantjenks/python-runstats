@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -45,6 +43,142 @@
             
   <div class="section" id="runstats-documentation">
 <h1>Runstats Documentation<a class="headerlink" href="#runstats-documentation" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="runstats.Statistics">
+<em class="property">class </em><tt class="descclassname">runstats.</tt><tt class="descname">Statistics</tt><a class="headerlink" href="#runstats.Statistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute statistics in a single pass.</p>
+<p>Computes the mean, variance, stddev, skewness, and kurtosis.
+Statistics objects may also be added together and copied.</p>
+<dl class="method">
+<dt id="runstats.Statistics.__add__">
+<tt class="descname">__add__</tt><big>(</big><em>that</em><big>)</big><a class="headerlink" href="#runstats.Statistics.__add__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add two Statistics objects together.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Statistics.__iadd__">
+<tt class="descname">__iadd__</tt><big>(</big><em>that</em><big>)</big><a class="headerlink" href="#runstats.Statistics.__iadd__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add another Statistics object to this one.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Statistics.__len__">
+<tt class="descname">__len__</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Statistics.__len__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of values that have been pushed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Statistics.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Statistics.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear Statistics object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Statistics.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Statistics.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy Statistics object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Statistics.kurtosis">
+<tt class="descname">kurtosis</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Statistics.kurtosis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kurtosis of values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Statistics.mean">
+<tt class="descname">mean</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Statistics.mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mean of values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Statistics.push">
+<tt class="descname">push</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#runstats.Statistics.push" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a value to the Statistics summary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Statistics.skewness">
+<tt class="descname">skewness</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Statistics.skewness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Skewness of values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Statistics.stddev">
+<tt class="descname">stddev</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Statistics.stddev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard deviation of values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Statistics.variance">
+<tt class="descname">variance</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Statistics.variance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variance of values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="runstats.Regression">
+<em class="property">class </em><tt class="descclassname">runstats.</tt><tt class="descname">Regression</tt><a class="headerlink" href="#runstats.Regression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute simple linear regression in a single pass.</p>
+<p>Computes the slope, intercept, and correlation.
+Regression objects may also be added together and copied.</p>
+<dl class="method">
+<dt id="runstats.Regression.__add__">
+<tt class="descname">__add__</tt><big>(</big><em>that</em><big>)</big><a class="headerlink" href="#runstats.Regression.__add__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add two Regression objects together.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Regression.__iadd__">
+<tt class="descname">__iadd__</tt><big>(</big><em>that</em><big>)</big><a class="headerlink" href="#runstats.Regression.__iadd__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add another Regression object to this one.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Regression.__len__">
+<tt class="descname">__len__</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Regression.__len__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of values that have been pushed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Regression.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Regression.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear Regression object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Regression.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Regression.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy Regression object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Regression.correlation">
+<tt class="descname">correlation</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Regression.correlation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correlation of values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Regression.intercept">
+<tt class="descname">intercept</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Regression.intercept" title="Permalink to this definition">¶</a></dt>
+<dd><p>Intercept of values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Regression.push">
+<tt class="descname">push</tt><big>(</big><em>xcoord</em>, <em>ycoord</em><big>)</big><a class="headerlink" href="#runstats.Regression.push" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a value to the Regression summary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="runstats.Regression.slope">
+<tt class="descname">slope</tt><big>(</big><big>)</big><a class="headerlink" href="#runstats.Regression.slope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Slope of values.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -86,7 +220,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2013, Grant Jenks.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
     </div>
   </body>
 </html>
