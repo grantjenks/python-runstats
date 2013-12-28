@@ -2,7 +2,7 @@
 *.py[co]
 
 # Ignore Python virtualenv directory
-/env/
+/env*/
 
 # Ignore coverage file
 .coverage
