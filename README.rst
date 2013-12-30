@@ -1,13 +1,9 @@
 Runstats: Compute Statistics and Regression in One Pass
 =======================================================
 
-Runstats is an Apache2 Licensed module for computing statistics and regression in a single pass.
+`Python runstats Module`_ is an Apache2 Licensed module for computing statistics and regression in a single pass.
 
-Documentation is available with::
+Learn more about runstats at the `runstats Project Page`_.
 
-    >>> import runstats
-    >>> help(runstats)
-
-and on `read the docs`_.
-
-.. _read the docs: https://python-runstats.readthedocs.org/
+.. _Python runstats Module: http://www.grantjenks.com/blog/portfolio-post/python-runstats-module/
+.. _runstats Project Page: http://www.grantjenks.com/blog/portfolio-post/python-runstats-module/
