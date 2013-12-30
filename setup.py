@@ -27,7 +27,7 @@ setup(
     long_description=readme,
     author='Grant Jenks',
     author_email='contact@grantjenks.com',
-    url='https://github.com/grantjenks/python_runstats',
+    url='http://www.grantjenks.com/blog/portfolio-post/python-runstats-module/',
     py_modules=['runstats'],
     package_data={'': ['LICENSE', 'README.rst']},
     install_requires=[],
