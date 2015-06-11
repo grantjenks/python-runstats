@@ -1,22 +1,15 @@
-"""
-runstats - Module for computing statistics and regression in a single pass.
+# -*- coding: utf-8 -*-
 
-Written by Grant Jenks. Copyright (c) 2013.
-This work may be used under the Apache2 License. See LICENSE file for details.
-
-Based entirely on the C++ code by John D Cook at
-* http://www.johndcook.com/skewness_kurtosis.html
-* http://www.johndcook.com/running_regression.html
-
-These methods are extremely useful for consuming values from generators
-which may not all fit in memory.
-"""
+from __future__ import division
 
 class Statistics:
     """Compute statistics in a single pass.
 
     Computes the mean, variance, stddev, skewness, and kurtosis.
     Statistics objects may also be added together and copied.
+
+    Based entirely on the C++ code by John D Cook at
+    http://www.johndcook.com/skewness_kurtosis.html
     """
 
     def __init__(self):
@@ -40,19 +33,23 @@ class Statistics:
         """Number of values that have been pushed."""
         return int(self._count)
 
-    def push(self, x):
-        """Add a value to the Statistics summary."""
-        delta = x - self._eta
+    def push(self, value):
+        """Add `value` to the Statistics summary."""
+        delta = value - self._eta
         delta_n = delta / (self._count + 1)
         delta_n2 = delta_n * delta_n
         term = delta * delta_n * self._count
         self._count += 1
         self._eta += delta_n
-        self._phi += term * delta_n2 * (self._count ** 2 - 3 * self._count + 3) \
-                     + 6 * delta_n2 * self._rho \
-                     - 4 * delta_n * self._tau
-        self._tau += term * delta_n * (self._count - 2) \
-                     - 3 * delta_n * self._rho;
+        self._phi += (
+            term * delta_n2 * (self._count ** 2 - 3 * self._count + 3)
+            + 6 * delta_n2 * self._rho
+            - 4 * delta_n * self._tau
+        )
+        self._tau += (
+            term * delta_n * (self._count - 2)
+            - 3 * delta_n * self._rho
+        )
         self._rho += term
 
     def mean(self):
@@ -90,19 +87,37 @@ class Statistics:
         delta3 = delta ** 3
         delta4 = delta ** 4
 
-        sum_eta = (self._count * self._eta + that._count * that._eta) / sum_count
+        sum_eta = (
+            (self._count * self._eta + that._count * that._eta)
+            / sum_count
+        )
 
-        sum_rho = self._rho + that._rho \
+        sum_rho = (
+            self._rho + that._rho
             + delta2 * self._count * that._count / sum_count
+        )
 
-        sum_tau = self._tau + that._tau \
-            + delta3 * self._count * that._count * (self._count - that._count) / (sum_count ** 2) \
-            + 3.0 * delta * (self._count * that._rho - that._count * self._rho) / sum_count
+        sum_tau = (
+            self._tau + that._tau
+            + delta3 * self._count * that._count
+            * (self._count - that._count) / (sum_count ** 2)
+            + 3.0 * delta
+            * (self._count * that._rho - that._count * self._rho) / sum_count
+        )
 
-        sum_phi = self._phi + that._phi \
-            + delta4 * self._count * that._count * (self._count ** 2 - self._count * that._count + that._count ** 2) / (sum_count ** 3) \
-            + 6.0 * delta2 * (self._count * self._count * that._rho + that._count * that._count * self._rho) / (sum_count ** 2) \
-            + 4.0 * delta * (self._count * that._tau - that._count * self._tau) / sum_count
+        sum_phi = (
+            self._phi + that._phi
+            + delta4 * self._count * that._count
+            * (self._count ** 2 - self._count * that._count + that._count ** 2)
+            / (sum_count ** 3)
+            + 6.0 * delta2 * (
+                self._count * self._count * that._rho
+                + that._count * that._count * self._rho
+            )
+            / (sum_count ** 2)
+            + 4.0 * delta
+            * (self._count * that._tau - that._count * self._tau) / sum_count
+        )
 
         self._count = sum_count
         self._eta = sum_eta
@@ -118,6 +133,9 @@ class Regression:
 
     Computes the slope, intercept, and correlation.
     Regression objects may also be added together and copied.
+
+    Based entirely on the C++ code by John D Cook at
+    http://www.johndcook.com/running_regression.html
     """
 
     def __init__(self):
@@ -144,8 +162,13 @@ class Regression:
         return int(self._count)
 
     def push(self, xcoord, ycoord):
-        """Add a value to the Regression summary."""
-        self._sxy += (self._xstats.mean() - xcoord) * (self._ystats.mean() - ycoord) * self._count / (self._count + 1)
+        """Add a pair `(x, y)` to the Regression summary."""
+        self._sxy += (
+            (self._xstats.mean() - xcoord)
+            * (self._ystats.mean() - ycoord)
+            * self._count
+            / (self._count + 1)
+        )
         self._xstats.push(xcoord)
         self._ystats.push(ycoord)
         self._count += 1
@@ -178,8 +201,10 @@ class Regression:
 
         deltax = that._xstats.mean() - self._xstats.mean()
         deltay = that._ystats.mean() - self._ystats.mean()
-        sum_sxy = self._sxy + that._sxy \
+        sum_sxy = (
+            self._sxy + that._sxy
             + self._count * that._count * deltax * deltay / sum_count
+        )
 
         self._count = sum_count
         self._xstats = sum_xstats
@@ -189,8 +214,8 @@ class Regression:
         return self
 
 __title__ = 'runstats'
-__version__ = '0.0.1'
-__build__ = 0x000001
+__version__ = '0.5.1'
+__build__ = 0x000501
 __author__ = 'Grant Jenks'
 __license__ = 'Apache 2.0'
-__copyright__ = 'Copyright (c) 2013 Grant Jenks'
+__copyright__ = 'Copyright 2015 Grant Jenks'
