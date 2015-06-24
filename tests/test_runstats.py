@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import nose
 import random
+random.seed(0)
+
+import nose
 from nose.tools import raises
-from context import runstats
+
+from .context import runstats
 from runstats import Statistics, Regression
 
-random.seed(0)
 error_limit = 1e-2
 count = 1000
 

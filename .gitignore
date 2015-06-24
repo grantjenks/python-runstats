@@ -10,3 +10,6 @@
 # Ignore Python setup sdist and upload directories.
 /dist/
 /runstats.egg-info/
+/.tox/
+
+.DS_Store
