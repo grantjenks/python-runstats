@@ -52,6 +52,8 @@ def test_statistics():
     assert error(stddev(alpha), alpha_stats.stddev()) < error_limit
     assert error(skewness(alpha), alpha_stats.skewness()) < error_limit
     assert error(kurtosis(alpha), alpha_stats.kurtosis()) < error_limit
+    assert alpha_stats.minimum() == min(alpha)
+    assert alpha_stats.maximum() == max(alpha)
 
     alpha_stats.clear()
 
@@ -75,6 +77,8 @@ def test_statistics():
     assert error(stddev(alpha + beta), gamma_stats.stddev()) < error_limit
     assert error(skewness(alpha + beta), gamma_stats.skewness()) < error_limit
     assert error(kurtosis(alpha + beta), gamma_stats.kurtosis()) < error_limit
+    assert gamma_stats.minimum() == min(alpha + beta)
+    assert gamma_stats.maximum() == max(alpha + beta)
 
     delta_stats = beta_stats.copy()
     delta_stats += alpha_stats
@@ -85,6 +89,8 @@ def test_statistics():
     assert error(stddev(alpha + beta), delta_stats.stddev()) < error_limit
     assert error(skewness(alpha + beta), delta_stats.skewness()) < error_limit
     assert error(kurtosis(alpha + beta), delta_stats.kurtosis()) < error_limit
+    assert delta_stats.minimum() == min(alpha + beta)
+    assert delta_stats.maximum() == max(alpha + beta)
 
 def correlation(values):
     sigma_x = sum(xxx for xxx, yyy in values) / len(values)

@@ -5,24 +5,27 @@ from __future__ import division
 class Statistics:
     """Compute statistics in a single pass.
 
-    Computes the mean, variance, stddev, skewness, and kurtosis.
+    Computes the minimum, maximum, mean, variance, standard deviation,
+    skewness, and kurtosis.
     Statistics objects may also be added together and copied.
 
     Based entirely on the C++ code by John D Cook at
     http://www.johndcook.com/skewness_kurtosis.html
     """
-
     def __init__(self):
         self.clear()
 
     def clear(self):
         """Clear Statistics object."""
         self._count = self._eta = self._rho = self._tau = self._phi = 0.0
+        self._min = self._max = None
 
     def copy(self):
         """Copy Statistics object."""
         that = Statistics()
         that._count = self._count
+        that._min = self._min
+        that._max = self._max
         that._eta = self._eta
         that._rho = self._rho
         that._tau = self._tau
@@ -35,6 +38,8 @@ class Statistics:
 
     def push(self, value):
         """Add `value` to the Statistics summary."""
+        self._min = value if self._min is None else min(self._min, value)
+        self._max = value if self._max is None else max(self._max, value)
         delta = value - self._eta
         delta_n = delta / (self._count + 1)
         delta_n2 = delta_n * delta_n
@@ -51,6 +56,14 @@ class Statistics:
             - 3 * delta_n * self._rho
         )
         self._rho += term
+
+    def minimum(self):
+        """Minimum of values."""
+        return self._min
+
+    def maximum(self):
+        """Maximum of values."""
+        return self._max
 
     def mean(self):
         """Mean of values."""
@@ -124,6 +137,9 @@ class Statistics:
         self._rho = sum_rho
         self._tau = sum_tau
         self._phi = sum_phi
+
+        self._min = min(self._min, that._min)
+        self._max = max(self._max, that._max)
 
         return self
 
