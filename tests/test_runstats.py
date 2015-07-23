@@ -59,8 +59,7 @@ def test_statistics():
 
     assert len(alpha_stats) == 0
 
-    for val in alpha:
-        alpha_stats.push(val)
+    alpha_stats = Statistics(alpha)
 
     beta = [random.random() for val in range(count)]
 
@@ -123,10 +122,7 @@ def test_regression():
     for xxx, yyy in more_points:
         regr_copy.push(xxx, yyy)
 
-    regr_more = Regression()
-
-    for xxx, yyy in more_points:
-        regr_more.push(xxx, yyy)
+    regr_more = Regression(more_points)
 
     regr_sum = regr + regr_more
 

@@ -12,15 +12,23 @@ class Statistics:
     Based entirely on the C++ code by John D Cook at
     http://www.johndcook.com/skewness_kurtosis.html
     """
-    def __init__(self):
+    def __init__(self, iterable=()):
+        """Initialize Statistics object.
+
+        Iterates optional parameter `iterable` and pushes each value into the
+        statistics summary.
+        """
         self.clear()
+
+        for value in iterable:
+            self.push(value)
 
     def clear(self):
         """Clear Statistics object."""
         self._count = self._eta = self._rho = self._tau = self._phi = 0.0
         self._min = self._max = None
 
-    def copy(self):
+    def __copy__(self):
         """Copy Statistics object."""
         that = Statistics()
         that._count = self._count
@@ -32,12 +40,15 @@ class Statistics:
         that._phi = self._phi
         return that
 
+    copy = __copy__
+
     def __len__(self):
         """Number of values that have been pushed."""
         return int(self._count)
 
     def push(self, value):
         """Add `value` to the Statistics summary."""
+        values = float(value)
         self._min = value if self._min is None else min(self._min, value)
         self._max = value if self._max is None else max(self._max, value)
         delta = value - self._eta
@@ -154,10 +165,18 @@ class Regression:
     http://www.johndcook.com/running_regression.html
     """
 
-    def __init__(self):
+    def __init__(self, iterable=()):
+        """Initialize Regression object.
+
+        Iterates optional parameter `iterable` and pushes each pair into the
+        regression summary.
+        """
         self._xstats = Statistics()
         self._ystats = Statistics()
         self.clear()
+
+        for xcoord, ycoord in iterable:
+            self.push(xcoord, ycoord)
 
     def clear(self):
         """Clear Regression object."""
@@ -165,13 +184,15 @@ class Regression:
         self._ystats.clear()
         self._count = self._sxy = 0.0
 
-    def copy(self):
+    def __copy__(self):
         """Copy Regression object."""
         that = Regression()
         that._xstats = self._xstats.copy()
         that._ystats = self._ystats.copy()
         that._count, that._sxy = self._count, self._sxy
         return that
+
+    copy = __copy__
 
     def __len__(self):
         """Number of values that have been pushed."""
