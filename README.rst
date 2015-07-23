@@ -55,18 +55,17 @@ function::
 Tutorial
 --------
 
-The Python runstats module provides two types for computing running
-:ref:`Statistics<Statistics>` and :ref:`Regression<Regression>`. The Regression
-object leverages Statistics internally for its calculations. Each can be
-initialized without arguments::
+The Python runstats module provides two types for computing running Statistics
+and Regression. The Regression object leverages Statistics internally for its
+calculations. Each can be initialized without arguments::
 
   >>> from runstats import Statistics, Regression
   >>> stats = Statistics()
   >>> regr = Regression()
 
-:ref:`Statistics<Statistics>` objects support three methods for
-modification. Use `push` to add values to the summary, `clear` to reset the
-summary, and sum to combine Statistics summaries::
+Statistics objects support three methods for modification. Use `push` to add
+values to the summary, `clear` to reset the summary, and sum to combine
+Statistics summaries::
 
   >>> for num in range(10):
   ...     stats.push(num)
@@ -147,9 +146,9 @@ Like Statistics, the Regression type supports three methods for modification:
   >>> total.correlation()
   1.0
 
-:ref:`Regression<Regression>` summaries provide three measures of a series of
-pairs: slope, intercept and correlation. Note that, as a regression, the points
-need not exactly lie on a line::
+Regression summaries provide three measures of a series of pairs: slope,
+intercept and correlation. Note that, as a regression, the points need not
+exactly lie on a line::
 
   >>> regr = Regression([(1.2, 1.9), (3, 5.1), (4.9, 8.1), (7, 11)])
   >>> regr.slope()

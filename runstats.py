@@ -251,8 +251,8 @@ class Regression:
         return self
 
 __title__ = 'runstats'
-__version__ = '0.5.2'
-__build__ = 0x000502
+__version__ = '0.5.3'
+__build__ = 0x000503
 __author__ = 'Grant Jenks'
 __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2015 Grant Jenks'
