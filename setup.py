@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 import runstats
@@ -15,11 +15,6 @@ class Tox(TestCommand):
         import tox
         errno = tox.cmdline(self.test_args)
         sys.exit(errno)
-
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
 
 with open('README.rst') as f:
     readme = f.read()
