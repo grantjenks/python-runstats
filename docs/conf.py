@@ -222,7 +222,7 @@ html_sidebars = {
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'RunStatsdoc'
+htmlhelp_basename = 'RunStatsDoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
