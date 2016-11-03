@@ -48,7 +48,7 @@ class Statistics:
 
     def push(self, value):
         """Add `value` to the Statistics summary."""
-        values = float(value)
+        value = float(value)
         self._min = value if self._min is None else min(self._min, value)
         self._max = value if self._max is None else max(self._max, value)
         delta = value - self._eta
