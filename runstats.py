@@ -1,8 +1,12 @@
-# -*- coding: utf-8 -*-
+"""Python RunStats
+
+Compute Statistics and Regression in a single pass.
+
+"""
 
 from __future__ import division
 
-class Statistics:
+class Statistics(object):
     """Compute statistics in a single pass.
 
     Computes the minimum, maximum, mean, variance, standard deviation,
@@ -154,7 +158,7 @@ class Statistics:
 
         return self
 
-class Regression:
+class Regression(object):
     """
     Compute simple linear regression in a single pass.
 
