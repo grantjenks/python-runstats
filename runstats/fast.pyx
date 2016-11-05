@@ -6,7 +6,7 @@ Compute Statistics and Regression in a single pass.
 
 from __future__ import division
 
-class Statistics(object):
+cdef class Statistics(object):
     """Compute statistics in a single pass.
 
     Computes the minimum, maximum, mean, variance, standard deviation,
@@ -16,6 +16,14 @@ class Statistics(object):
     Based entirely on the C++ code by John D Cook at
     http://www.johndcook.com/skewness_kurtosis.html
     """
+    cdef double _count
+    cdef double _eta
+    cdef double _rho
+    cdef double _tau
+    cdef double _phi
+    cdef double _min
+    cdef double _max
+
     def __init__(self, iterable=()):
         """Initialize Statistics object.
 
@@ -27,7 +35,7 @@ class Statistics(object):
         for value in iterable:
             self.push(value)
 
-    def clear(self):
+    cpdef clear(self):
         """Clear Statistics object."""
         self._count = self._eta = self._rho = self._tau = self._phi = 0.0
         self._min = self._max = float('nan')
@@ -50,18 +58,18 @@ class Statistics(object):
         """Number of values that have been pushed."""
         return int(self._count)
 
-    def push(self, value):
+    cpdef push(self, value):
         """Add `value` to the Statistics summary."""
-        value = float(value)
+        cdef double val = float(value)
 
         if self._count == 0.0:
-            self._min = value
-            self._max = value
+            self._min = val
+            self._max = val
         else:
-            self._min = min(self._min, value)
-            self._max = max(self._max, value)
+            self._min = min(self._min, val)
+            self._max = max(self._max, val)
 
-        delta = value - self._eta
+        delta = val - self._eta
         delta_n = delta / (self._count + 1)
         delta_n2 = delta_n * delta_n
         term = delta * delta_n * self._count
@@ -79,31 +87,31 @@ class Statistics(object):
         )
         self._rho += term
 
-    def minimum(self):
+    cpdef minimum(self):
         """Minimum of values."""
         return self._min
 
-    def maximum(self):
+    cpdef maximum(self):
         """Maximum of values."""
         return self._max
 
-    def mean(self):
+    cpdef mean(self):
         """Mean of values."""
         return self._eta
 
-    def variance(self):
+    cpdef variance(self):
         """Variance of values."""
         return self._rho / (self._count - 1.0)
 
-    def stddev(self):
+    cpdef stddev(self):
         """Standard deviation of values."""
         return self.variance() ** 0.5
 
-    def skewness(self):
+    cpdef skewness(self):
         """Skewness of values."""
         return (self._count ** 0.5) * self._tau / pow(self._rho, 1.5)
 
-    def kurtosis(self):
+    cpdef kurtosis(self):
         """Kurtosis of values."""
         return self._count * self._phi / (self._rho * self._rho) - 3.0
 
@@ -115,24 +123,24 @@ class Statistics(object):
 
     def __iadd__(self, that):
         """Add another Statistics object to this one."""
-        sum_count = self._count + that._count
+        cdef double sum_count = self._count + that._count
 
-        delta = that._eta - self._eta
-        delta2 = delta ** 2
-        delta3 = delta ** 3
-        delta4 = delta ** 4
+        cdef double delta = that._eta - self._eta
+        cdef double delta2 = delta ** 2
+        cdef double delta3 = delta ** 3
+        cdef double delta4 = delta ** 4
 
-        sum_eta = (
+        cdef double sum_eta = (
             (self._count * self._eta + that._count * that._eta)
             / sum_count
         )
 
-        sum_rho = (
+        cdef double sum_rho = (
             self._rho + that._rho
             + delta2 * self._count * that._count / sum_count
         )
 
-        sum_tau = (
+        cdef double sum_tau = (
             self._tau + that._tau
             + delta3 * self._count * that._count
             * (self._count - that._count) / (sum_count ** 2)
@@ -140,7 +148,7 @@ class Statistics(object):
             * (self._count * that._rho - that._count * self._rho) / sum_count
         )
 
-        sum_phi = (
+        cdef double sum_phi = (
             self._phi + that._phi
             + delta4 * self._count * that._count
             * (self._count ** 2 - self._count * that._count + that._count ** 2)
@@ -171,7 +179,7 @@ class Statistics(object):
 
         return self
 
-class Regression(object):
+cdef class Regression(object):
     """
     Compute simple linear regression in a single pass.
 
@@ -181,6 +189,10 @@ class Regression(object):
     Based entirely on the C++ code by John D Cook at
     http://www.johndcook.com/running_regression.html
     """
+    cdef Statistics _xstats
+    cdef Statistics _ystats
+    cdef double _count
+    cdef double _sxy
 
     def __init__(self, iterable=()):
         """Initialize Regression object.
@@ -195,7 +207,7 @@ class Regression(object):
         for xcoord, ycoord in iterable:
             self.push(xcoord, ycoord)
 
-    def clear(self):
+    cpdef clear(self):
         """Clear Regression object."""
         self._xstats.clear()
         self._ystats.clear()
@@ -215,7 +227,7 @@ class Regression(object):
         """Number of values that have been pushed."""
         return int(self._count)
 
-    def push(self, xcoord, ycoord):
+    cpdef push(self, xcoord, ycoord):
         """Add a pair `(x, y)` to the Regression summary."""
         self._sxy += (
             (self._xstats.mean() - xcoord)
@@ -227,16 +239,16 @@ class Regression(object):
         self._ystats.push(ycoord)
         self._count += 1
 
-    def slope(self):
+    cpdef slope(self):
         """Slope of values."""
         sxx = self._xstats.variance() * (self._count - 1)
         return self._sxy / sxx
 
-    def intercept(self):
+    cpdef intercept(self):
         """Intercept of values."""
         return self._ystats.mean() - self.slope() * self._xstats.mean()
 
-    def correlation(self):
+    cpdef correlation(self):
         """Correlation of values."""
         term = self._xstats.stddev() * self._ystats.stddev()
         return self._sxy / ((self._count - 1) * term)
