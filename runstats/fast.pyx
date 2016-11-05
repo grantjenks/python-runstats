@@ -30,7 +30,7 @@ class Statistics(object):
     def clear(self):
         """Clear Statistics object."""
         self._count = self._eta = self._rho = self._tau = self._phi = 0.0
-        self._min = self._max = None
+        self._min = self._max = float('nan')
 
     def __copy__(self):
         """Copy Statistics object."""
@@ -53,12 +53,19 @@ class Statistics(object):
     def push(self, value):
         """Add `value` to the Statistics summary."""
         value = float(value)
-        self._min = value if self._min is None else min(self._min, value)
-        self._max = value if self._max is None else max(self._max, value)
+
+        if self._count == 0.0:
+            self._min = value
+            self._max = value
+        else:
+            self._min = min(self._min, value)
+            self._max = max(self._max, value)
+
         delta = value - self._eta
         delta_n = delta / (self._count + 1)
         delta_n2 = delta_n * delta_n
         term = delta * delta_n * self._count
+
         self._count += 1
         self._eta += delta_n
         self._phi += (
@@ -147,14 +154,20 @@ class Statistics(object):
             * (self._count * that._tau - that._count * self._tau) / sum_count
         )
 
+        if self._count == 0.0:
+            self._min = that._min
+            self._max = that._max
+        elif that._count == 0.0:
+            pass  # self._min, self._max are unchanged.
+        else:
+            self._min = min(self._min, that._min)
+            self._max = max(self._max, that._max)
+
         self._count = sum_count
         self._eta = sum_eta
         self._rho = sum_rho
         self._tau = sum_tau
         self._phi = sum_phi
-
-        self._min = min(self._min, that._min)
-        self._max = max(self._max, that._max)
 
         return self
 
