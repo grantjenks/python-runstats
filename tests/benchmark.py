@@ -23,7 +23,7 @@ for value in values:
 stats.mean()
     """,
     number=1,
-    repeat=5,
+    repeat=7,
 )[2]
 
 fast_stats = timeit.repeat(
@@ -38,10 +38,10 @@ for value in values:
 stats.mean()
     """,
     number=1,
-    repeat=5,
+    repeat=7,
 )[2]
 
-speedup_stats = (core_stats - fast_stats) / core_stats * 100
+speedup_stats = core_stats / fast_stats - 1
 
 core_regr = timeit.repeat(
     setup="""
@@ -55,7 +55,7 @@ for pos, val in pairs:
 regr.slope()
     """,
     number=1,
-    repeat=5,
+    repeat=7,
 )[2]
 
 fast_regr = timeit.repeat(
@@ -70,15 +70,15 @@ for pos, val in pairs:
 regr.slope()
     """,
     number=1,
-    repeat=5,
+    repeat=7,
 )[2]
 
-speedup_regr = (core_regr - fast_regr) / core_regr * 100
+speedup_regr = core_regr / fast_regr - 1
 
 print('core.Statistics:', core_stats)
 print('fast.Statistics:', fast_stats)
-print('Stats Speedup:  ', '%.2f%%' % speedup_stats)
+print('  Stats Speedup: %.2fx faster' % speedup_stats)
 
 print('core.Regression:', core_regr)
 print('fast.Regression:', fast_regr)
-print('Regr Speedup:   ', '%.2f%%' % speedup_regr)
+print('   Regr Speedup: %.2fx faster' % speedup_regr)
