@@ -1,4 +1,3 @@
-from Cython.Build import cythonize
 import runstats
 from setuptools import Extension, find_packages, setup
 from setuptools.command.test import test as TestCommand
@@ -19,7 +18,7 @@ class Tox(TestCommand):
 with open('README.rst') as reader:
     readme = reader.read()
 
-setup(
+args = dict(
     name=runstats.__title__,
     version=runstats.__version__,
     description='Compute statistics and regression in one pass',
@@ -29,7 +28,6 @@ setup(
     url='http://www.grantjenks.com/docs/runstats/',
     license='Apache 2.0',
     packages=find_packages(exclude=('tests', 'docs')),
-    ext_modules=cythonize([Extension('runstats.fast', ['runstats/fast.pyx'])]),
     tests_require=['tox'],
     cmdclass={'test': Tox},
     install_requires=[],
@@ -51,3 +49,10 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy',
     ),
 )
+
+try:
+    from Cython.Build import cythonize
+    ext_modules = cythonize([Extension('runstats.fast', ['runstats/fast.pyx'])])
+    setup(ext_modules=ext_modules, **args)
+except ImportError:
+    setup(**args)
