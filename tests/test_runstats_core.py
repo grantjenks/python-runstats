@@ -3,7 +3,7 @@
 """
 
 import random
-from runstats import Statistics, Regression
+from runstats.core import Statistics, Regression
 
 random.seed(0)
 
