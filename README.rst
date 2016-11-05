@@ -183,8 +183,8 @@ Reference and Indices
 .. _`RunStats Documentation`: http://www.grantjenks.com/docs/runstats/
 .. _`RunStats API Reference`: http://www.grantjenks.com/docs/runstats/api.html
 .. _`RunStats at PyPI`: https://pypi.python.org/pypi/runstats/
-.. _`RunStats at GitHub`: https://github.com/grantjenks/python_runstats/
-.. _`RunStats Issue Tracker`: https://github.com/grantjenks/python_runstats/issues/
+.. _`RunStats at GitHub`: https://github.com/grantjenks/python-runstats/
+.. _`RunStats Issue Tracker`: https://github.com/grantjenks/python-runstats/issues/
 
 License
 -------
