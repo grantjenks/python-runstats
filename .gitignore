@@ -1,15 +1,16 @@
-# Python byte-code
 *.py[co]
+*.c
+*.so
 
-# Ignore Python virtualenv directories
+# Python virtualenv directories
 /env*/
 
-# Ignore coverage file
 .coverage
 
-# Ignore Python setup sdist and upload directories.
+# Python setup directories
 /dist/
 /runstats.egg-info/
 /.tox/
+/build/
 
 .DS_Store
