@@ -58,9 +58,9 @@ cdef class Statistics(object):
         """Number of values that have been pushed."""
         return int(self._count)
 
-    cpdef push(self, value):
+    cpdef push(self, double value):
         """Add `value` to the Statistics summary."""
-        cdef double val = float(value)
+        cdef double val = value
 
         if self._count == 0.0:
             self._min = val
