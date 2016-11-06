@@ -16,13 +16,13 @@ cdef class Statistics(object):
     Based entirely on the C++ code by John D Cook at
     http://www.johndcook.com/skewness_kurtosis.html
     """
-    cdef double _count
-    cdef double _eta
-    cdef double _rho
-    cdef double _tau
-    cdef double _phi
-    cdef double _min
-    cdef double _max
+    cdef public double _count
+    cdef public double _eta
+    cdef public double _rho
+    cdef public double _tau
+    cdef public double _phi
+    cdef public double _min
+    cdef public double _max
 
     def __init__(self, iterable=()):
         """Initialize Statistics object.
@@ -189,10 +189,10 @@ cdef class Regression(object):
     Based entirely on the C++ code by John D Cook at
     http://www.johndcook.com/running_regression.html
     """
-    cdef Statistics _xstats
-    cdef Statistics _ystats
-    cdef double _count
-    cdef double _sxy
+    cdef public Statistics _xstats
+    cdef public Statistics _ystats
+    cdef public double _count
+    cdef public double _sxy
 
     def __init__(self, iterable=()):
         """Initialize Regression object.
