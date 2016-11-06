@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import runstats
 from setuptools import Extension, find_packages, setup
 from setuptools.command.test import test as TestCommand
@@ -52,7 +54,13 @@ args = dict(
 
 try:
     from Cython.Build import cythonize
-    ext_modules = cythonize([Extension('runstats.fast', ['runstats/fast.pyx'])])
-    setup(ext_modules=ext_modules, **args)
-except ImportError:
+    ext_modules = [Extension('runstats.fast', ['runstats/fast.pyx'])]
+    setup(ext_modules=cythonize(ext_modules), **args)
+except Exception as exception:
+    print('*' * 75)
+    print(exception)
+    print('*' * 75)
+    print('Failed to setup runstats with Cython. See error message above.')
+    print('Using pure-Python implementation.')
+    print ('*' * 75)
     setup(**args)
