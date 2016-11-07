@@ -42,8 +42,7 @@ cdef class Statistics(object):
         self._min = self._max = float('nan')
 
     def get_state(self):
-        """ Get the internal state of this object
-        """
+        """Get the internal state of this object."""
         return {"count": self._count,
                 "eta": self._eta,
                 "rho": self._rho,
@@ -53,8 +52,7 @@ cdef class Statistics(object):
                 "max": self._max}
 
     def set_state(self, **parameters):
-        """Set the internal state to the given parameters
-        """
+        """Set the internal state to the given parameters."""
         for parameter, value in parameters.items():
             setattr(self, "_" + parameter, value)
         return self
@@ -234,16 +232,14 @@ cdef class Regression(object):
         self._count = self._sxy = 0.0
 
     def get_state(self):
-        """ Get the internal state of this object
-        """
+        """Get the internal state of this object."""
         return {"count": self._count,
                 "sxy": self._sxy,
                 "xstats": self._xstats.get_state(),
                 "ystats": self._ystats.get_state()}
 
     def set_state(self, **parameters):
-        """Set the internal state to the given parameters
-        """
+        """Set the internal state to the given parameters."""
         for parameter, value in parameters.items():
             if parameter in ("xstats", "ystats"):
                 stats = Statistics()
