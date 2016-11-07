@@ -6,6 +6,7 @@ Compute Statistics and Regression in a single pass.
 
 from __future__ import division
 
+
 class Statistics(object):
     """Compute statistics in a single pass.
 
@@ -31,6 +32,24 @@ class Statistics(object):
         """Clear Statistics object."""
         self._count = self._eta = self._rho = self._tau = self._phi = 0.0
         self._min = self._max = float('nan')
+
+    def get_state(self):
+        """ Get the internal state of this object
+        """
+        return {"count": self._count,
+                "eta": self._eta,
+                "rho": self._rho,
+                "tau": self._tau,
+                "phi": self._phi,
+                "min": self._min,
+                "max": self._max}
+
+    def set_state(self, **parameters):
+        """Set the internal state to the given parameters
+        """
+        for parameter, value in parameters.items():
+            setattr(self, "_" + parameter, value)
+        return self
 
     def __copy__(self):
         """Copy Statistics object."""
@@ -171,6 +190,7 @@ class Statistics(object):
 
         return self
 
+
 class Regression(object):
     """
     Compute simple linear regression in a single pass.
@@ -200,6 +220,26 @@ class Regression(object):
         self._xstats.clear()
         self._ystats.clear()
         self._count = self._sxy = 0.0
+
+    def get_state(self):
+        """ Get the internal state of this object
+        """
+        return {"count": self._count,
+                "sxy": self._sxy,
+                "xstats": self._xstats.get_state(),
+                "ystats": self._ystats.get_state()}
+
+    def set_state(self, **parameters):
+        """Set the internal state to the given parameters
+        """
+        for parameter, value in parameters.items():
+            if parameter in ("xstats", "ystats"):
+                stats = Statistics()
+                stats.set_state(**value)
+                setattr(self, "_" + parameter, stats)
+            else:
+                setattr(self, "_" + parameter, value)
+        return self
 
     def __copy__(self):
         """Copy Regression object."""

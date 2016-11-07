@@ -5,20 +5,23 @@
 import random
 from runstats.core import Statistics, Regression
 
-random.seed(0)
 
 limit = 1e-2
 count = 1000
 
+
 def mean(values):
     return sum(values) / len(values)
+
 
 def variance(values):
     temp = mean(values)
     return sum((value - temp) ** 2 for value in values) / len(values)
 
+
 def stddev(values):
     return variance(values) ** 0.5
+
 
 def skewness(values):
     temp = mean(values)
@@ -27,6 +30,7 @@ def skewness(values):
                    / len(values)) ** 1.5
     return numerator / denominator
 
+
 def kurtosis(values):
     temp = mean(values)
     numerator = sum((value - temp) ** 4 for value in values) / len(values)
@@ -34,11 +38,14 @@ def kurtosis(values):
     denominator = (sum_diff_2 / len(values)) ** 2
     return (numerator / denominator) - 3
 
+
 def error(value, test):
     return abs((test - value) / value)
 
+
 def test_statistics():
-    alpha = [random.random() for val in range(count)]
+    random.seed(3)
+    alpha = [random.random() for _ in range(count)]
 
     alpha_stats = Statistics()
     for val in alpha:
@@ -59,7 +66,7 @@ def test_statistics():
 
     alpha_stats = Statistics(alpha)
 
-    beta = [random.random() for val in range(count)]
+    beta = [random.random() for _ in range(count)]
 
     beta_stats = Statistics()
 
@@ -89,6 +96,7 @@ def test_statistics():
     assert delta_stats.minimum() == min(alpha + beta)
     assert delta_stats.maximum() == max(alpha + beta)
 
+
 def correlation(values):
     sigma_x = sum(xxx for xxx, yyy in values) / len(values)
     sigma_y = sum(yyy for xxx, yyy in values) / len(values)
@@ -97,7 +105,9 @@ def correlation(values):
     sigma_y2 = sum(yyy ** 2 for xxx, yyy in values) / len(values)
     return (sigma_xy - sigma_x * sigma_y) / (((sigma_x2 - sigma_x ** 2) * (sigma_y2 - sigma_y ** 2)) ** 0.5)
 
+
 def test_regression():
+    random.seed(21432141)
     alpha, beta, rand = 5.0, 10.0, 20.0
 
     points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
@@ -135,6 +145,51 @@ def test_regression():
     assert error(regr.slope(), regr_copy.slope()) < limit
     assert error(regr.intercept(), regr_copy.intercept()) < limit
     assert error(regr.correlation(), regr_copy.correlation()) < limit
+
+
+def test_get_set_state_statistics():
+    random.seed(0)
+    tail = -10
+    vals = [random.random() for _ in range(count)]
+    stats = Statistics(vals[:tail])
+    state = stats.get_state()
+    for num in vals[tail:]:
+        stats.push(num)
+    new_stats = Statistics()
+    new_stats.set_state(**state)
+    for num in vals[tail:]:
+        new_stats.push(num)
+    assert stats.mean() == new_stats.mean()
+    assert stats.variance() == new_stats.variance()
+    assert stats.minimum() == new_stats.minimum()
+    assert stats.maximum() == new_stats.maximum()
+    assert stats.kurtosis() == new_stats.kurtosis()
+    assert stats.skewness() == new_stats.skewness()
+
+
+def test_get_set_state_regression():
+    random.seed(0)
+    tail = -10
+    alpha, beta, rand = 5.0, 10.0, 20.0
+    points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
+              for xxx in range(count)]
+    regr = Regression()
+    for xxx, yyy in points[:tail]:
+        regr.push(xxx, yyy)
+
+    state = regr.get_state()
+    for xxx, yyy in points[tail:]:
+        regr.push(xxx, yyy)
+
+    new_regr = Regression()
+    new_regr.set_state(**state)
+    for xxx, yyy in points[tail:]:
+        new_regr.push(xxx, yyy)
+
+    assert regr.slope() == new_regr.slope()
+    assert regr.intercept() == new_regr.intercept()
+    assert regr.correlation() == new_regr.correlation()
+
 
 if __name__ == '__main__':
     import nose
