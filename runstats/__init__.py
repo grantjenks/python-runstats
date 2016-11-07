@@ -4,8 +4,10 @@
 
 try:
     from .fast import Statistics, Regression
+    __compiled__ = True
 except ImportError:
     from .core import Statistics, Regression
+    __compiled__ = False
 
 __title__ = 'runstats'
 __version__ = '1.0.0'
