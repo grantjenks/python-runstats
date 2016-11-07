@@ -5,7 +5,6 @@
 import random
 from runstats.core import Statistics, Regression
 
-random.seed(0)
 
 limit = 1e-2
 count = 1000
