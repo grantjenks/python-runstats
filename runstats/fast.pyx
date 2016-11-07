@@ -44,7 +44,6 @@ cdef class Statistics(object):
     def get_state(self):
         """ Get the internal state of this object
         """
-        # suppose this estimator has parameters "alpha" and "recursive"
         return {"count": self._count,
                 "eta": self._eta,
                 "rho": self._rho,
@@ -237,7 +236,6 @@ cdef class Regression(object):
     def get_state(self):
         """ Get the internal state of this object
         """
-        # suppose this estimator has parameters "alpha" and "recursive"
         return {"count": self._count,
                 "sxy": self._sxy,
                 "xstats": self._xstats.get_state(),
