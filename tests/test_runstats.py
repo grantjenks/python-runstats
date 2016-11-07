@@ -5,8 +5,6 @@
 import random
 from runstats import Statistics, Regression
 
-random.seed(0)
-
 limit = 1e-2
 count = 1000
 
@@ -45,6 +43,7 @@ def error(value, test):
 
 
 def test_statistics():
+    random.seed(0)
     alpha = [random.random() for _ in range(count)]
 
     alpha_stats = Statistics()
@@ -66,7 +65,7 @@ def test_statistics():
 
     alpha_stats = Statistics(alpha)
 
-    beta = [random.random() for val in range(count)]
+    beta = [random.random() for _ in range(count)]
 
     beta_stats = Statistics()
 
@@ -107,6 +106,7 @@ def correlation(values):
 
 
 def test_regression():
+    random.seed(21432141)
     alpha, beta, rand = 5.0, 10.0, 20.0
 
     points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
@@ -147,6 +147,7 @@ def test_regression():
 
 
 def test_get_set_state_statistics():
+    random.seed(0)
     tail = -10
     vals = [random.random() for _ in range(count)]
     stats = Statistics(vals[:tail])
@@ -166,6 +167,7 @@ def test_get_set_state_statistics():
 
 
 def test_get_set_state_regression():
+    random.seed(0)
     tail = -10
     alpha, beta, rand = 5.0, 10.0, 20.0
     points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
