@@ -106,8 +106,8 @@ def correlation(values):
 
 
 def test_regression():
-    random.seed(21432141)
-    alpha, beta, rand = 5.0, 10.0, 20.0
+    random.seed(0)
+    alpha, beta, rand = 5.0, 10.0, 1.0
 
     points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
               for xxx in range(count)]
