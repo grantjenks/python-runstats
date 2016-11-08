@@ -3,9 +3,14 @@
 """
 
 import copy
+import functools
 import pickle
 import random
-from runstats import Statistics, Regression
+
+from runstats import Statistics as FastStatistics
+from runstats import Regression as FastRegression
+from runstats.core import Statistics as CoreStatistics
+from runstats.core import Regression as CoreRegression
 
 limit = 1e-2
 count = 1000
@@ -44,7 +49,16 @@ def error(value, test):
     return abs((test - value) / value)
 
 
-def test_statistics():
+def wrap_core_fast(func):
+    @functools.wraps(func)
+    def wrapper():
+        func(FastStatistics, FastRegression)
+        func(CoreStatistics, CoreRegression)
+    return wrapper
+
+
+@wrap_core_fast
+def test_statistics(Statistics, Regression):
     random.seed(0)
     alpha = [random.random() for _ in range(count)]
 
@@ -98,7 +112,8 @@ def test_statistics():
     assert delta_stats.maximum() == max(alpha + beta)
 
 
-def test_add_statistics():
+@wrap_core_fast
+def test_add_statistics(Statistics, Regression):
     stats0 = Statistics()
     stats10 = Statistics(range(10))
     assert (stats0 + stats10) == stats10
@@ -114,7 +129,8 @@ def correlation(values):
     return (sigma_xy - sigma_x * sigma_y) / (((sigma_x2 - sigma_x ** 2) * (sigma_y2 - sigma_y ** 2)) ** 0.5)
 
 
-def test_regression():
+@wrap_core_fast
+def test_regression(Statistics, Regression):
     random.seed(0)
     alpha, beta, rand = 5.0, 10.0, 1.0
 
@@ -155,7 +171,8 @@ def test_regression():
     assert error(regr.correlation(), regr_copy.correlation()) < limit
 
 
-def test_get_set_state_statistics():
+@wrap_core_fast
+def test_get_set_state_statistics(Statistics, Regression):
     random.seed(0)
     tail = -10
     vals = [random.random() for _ in range(count)]
@@ -182,7 +199,8 @@ def test_get_set_state_statistics():
     assert stats == Statistics.fromstate(stats.get_state())
 
 
-def test_get_set_state_regression():
+@wrap_core_fast
+def test_get_set_state_regression(Statistics, Regression):
     random.seed(0)
     tail = -10
     alpha, beta, rand = 5.0, 10.0, 20.0
@@ -208,7 +226,8 @@ def test_get_set_state_regression():
     assert regr == Regression.fromstate(regr.get_state())
 
 
-def test_pickle_statistics():
+@wrap_core_fast
+def test_pickle_statistics(Statistics, Regression):
     stats = Statistics(range(10))
     for num in range(pickle.HIGHEST_PROTOCOL):
         pickled_stats = pickle.dumps(stats, protocol=num)
@@ -216,7 +235,8 @@ def test_pickle_statistics():
         assert stats == unpickled_stats, 'protocol: %s' % num
 
 
-def test_pickle_regression():
+@wrap_core_fast
+def test_pickle_regression(Statistics, Regression):
     regr = Regression(enumerate(range(10)))
     for num in range(pickle.HIGHEST_PROTOCOL):
         pickled_regr = pickle.dumps(regr, protocol=num)
@@ -224,7 +244,8 @@ def test_pickle_regression():
         assert regr == unpickled_regr, 'protocol: %s' % num
 
 
-def test_copy_statistics():
+@wrap_core_fast
+def test_copy_statistics(Statistics, Regression):
     stats = Statistics(range(10))
     copy_stats = copy.copy(stats)
     assert stats == copy_stats
@@ -232,7 +253,8 @@ def test_copy_statistics():
     assert stats == deepcopy_stats
 
 
-def test_copy_regression():
+@wrap_core_fast
+def test_copy_regression(Statistics, Regression):
     regr = Regression(enumerate(range(10)))
     copy_regr = copy.copy(regr)
     assert regr == copy_regr
@@ -240,7 +262,8 @@ def test_copy_regression():
     assert regr == deepcopy_regr
 
 
-def test_equality_statistics():
+@wrap_core_fast
+def test_equality_statistics(Statistics, Regression):
     stats1 = Statistics(range(10))
     stats2 = Statistics(range(10))
     assert stats1 == stats2
@@ -250,7 +273,8 @@ def test_equality_statistics():
     assert hash(stats1) != hash(stats2)
 
 
-def test_equality_regression():
+@wrap_core_fast
+def test_equality_regression(Statistics, Regression):
     regr1 = Regression(enumerate(range(10)))
     regr2 = Regression(enumerate(range(10)))
     assert regr1 == regr2
