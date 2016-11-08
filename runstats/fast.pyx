@@ -70,6 +70,7 @@ cdef class Statistics(object):
 
     @classmethod
     def fromstate(cls, state):
+        """Return Statistics object from state."""
         stats = cls()
         stats.set_state(state)
         return stats
@@ -77,7 +78,7 @@ cdef class Statistics(object):
     def __reduce__(self):
         return make_statistics, (self.get_state(),)
 
-    def copy(self, memo=None):
+    def copy(self, _=None):
         """Copy Statistics object."""
         return self.fromstate(self.get_state())
 
@@ -270,6 +271,7 @@ cdef class Regression(object):
 
     @classmethod
     def fromstate(cls, state):
+        """Return Regression object from state."""
         regr = cls()
         regr.set_state(state)
         return regr
@@ -277,7 +279,7 @@ cdef class Regression(object):
     def __reduce__(self):
         return make_regression, (self.get_state(),)
 
-    def copy(self, memo=None):
+    def copy(self, _=None):
         """Copy Regression object."""
         return self.fromstate(self.get_state())
 
