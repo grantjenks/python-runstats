@@ -62,17 +62,15 @@ class Statistics(object):
         stats.set_state(state)
         return stats
 
-    def copy(self):
+    def __reduce__(self):
+        return make_statistics, (self.get_state(),)
+
+    def copy(self, memo=None):
         """Copy Statistics object."""
-        that = Statistics()
-        that._count = self._count
-        that._min = self._min
-        that._max = self._max
-        that._eta = self._eta
-        that._rho = self._rho
-        that._tau = self._tau
-        that._phi = self._phi
-        return that
+        return self.fromstate(self.get_state())
+
+    __copy__ = copy
+    __deepcopy__ = copy
 
     def __len__(self):
         """Number of values that have been pushed."""
@@ -197,6 +195,9 @@ class Statistics(object):
 
         return self
 
+def make_statistics(state):
+    return Statistics.fromstate(state)
+
 
 class Regression(object):
     """
@@ -258,13 +259,15 @@ class Regression(object):
         regr.set_state(state)
         return regr
 
-    def copy(self):
+    def __reduce__(self):
+        return make_regression, (self.get_state(),)
+
+    def copy(self, memo=None):
         """Copy Regression object."""
-        that = Regression()
-        that._xstats = self._xstats.copy()
-        that._ystats = self._ystats.copy()
-        that._count, that._sxy = self._count, self._sxy
-        return that
+        return self.fromstate(self.get_state())
+
+    __copy__ = copy
+    __deepcopy__ = copy
 
     def __len__(self):
         """Number of values that have been pushed."""
@@ -321,3 +324,6 @@ class Regression(object):
         self._sxy = sum_sxy
 
         return self
+
+def make_regression(state):
+    return Regression.fromstate(state)
