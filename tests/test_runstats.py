@@ -3,6 +3,7 @@
 """
 
 import random
+import pickle
 from runstats import Statistics, Regression
 
 limit = 1e-2
@@ -188,6 +189,24 @@ def test_get_set_state_regression():
     assert regr.slope() == new_regr.slope()
     assert regr.intercept() == new_regr.intercept()
     assert regr.correlation() == new_regr.correlation()
+
+
+def test_pickle_statistics():
+    random.seed(0)
+    stats = Statistics(random.random() for _ in range(count))
+    pickled_stats = pickle.dumps(stats)
+    unpickled_stats = pickle.loads(pickled_stats)
+    assert unpickled_stats == stats
+
+
+def test_comparison():
+    random.seed(0)
+    vals = [random.random() for _ in range(count)]
+    stats1 = Statistics(vals)
+    stats2 = Statistics(vals)
+    assert stats1 == stats2
+    stats2.push(42)
+    assert stats1 != stats2
 
 
 if __name__ == '__main__':
