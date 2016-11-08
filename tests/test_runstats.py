@@ -3,7 +3,7 @@
 """
 
 import random
-from runstats import Statistics, Regression
+import runstats
 
 limit = 1e-2
 count = 1000
@@ -46,7 +46,7 @@ def test_statistics():
     random.seed(0)
     alpha = [random.random() for _ in range(count)]
 
-    alpha_stats = Statistics()
+    alpha_stats = runstats.Statistics()
     for val in alpha:
         alpha_stats.push(val)
 
@@ -63,11 +63,11 @@ def test_statistics():
 
     assert len(alpha_stats) == 0
 
-    alpha_stats = Statistics(alpha)
+    alpha_stats = runstats.Statistics(alpha)
 
     beta = [random.random() for _ in range(count)]
 
-    beta_stats = Statistics()
+    beta_stats = runstats.Statistics()
 
     for val in beta:
         beta_stats.push(val)
@@ -112,7 +112,7 @@ def test_regression():
     points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
               for xxx in range(count)]
 
-    regr = Regression()
+    regr = runstats.Regression()
 
     for xxx, yyy in points:
         regr.push(xxx, yyy)
@@ -129,7 +129,7 @@ def test_regression():
     for xxx, yyy in more_points:
         regr_copy.push(xxx, yyy)
 
-    regr_more = Regression(more_points)
+    regr_more = runstats.Regression(more_points)
 
     regr_sum = regr + regr_more
 
@@ -150,11 +150,11 @@ def test_get_set_state_statistics():
     random.seed(0)
     tail = -10
     vals = [random.random() for _ in range(count)]
-    stats = Statistics(vals[:tail])
+    stats = runstats.Statistics(vals[:tail])
     state = stats.get_state()
     for num in vals[tail:]:
         stats.push(num)
-    new_stats = Statistics()
+    new_stats = runstats.Statistics()
     new_stats.set_state(**state)
     for num in vals[tail:]:
         new_stats.push(num)
@@ -172,7 +172,7 @@ def test_get_set_state_regression():
     alpha, beta, rand = 5.0, 10.0, 20.0
     points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
               for xxx in range(count)]
-    regr = Regression()
+    regr = runstats.Regression()
     for xxx, yyy in points[:tail]:
         regr.push(xxx, yyy)
 
@@ -180,7 +180,7 @@ def test_get_set_state_regression():
     for xxx, yyy in points[tail:]:
         regr.push(xxx, yyy)
 
-    new_regr = Regression()
+    new_regr = runstats.Regression()
     new_regr.set_state(**state)
     for xxx, yyy in points[tail:]:
         new_regr.push(xxx, yyy)
