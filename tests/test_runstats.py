@@ -2,8 +2,9 @@
 
 """
 
-import random
+import copy
 import pickle
+import random
 from runstats import Statistics, Regression
 
 limit = 1e-2
@@ -97,6 +98,13 @@ def test_statistics():
     assert delta_stats.maximum() == max(alpha + beta)
 
 
+def test_add_statistics():
+    stats0 = Statistics()
+    stats10 = Statistics(range(10))
+    assert (stats0 + stats10) == stats10
+    assert (stats10 + stats0) == stats10
+
+
 def correlation(values):
     sigma_x = sum(xxx for xxx, yyy in values) / len(values)
     sigma_y = sum(yyy for xxx, yyy in values) / len(values)
@@ -151,20 +159,27 @@ def test_get_set_state_statistics():
     random.seed(0)
     tail = -10
     vals = [random.random() for _ in range(count)]
+
     stats = Statistics(vals[:tail])
     state = stats.get_state()
+
     for num in vals[tail:]:
         stats.push(num)
+
     new_stats = Statistics()
-    new_stats.set_state(**state)
+    new_stats.set_state(state)
+
     for num in vals[tail:]:
         new_stats.push(num)
+
     assert stats.mean() == new_stats.mean()
     assert stats.variance() == new_stats.variance()
     assert stats.minimum() == new_stats.minimum()
     assert stats.maximum() == new_stats.maximum()
     assert stats.kurtosis() == new_stats.kurtosis()
     assert stats.skewness() == new_stats.skewness()
+
+    assert stats == Statistics.fromstate(stats.get_state())
 
 
 def test_get_set_state_regression():
@@ -173,16 +188,16 @@ def test_get_set_state_regression():
     alpha, beta, rand = 5.0, 10.0, 20.0
     points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
               for xxx in range(count)]
-    regr = Regression()
-    for xxx, yyy in points[:tail]:
-        regr.push(xxx, yyy)
 
+    regr = Regression(points[:tail])
     state = regr.get_state()
+
     for xxx, yyy in points[tail:]:
         regr.push(xxx, yyy)
 
     new_regr = Regression()
-    new_regr.set_state(**state)
+    new_regr.set_state(state)
+
     for xxx, yyy in points[tail:]:
         new_regr.push(xxx, yyy)
 
@@ -190,23 +205,59 @@ def test_get_set_state_regression():
     assert regr.intercept() == new_regr.intercept()
     assert regr.correlation() == new_regr.correlation()
 
+    assert regr == Regression.fromstate(regr.get_state())
+
 
 def test_pickle_statistics():
-    random.seed(0)
-    stats = Statistics(random.random() for _ in range(count))
-    pickled_stats = pickle.dumps(stats)
-    unpickled_stats = pickle.loads(pickled_stats)
-    assert unpickled_stats == stats
+    stats = Statistics(range(10))
+    for num in range(pickle.HIGHEST_PROTOCOL):
+        pickled_stats = pickle.dumps(stats, protocol=num)
+        unpickled_stats = pickle.loads(pickled_stats)
+        assert stats == unpickled_stats, 'protocol: %s' % num
 
 
-def test_comparison():
-    random.seed(0)
-    vals = [random.random() for _ in range(count)]
-    stats1 = Statistics(vals)
-    stats2 = Statistics(vals)
+def test_pickle_regression():
+    regr = Regression(enumerate(range(10)))
+    for num in range(pickle.HIGHEST_PROTOCOL):
+        pickled_regr = pickle.dumps(regr, protocol=num)
+        unpickled_regr = pickle.loads(pickled_regr)
+        assert regr == unpickled_regr, 'protocol: %s' % num
+
+
+def test_copy_statistics():
+    stats = Statistics(range(10))
+    copy_stats = copy.copy(stats)
+    assert stats == copy_stats
+    deepcopy_stats = copy.deepcopy(stats)
+    assert stats == deepcopy_stats
+
+
+def test_copy_regression():
+    regr = Regression(enumerate(range(10)))
+    copy_regr = copy.copy(regr)
+    assert regr == copy_regr
+    deepcopy_regr = copy.deepcopy(regr)
+    assert regr == deepcopy_regr
+
+
+def test_equality_statistics():
+    stats1 = Statistics(range(10))
+    stats2 = Statistics(range(10))
     assert stats1 == stats2
+    assert hash(stats1) == hash(stats2)
     stats2.push(42)
     assert stats1 != stats2
+    assert hash(stats1) != hash(stats2)
+
+
+def test_equality_regression():
+    regr1 = Regression(enumerate(range(10)))
+    regr2 = Regression(enumerate(range(10)))
+    assert regr1 == regr2
+    assert hash(regr1) == hash(regr2)
+    regr2.push(42, 42)
+    assert regr1 != regr2
+    assert hash(regr1) != hash(regr2)
 
 
 if __name__ == '__main__':

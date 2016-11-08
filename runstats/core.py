@@ -33,31 +33,36 @@ class Statistics(object):
         self._count = self._eta = self._rho = self._tau = self._phi = 0.0
         self._min = self._max = float('nan')
 
-    def __eq__(self, other):
-        return self.get_state() == other.get_state()
+    def __eq__(self, that):
+        return self.get_state() == that.get_state()
+
+    def __ne__(self, that):
+        return self.get_state() != that.get_state()
+
+    def __hash__(self):
+        return hash(self.get_state())
 
     def get_state(self):
-        """Get the internal state of this object."""
-        return {"count": self._count,
-                "eta": self._eta,
-                "rho": self._rho,
-                "tau": self._tau,
-                "phi": self._phi,
-                "min": self._min,
-                "max": self._max}
+        """Get internal state."""
+        return (
+            self._count, self._eta, self._rho, self._tau, self._phi,
+            self._min, self._max
+        )
 
-    __getstate__ = get_state
+    def set_state(self, state):
+        """Set internal state."""
+        (
+            self._count, self._eta, self._rho, self._tau, self._phi,
+            self._min, self._max
+        ) = state
 
-    def set_state(self, **parameters):
-        """Set the internal state to the given parameters."""
-        for parameter, value in parameters.items():
-            setattr(self, "_" + parameter, value)
-        return self
+    @classmethod
+    def fromstate(cls, state):
+        stats = cls()
+        stats.set_state(state)
+        return stats
 
-    def __setstate__(self, state):
-        self.set_state(**state)
-
-    def __copy__(self):
+    def copy(self):
         """Copy Statistics object."""
         that = Statistics()
         that._count = self._count
@@ -68,8 +73,6 @@ class Statistics(object):
         that._tau = self._tau
         that._phi = self._phi
         return that
-
-    copy = __copy__
 
     def __len__(self):
         """Number of values that have been pushed."""
@@ -182,9 +185,7 @@ class Statistics(object):
         if self._count == 0.0:
             self._min = that._min
             self._max = that._max
-        elif that._count == 0.0:
-            pass  # self._min, self._max are unchanged.
-        else:
+        elif that._count != 0.0:
             self._min = min(self._min, that._min)
             self._max = max(self._max, that._max)
 
@@ -221,6 +222,15 @@ class Regression(object):
         for xcoord, ycoord in iterable:
             self.push(xcoord, ycoord)
 
+    def __eq__(self, that):
+        return self.get_state() == that.get_state()
+
+    def __ne__(self, that):
+        return self.get_state() != that.get_state()
+
+    def __hash__(self):
+        return hash(self.get_state())
+
     def clear(self):
         """Clear Regression object."""
         self._xstats.clear()
@@ -228,32 +238,33 @@ class Regression(object):
         self._count = self._sxy = 0.0
 
     def get_state(self):
-        """Get the internal state of this object."""
-        return {"count": self._count,
-                "sxy": self._sxy,
-                "xstats": self._xstats.get_state(),
-                "ystats": self._ystats.get_state()}
+        """Get internal state."""
+        return (
+            self._count, self._sxy, self._xstats.get_state(),
+            self._ystats.get_state()
+        )
 
-    def set_state(self, **parameters):
-        """Set the internal state to the given parameters."""
-        for parameter, value in parameters.items():
-            if parameter in ("xstats", "ystats"):
-                stats = Statistics()
-                stats.set_state(**value)
-                setattr(self, "_" + parameter, stats)
-            else:
-                setattr(self, "_" + parameter, value)
-        return self
+    def set_state(self, state):
+        """Set internal state."""
+        count, sxy, xstats, ystats = state
+        self._count = count
+        self._sxy = sxy
+        self._xstats.set_state(xstats)
+        self._ystats.set_state(ystats)
 
-    def __copy__(self):
+    @classmethod
+    def fromstate(cls, state):
+        regr = cls()
+        regr.set_state(state)
+        return regr
+
+    def copy(self):
         """Copy Regression object."""
         that = Regression()
         that._xstats = self._xstats.copy()
         that._ystats = self._ystats.copy()
         that._count, that._sxy = self._count, self._sxy
         return that
-
-    copy = __copy__
 
     def __len__(self):
         """Number of values that have been pushed."""
