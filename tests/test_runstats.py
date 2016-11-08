@@ -52,8 +52,8 @@ def error(value, test):
 def wrap_core_fast(func):
     @functools.wraps(func)
     def wrapper():
-        func(FastStatistics, FastRegression)
         func(CoreStatistics, CoreRegression)
+        func(FastStatistics, FastRegression)
     return wrapper
 
 
