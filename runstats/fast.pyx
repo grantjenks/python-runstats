@@ -41,6 +41,14 @@ cdef class Statistics(object):
         self._count = self._eta = self._rho = self._tau = self._phi = 0.0
         self._min = self._max = float('nan')
 
+    def __richcmp__(self, other, op):
+        if op == 2:
+           return self.get_state() == other.get_state()
+        elif op == 3:
+           return self.get_state() != other.get_state()
+        else:
+           raise NotImplementedError
+
     def get_state(self):
         """Get the internal state of this object."""
         return {"count": self._count,
@@ -51,11 +59,16 @@ cdef class Statistics(object):
                 "min": self._min,
                 "max": self._max}
 
+    __getstate__ = get_state
+
     def set_state(self, **parameters):
         """Set the internal state to the given parameters."""
         for parameter, value in parameters.items():
             setattr(self, "_" + parameter, value)
         return self
+
+    def __setstate__(self, state):
+        self.set_state(**state)
 
     def __copy__(self):
         """Copy Statistics object."""
