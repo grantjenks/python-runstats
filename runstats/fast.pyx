@@ -155,6 +155,8 @@ cdef class Statistics(object):
     def __iadd__(self, that):
         """Add another Statistics object to this one."""
         cdef double sum_count = self._count + that._count
+        if sum_count == 0:
+            return self
 
         cdef double delta = that._eta - self._eta
         cdef double delta2 = delta ** 2
@@ -324,9 +326,12 @@ cdef class Regression(object):
 
     def __iadd__(self, that):
         """Add another Regression object to this one."""
+        sum_count = self._count + that._count
+        if sum_count == 0:
+            return self
+
         sum_xstats = self._xstats + that._xstats
         sum_ystats = self._ystats + that._ystats
-        sum_count = self._count + that._count
 
         deltax = that._xstats.mean() - self._xstats.mean()
         deltay = that._ystats.mean() - self._ystats.mean()

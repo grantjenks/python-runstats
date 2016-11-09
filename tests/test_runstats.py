@@ -284,6 +284,22 @@ def test_equality_regression(Statistics, Regression):
     assert hash(regr1) != hash(regr2)
 
 
+@wrap_core_fast
+def test_sum_stats_count0(Statistics, Regression):
+    stats1 = Statistics()
+    stats2 = Statistics()
+    sumstats = stats1 + stats2
+    assert len(sumstats) == 0
+
+
+@wrap_core_fast
+def test_sum_regr_count0(Statistics, Regression):
+    regr1 = Regression()
+    regr2 = Regression()
+    sumregr = regr1 + regr2
+    assert len(sumregr) == 0
+
+
 if __name__ == '__main__':
     import nose
     nose.run()
