@@ -143,6 +143,8 @@ class Statistics(object):
     def __iadd__(self, that):
         """Add another Statistics object to this one."""
         sum_count = self._count + that._count
+        if sum_count == 0:
+            return self
 
         delta = that._eta - self._eta
         delta2 = delta ** 2
@@ -195,6 +197,7 @@ class Statistics(object):
         self._phi = sum_phi
 
         return self
+
 
 def make_statistics(state):
     """Make Statistics object from state."""
@@ -310,9 +313,12 @@ class Regression(object):
 
     def __iadd__(self, that):
         """Add another Regression object to this one."""
+        sum_count = self._count + that._count
+        if sum_count == 0:
+            return self
+
         sum_xstats = self._xstats + that._xstats
         sum_ystats = self._ystats + that._ystats
-        sum_count = self._count + that._count
 
         deltax = that._xstats.mean() - self._xstats.mean()
         deltay = that._ystats.mean() - self._ystats.mean()
@@ -327,6 +333,7 @@ class Regression(object):
         self._sxy = sum_sxy
 
         return self
+
 
 def make_regression(state):
     """Make Regression object from state."""
