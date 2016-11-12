@@ -10,8 +10,8 @@ except ImportError:
     __compiled__ = False
 
 __title__ = 'runstats'
-__version__ = '1.3.0'
-__build__ = 0x010300
+__version__ = '1.4.0'
+__build__ = 0x010400
 __author__ = 'Grant Jenks'
 __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2015-2016 Grant Jenks'
