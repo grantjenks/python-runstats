@@ -1,4 +1,5 @@
 *.py[co]
+*.c
 *.so
 
 # Python virtualenv directories
