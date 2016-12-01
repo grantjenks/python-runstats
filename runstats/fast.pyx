@@ -51,9 +51,6 @@ cdef class Statistics(object):
         else:
             return NotImplemented
 
-    def __hash__(self):
-        return hash(self.get_state())
-
     def get_state(self):
         """Get internal state."""
         return (
@@ -252,9 +249,6 @@ cdef class Regression(object):
             return self.get_state() != other.get_state()
         else:
             return NotImplemented
-
-    def __hash__(self):
-        return hash(self.get_state())
 
     def get_state(self):
         """Get internal state."""

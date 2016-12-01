@@ -39,9 +39,6 @@ class Statistics(object):
     def __ne__(self, that):
         return self.get_state() != that.get_state()
 
-    def __hash__(self):
-        return hash(self.get_state())
-
     def get_state(self):
         """Get internal state."""
         return (
@@ -233,9 +230,6 @@ class Regression(object):
 
     def __ne__(self, that):
         return self.get_state() != that.get_state()
-
-    def __hash__(self):
-        return hash(self.get_state())
 
     def clear(self):
         """Clear Regression object."""
