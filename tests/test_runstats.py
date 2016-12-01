@@ -267,10 +267,8 @@ def test_equality_statistics(Statistics, Regression):
     stats1 = Statistics(range(10))
     stats2 = Statistics(range(10))
     assert stats1 == stats2
-    assert hash(stats1) == hash(stats2)
     stats2.push(42)
     assert stats1 != stats2
-    assert hash(stats1) != hash(stats2)
 
 
 @wrap_core_fast
@@ -278,10 +276,8 @@ def test_equality_regression(Statistics, Regression):
     regr1 = Regression(enumerate(range(10)))
     regr2 = Regression(enumerate(range(10)))
     assert regr1 == regr2
-    assert hash(regr1) == hash(regr2)
     regr2.push(42, 42)
     assert regr1 != regr2
-    assert hash(regr1) != hash(regr2)
 
 
 @wrap_core_fast
