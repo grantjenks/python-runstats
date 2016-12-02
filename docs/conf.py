@@ -52,7 +52,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'RunStats'
-copyright = u'2015, Grant Jenks'
+copyright = u'2013-2016, Grant Jenks'
 author = u'Grant Jenks'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -125,8 +125,10 @@ html_theme_options = {
     'travis_button': True,
     'analytics_id': 'UA-19364636-2',
     'show_powered_by': False,
+    'show_related': True,
     'github_user': 'grantjenks',
     'github_repo': 'python-runstats',
+    'github_type': 'star',
 }
 
 # Add any paths that contain custom themes here, relative to this directory.

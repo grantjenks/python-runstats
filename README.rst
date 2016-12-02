@@ -1,8 +1,9 @@
 RunStats: Computing Statistics and Regression in One Pass
 =========================================================
 
-`RunStats <http://www.grantjenks.com/docs/runstats/>`_ is an Apache2 licensed
-Python module that computes statistics and regression in a single pass.
+`RunStats`_ is an Apache2 licensed Python module for online statistics and
+online regression. Statistics and regression summaries are computed in a single
+pass.
 
 Long running systems often generate numbers summarizing performance. It could
 be the latency of a response or the time between requests. It's often useful to
@@ -18,11 +19,11 @@ calculating the variance and other higher moments requires multiple passes over
 the data. With generators, this is not possible and so computing statistics in
 a single pass is necessary.
 
-The Python RunStats module was designed for these cases by providing a pair of
-classes for computing summary statistics and linear regression in a single
-pass. Summary objects work on series which may be larger than memory or disk
-space permit. They may also be efficiently combined together to create
-aggregate measures.
+The Python `RunStats`_ module was designed for these cases by providing a pair
+of classes for computing online summary statistics and online linear regression
+in a single pass. Summary objects work on sequences which may be larger than
+memory or disk space permit. They may also be efficiently combined together to
+create aggregate summaries.
 
 Features
 --------
@@ -31,18 +32,28 @@ Features
 - Fully Documented
 - 100% Test Coverage
 - Numerically Stable
+- Optional Cython-optimized Extension (20-40 times faster)
 - Statistics summary computes mean, variance, standard deviation, skewness,
   kurtosis, minimum and maximum.
 - Regression summary computes slope, intercept and correlation.
 - Developed on Python 2.7
 - Tested on CPython 2.6, 2.7, 3.2, 3.3, 3.4 and PyPy 2.5+, PyPy3 2.4+
+- Tested using Travis CI
+
+.. image:: https://api.travis-ci.org/grantjenks/python-runstats.svg?branch=master
+    :target: http://www.grantjenks.com/docs/runstats/
 
 Quickstart
 ----------
 
-Installing RunStats is simple with
-`pip <http://www.pip-installer.org/>`_::
+Installing `RunStats`_ is simple with `pip <http://www.pip-installer.org/>`_::
 
+  $ pip install runstats
+
+If you want the Cython-optimized version then first install `Cython
+<http://cython.org/>`_::
+
+  $ pip install cython
   $ pip install runstats
 
 You can access documentation in the interpreter with Python's built-in help
@@ -171,6 +182,20 @@ posted in a couple of articles:
 .. _`Computing Skewness and Kurtosis in One Pass`: http://www.johndcook.com/blog/skewness_kurtosis/
 .. _`Computing Linear Regression in One Pass`: http://www.johndcook.com/blog/running_regression/
 
+The pure-Python and Cython-optimized versions of `RunStats`_ are each directly
+available if preferred.
+
+  >>> from runstats.core import Statistics, Regression  # pure-Python
+  >>> from runstats.fast import Statistics, Regression  # Cython-optimized
+
+When importing from `runstats` the `fast` version is preferred and the `core`
+version is used as fallback. Micro-benchmarking :ref:`Statistics<Statistics>`
+and :ref:`Regression<Regression>` by calling `push` repeatedly shows the
+Cython-optimized extension as 20-40 times faster than the pure-Python
+extension.
+
+.. _`RunStats`: http://www.grantjenks.com/docs/runstats/
+
 Reference and Indices
 ---------------------
 
@@ -189,7 +214,7 @@ Reference and Indices
 License
 -------
 
-Copyright 2015 Grant Jenks
+Copyright 2013-2016 Grant Jenks
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
