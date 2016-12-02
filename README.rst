@@ -189,10 +189,9 @@ available if preferred.
   >>> from runstats.fast import Statistics, Regression  # Cython-optimized
 
 When importing from `runstats` the `fast` version is preferred and the `core`
-version is used as fallback. Micro-benchmarking :ref:`Statistics<Statistics>`
-and :ref:`Regression<Regression>` by calling `push` repeatedly shows the
-Cython-optimized extension as 20-40 times faster than the pure-Python
-extension.
+version is used as fallback. Micro-benchmarking Statistics and Regression by
+calling `push` repeatedly shows the Cython-optimized extension as 20-40 times
+faster than the pure-Python extension.
 
 .. _`RunStats`: http://www.grantjenks.com/docs/runstats/
 
