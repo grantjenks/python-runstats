@@ -6,8 +6,6 @@ Compute Statistics and Regression in a single pass.
 
 from __future__ import division
 
-from numbers import Number
-
 from .core import make_statistics, make_regression
 
 
@@ -221,7 +219,7 @@ cdef class Statistics(object):
 
     def __imul__(self, that):
         """Multiply a scalar with a Statistics object thereby changing the sample count"""
-        assert isinstance(that, Number), "Only multiply by a scalar number"
+        that = float(that)
         self._count *= that
         self._rho *= that
         self._tau *= that

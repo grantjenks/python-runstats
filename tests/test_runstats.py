@@ -318,7 +318,7 @@ def test_multiply(Statistics, Regression):
     assert stats5.mean() == stats1.mean()
 
 
-@raises(AssertionError)
+@raises(TypeError)
 @wrap_core_fast
 def test_raise_if_invalid_multiply(Statistics, Regression):
     stats1 = Statistics(range(10))
