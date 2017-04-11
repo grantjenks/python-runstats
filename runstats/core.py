@@ -6,6 +6,8 @@ Compute Statistics and Regression in a single pass.
 
 from __future__ import division
 
+from numbers import Number
+
 
 class Statistics(object):
     """Compute statistics in a single pass.
@@ -194,6 +196,23 @@ class Statistics(object):
         self._phi = sum_phi
 
         return self
+
+    def __mul__(self, that):
+        """Multiply a scalar with a Statistics object thereby changing the sample count"""
+        sigma = self.copy()
+        sigma *= that
+        return sigma
+
+    def __imul__(self, that):
+        """Multiply a scalar with a Statistics object thereby changing the sample count"""
+        assert isinstance(that, Number), "Only multiply by a scalar number"
+        self._count *= that
+        self._rho *= that
+        self._tau *= that
+        self._phi *= that
+        return self
+
+    __rmul__ = __mul__
 
 
 def make_statistics(state):
