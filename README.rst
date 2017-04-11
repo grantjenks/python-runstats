@@ -216,7 +216,7 @@ Reference and Indices
 License
 -------
 
-Copyright 2013-2016 Grant Jenks
+Copyright 2013-2017 Grant Jenks
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
