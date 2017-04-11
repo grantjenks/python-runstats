@@ -195,6 +195,23 @@ class Statistics(object):
 
         return self
 
+    def __mul__(self, that):
+        """Multiply a scalar with a Statistics object thereby changing the sample count"""
+        sigma = self.copy()
+        sigma *= that
+        return sigma
+
+    def __imul__(self, that):
+        """Multiply a scalar with a Statistics object thereby changing the sample count"""
+        that = float(that)
+        self._count *= that
+        self._rho *= that
+        self._tau *= that
+        self._phi *= that
+        return self
+
+    __rmul__ = __mul__
+
 
 def make_statistics(state):
     """Make Statistics object from state."""
