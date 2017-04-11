@@ -4,10 +4,11 @@
 
 import copy
 import functools
+import math
 import pickle
 import random
 
-from nose.tools import *
+from nose.tools import raises
 
 from runstats import Statistics as FastStatistics
 from runstats import Regression as FastRegression
@@ -302,20 +303,26 @@ def test_sum_regr_count0(Statistics, Regression):
 def test_multiply(Statistics, Regression):
     stats1 = Statistics(range(10))
     stats2 = Statistics(range(10)) * 2
-    assert len(stats2) == 2*len(stats1)
+    stats4 = 2 * stats2
+    assert len(stats2) == 2 * len(stats1)
+    assert len(stats4) == 2 * len(stats2)
     assert stats1.mean() == stats2.mean()
+    assert stats1.mean() == stats4.mean()
     assert stats1.minimum() == stats2.minimum()
-    assert stats2.maximum() == stats2.maximum()
+    assert stats1.maximum() == stats2.maximum()
+    assert stats1.minimum() == stats4.minimum()
+    assert stats1.maximum() == stats4.maximum()
     assert (stats1 + stats1).variance() == stats2.variance()
     assert (stats1 + stats1).kurtosis() == stats2.kurtosis()
     assert (stats1 + stats1).skewness() == stats2.skewness()
-    stats3 = 2*Statistics(range(10))
-    assert stats3 == stats2
-    stats4 = Statistics(range(10))
-    stats4 *= 2
-    assert stats4 == stats3
-    stats5 = 2.7182818284 * Statistics(range(10))
-    assert stats5.mean() == stats1.mean()
+    assert (stats2 + stats2).variance() == stats4.variance()
+    assert (stats2 + stats2).kurtosis() == stats4.kurtosis()
+    assert (stats2 + stats2).skewness() == stats4.skewness()
+    assert (2 * stats2) == stats4
+    stats1 *= 4
+    assert stats1 == stats4
+    stats5 = math.e * stats1
+    assert stats1.mean() == stats5.mean()
 
 
 @raises(TypeError)
@@ -323,7 +330,7 @@ def test_multiply(Statistics, Regression):
 def test_raise_if_invalid_multiply(Statistics, Regression):
     stats1 = Statistics(range(10))
     stats2 = Statistics(range(10)) * 2
-    _ = stats1 * stats2
+    stats1 * stats2
 
 
 if __name__ == '__main__':

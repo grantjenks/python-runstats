@@ -75,9 +75,10 @@ initialized without arguments::
   >>> stats = Statistics()
   >>> regr = Regression()
 
-:ref:`Statistics<Statistics>` objects support three methods for
+:ref:`Statistics<Statistics>` objects support four methods for
 modification. Use `push` to add values to the summary, `clear` to reset the
-summary, and sum to combine Statistics summaries::
+summary, sum to combine Statistics summaries and multiply to weight a
+Statistics summary by a scalar::
 
   >>> for num in range(10):
   ...     stats.push(num)
@@ -92,6 +93,9 @@ summary, and sum to combine Statistics summaries::
   8.68421052631579
   >>> len(stats)
   20
+  >>> stats *= 2
+  >>> len(stats)
+  40
   >>> stats.clear()
   >>> len(stats)
   0
@@ -135,8 +139,8 @@ standard deviation, skewness and kurtosis::
 
 All internal calculations use Python's `float` type.
 
-Like Statistics, the Regression type supports three methods for modification:
-`push`, `clear` and sum::
+Similar to Statistics, the Regression type supports three methods for
+modification: `push`, `clear` and sum::
 
   >>> regr.clear()
   >>> len(regr)

@@ -208,17 +208,15 @@ cdef class Statistics(object):
         return self
 
     def __mul__(self, that):
-        """Multiply a scalar with a Statistics object thereby changing the sample count"""
-        if isinstance(self, Statistics):
-            sigma = self.copy()
-            sigma *= that
-        else:
-            sigma = that.copy()
-            sigma *= self
+        """Multiply by a scalar to change Statistics weighting."""
+        if not isinstance(self, Statistics):
+            self, that = that, self
+        sigma = self.copy()
+        sigma *= that
         return sigma
 
     def __imul__(self, that):
-        """Multiply a scalar with a Statistics object thereby changing the sample count"""
+        """Multiply by a scalar to change Statistics weighting in-place."""
         that = float(that)
         self._count *= that
         self._rho *= that
