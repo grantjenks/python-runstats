@@ -23,13 +23,13 @@ def mean(values):
     return sum(values) / len(values)
 
 
-def variance(values):
+def variance(values, ddof=1.0):
     temp = mean(values)
-    return sum((value - temp) ** 2 for value in values) / len(values)
+    return sum((value - temp) ** 2 for value in values) / (len(values) - ddof)
 
 
-def stddev(values):
-    return variance(values) ** 0.5
+def stddev(values, ddof=1.0):
+    return variance(values, ddof) ** 0.5
 
 
 def skewness(values):
@@ -71,8 +71,10 @@ def test_statistics(Statistics, Regression):
 
     assert len(alpha_stats) == count
     assert error(mean(alpha), alpha_stats.mean()) < limit
-    assert error(variance(alpha), alpha_stats.variance()) < limit
-    assert error(stddev(alpha), alpha_stats.stddev()) < limit
+    assert error(variance(alpha, 1.0), alpha_stats.variance(1.0)) < limit
+    assert error(variance(alpha, 0.0), alpha_stats.variance(0.0)) < limit
+    assert error(stddev(alpha, 1.0), alpha_stats.stddev(1.0)) < limit
+    assert error(stddev(alpha, 0.0), alpha_stats.stddev(0.0)) < limit
     assert error(skewness(alpha), alpha_stats.skewness()) < limit
     assert error(kurtosis(alpha), alpha_stats.kurtosis()) < limit
     assert alpha_stats.minimum() == min(alpha)
@@ -95,8 +97,10 @@ def test_statistics(Statistics, Regression):
 
     assert len(beta_stats) != len(gamma_stats)
     assert error(mean(alpha + beta), gamma_stats.mean()) < limit
-    assert error(variance(alpha + beta), gamma_stats.variance()) < limit
-    assert error(stddev(alpha + beta), gamma_stats.stddev()) < limit
+    assert error(variance(alpha + beta, 1.0), gamma_stats.variance(1.0)) < limit
+    assert error(variance(alpha + beta, 0.0), gamma_stats.variance(0.0)) < limit
+    assert error(stddev(alpha + beta, 1.0), gamma_stats.stddev(1.0)) < limit
+    assert error(stddev(alpha + beta, 0.0), gamma_stats.stddev(0.0)) < limit
     assert error(skewness(alpha + beta), gamma_stats.skewness()) < limit
     assert error(kurtosis(alpha + beta), gamma_stats.kurtosis()) < limit
     assert gamma_stats.minimum() == min(alpha + beta)
@@ -107,8 +111,10 @@ def test_statistics(Statistics, Regression):
 
     assert len(beta_stats) != len(delta_stats)
     assert error(mean(alpha + beta), delta_stats.mean()) < limit
-    assert error(variance(alpha + beta), delta_stats.variance()) < limit
-    assert error(stddev(alpha + beta), delta_stats.stddev()) < limit
+    assert error(variance(alpha + beta, 1.0), delta_stats.variance(1.0)) < limit
+    assert error(variance(alpha + beta, 0.0), delta_stats.variance(0.0)) < limit
+    assert error(stddev(alpha + beta, 1.0), delta_stats.stddev(1.0)) < limit
+    assert error(stddev(alpha + beta, 0.0), delta_stats.stddev(0.0)) < limit
     assert error(skewness(alpha + beta), delta_stats.skewness()) < limit
     assert error(kurtosis(alpha + beta), delta_stats.kurtosis()) < limit
     assert delta_stats.minimum() == min(alpha + beta)

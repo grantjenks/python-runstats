@@ -115,13 +115,13 @@ class Statistics(object):
         """Mean of values."""
         return self._eta
 
-    def variance(self):
-        """Variance of values."""
-        return self._rho / (self._count - 1.0)
+    def variance(self, ddof=0.0):
+        """Variance of values (with `ddof` degrees of freedom)."""
+        return self._rho / (self._count - ddof)
 
-    def stddev(self):
-        """Standard deviation of values."""
-        return self.variance() ** 0.5
+    def stddev(self, ddof=0.0):
+        """Standard deviation of values (with `ddof` degrees of freedom)."""
+        return self.variance(ddof) ** 0.5
 
     def skewness(self):
         """Skewness of values."""
@@ -304,7 +304,7 @@ class Regression(object):
 
     def slope(self):
         """Slope of values."""
-        sxx = self._xstats.variance() * (self._count - 1)
+        sxx = self._xstats.variance(ddof=1.0) * (self._count - 1)
         return self._sxy / sxx
 
     def intercept(self):
