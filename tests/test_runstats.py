@@ -23,12 +23,12 @@ def mean(values):
     return sum(values) / len(values)
 
 
-def variance(values, ddof=1.0):
+def variance(values, ddof=0.0):
     temp = mean(values)
     return sum((value - temp) ** 2 for value in values) / (len(values) - ddof)
 
 
-def stddev(values, ddof=1.0):
+def stddev(values, ddof=0.0):
     return variance(values, ddof) ** 0.5
 
 
@@ -71,10 +71,10 @@ def test_statistics(Statistics, Regression):
 
     assert len(alpha_stats) == count
     assert error(mean(alpha), alpha_stats.mean()) < limit
-    assert error(variance(alpha, 1.0), alpha_stats.variance(1.0)) < limit
     assert error(variance(alpha, 0.0), alpha_stats.variance(0.0)) < limit
-    assert error(stddev(alpha, 1.0), alpha_stats.stddev(1.0)) < limit
+    assert error(variance(alpha, 1.0), alpha_stats.variance(1.0)) < limit
     assert error(stddev(alpha, 0.0), alpha_stats.stddev(0.0)) < limit
+    assert error(stddev(alpha, 1.0), alpha_stats.stddev(1.0)) < limit
     assert error(skewness(alpha), alpha_stats.skewness()) < limit
     assert error(kurtosis(alpha), alpha_stats.kurtosis()) < limit
     assert alpha_stats.minimum() == min(alpha)

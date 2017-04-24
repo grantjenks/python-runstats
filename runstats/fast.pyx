@@ -127,11 +127,11 @@ cdef class Statistics(object):
         """Mean of values."""
         return self._eta
 
-    cpdef variance(self, ddof=1.0):
+    cpdef variance(self, ddof=0.0):
         """Variance of values (with `ddof` degrees of freedom)."""
         return self._rho / (self._count - ddof)
 
-    cpdef stddev(self, ddof=1.0):
+    cpdef stddev(self, ddof=0.0):
         """Standard deviation of values (with `ddof` degrees of freedom)."""
         return self.variance(ddof) ** 0.5
 
@@ -317,7 +317,7 @@ cdef class Regression(object):
 
     cpdef slope(self):
         """Slope of values."""
-        sxx = self._xstats.variance() * (self._count - 1)
+        sxx = self._xstats.variance(ddof=1.0) * (self._count - 1)
         return self._sxy / sxx
 
     cpdef intercept(self):
