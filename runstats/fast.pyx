@@ -127,13 +127,13 @@ cdef class Statistics(object):
         """Mean of values."""
         return self._eta
 
-    cpdef variance(self):
-        """Variance of values."""
-        return self._rho / (self._count - 1.0)
+    cpdef variance(self, ddof=1.0):
+        """Variance of values (with `ddof` degrees of freedom)."""
+        return self._rho / (self._count - ddof)
 
-    cpdef stddev(self):
-        """Standard deviation of values."""
-        return self.variance() ** 0.5
+    cpdef stddev(self, ddof=1.0):
+        """Standard deviation of values (with `ddof` degrees of freedom)."""
+        return self.variance(ddof) ** 0.5
 
     cpdef skewness(self):
         """Skewness of values."""
