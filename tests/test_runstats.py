@@ -151,9 +151,9 @@ def test_regression(Statistics, Regression):
     for xxx, yyy in points:
         regr.push(xxx, yyy)
 
-    assert error(alpha, regr.slope()) < limit
-    assert error(beta, regr.intercept()) < limit
-    assert error(correlation(points), regr.correlation()) < limit
+    assert error(alpha, regr.slope(ddof=1.0)) < limit
+    assert error(beta, regr.intercept(ddof=1.0)) < limit
+    assert error(correlation(points), regr.correlation(ddof=1.0)) < limit
 
     regr_copy = regr.copy()
 
@@ -168,16 +168,16 @@ def test_regression(Statistics, Regression):
     regr_sum = regr + regr_more
 
     assert len(regr_copy) == len(regr_sum) == (2 * count)
-    assert error(regr_copy.slope(), regr_sum.slope()) < limit
-    assert error(regr_copy.intercept(), regr_sum.intercept()) < limit
-    assert error(regr_copy.correlation(), regr_sum.correlation()) < limit
+    assert error(regr_copy.slope(ddof=1.0), regr_sum.slope(ddof=1.0)) < limit
+    assert error(regr_copy.intercept(ddof=1.0), regr_sum.intercept(ddof=1.0)) < limit
+    assert error(regr_copy.correlation(ddof=1.0), regr_sum.correlation(ddof=1.0)) < limit
 
     regr += regr_more
 
     assert len(regr) == len(regr_copy) == (2 * count)
-    assert error(regr.slope(), regr_copy.slope()) < limit
-    assert error(regr.intercept(), regr_copy.intercept()) < limit
-    assert error(regr.correlation(), regr_copy.correlation()) < limit
+    assert error(regr.slope(ddof=1.0), regr_copy.slope(ddof=1.0)) < limit
+    assert error(regr.intercept(ddof=1.0), regr_copy.intercept(ddof=1.0)) < limit
+    assert error(regr.correlation(ddof=1.0), regr_copy.correlation(ddof=1.0)) < limit
 
 
 @wrap_core_fast
@@ -228,9 +228,9 @@ def test_get_set_state_regression(Statistics, Regression):
     for xxx, yyy in points[tail:]:
         new_regr.push(xxx, yyy)
 
-    assert regr.slope() == new_regr.slope()
-    assert regr.intercept() == new_regr.intercept()
-    assert regr.correlation() == new_regr.correlation()
+    assert regr.slope(ddof=1.0) == new_regr.slope(ddof=1.0)
+    assert regr.intercept(ddof=1.0) == new_regr.intercept(ddof=1.0)
+    assert regr.correlation(ddof=1.0) == new_regr.correlation(ddof=1.0)
 
     assert regr == Regression.fromstate(regr.get_state())
 
