@@ -302,19 +302,19 @@ class Regression(object):
         self._ystats.push(ycoord)
         self._count += 1
 
-    def slope(self):
+    def slope(self, ddof=0.0):
         """Slope of values."""
-        sxx = self._xstats.variance(ddof=1.0) * (self._count - 1)
+        sxx = self._xstats.variance(ddof) * (self._count - ddof)
         return self._sxy / sxx
 
-    def intercept(self):
+    def intercept(self, ddof=0.0):
         """Intercept of values."""
-        return self._ystats.mean() - self.slope() * self._xstats.mean()
+        return self._ystats.mean() - self.slope(ddof) * self._xstats.mean()
 
-    def correlation(self):
+    def correlation(self, ddof=0.0):
         """Correlation of values."""
-        term = self._xstats.stddev() * self._ystats.stddev()
-        return self._sxy / ((self._count - 1) * term)
+        term = self._xstats.stddev(ddof) * self._ystats.stddev(ddof)
+        return self._sxy / ((self._count - ddof) * term)
 
     def __add__(self, that):
         """Add two Regression objects together."""
