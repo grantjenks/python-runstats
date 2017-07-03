@@ -23,12 +23,12 @@ def mean(values):
     return sum(values) / len(values)
 
 
-def variance(values, ddof=0.0):
+def variance(values, ddof=1.0):
     temp = mean(values)
     return sum((value - temp) ** 2 for value in values) / (len(values) - ddof)
 
 
-def stddev(values, ddof=0.0):
+def stddev(values, ddof=1.0):
     return variance(values, ddof) ** 0.5
 
 

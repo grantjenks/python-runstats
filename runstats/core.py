@@ -115,11 +115,11 @@ class Statistics(object):
         """Mean of values."""
         return self._eta
 
-    def variance(self, ddof=0.0):
+    def variance(self, ddof=1.0):
         """Variance of values (with `ddof` degrees of freedom)."""
         return self._rho / (self._count - ddof)
 
-    def stddev(self, ddof=0.0):
+    def stddev(self, ddof=1.0):
         """Standard deviation of values (with `ddof` degrees of freedom)."""
         return self.variance(ddof) ** 0.5
 
@@ -302,19 +302,19 @@ class Regression(object):
         self._ystats.push(ycoord)
         self._count += 1
 
-    def slope(self):
-        """Slope of values."""
-        sxx = self._xstats.variance(ddof=1.0) * (self._count - 1)
+    def slope(self, ddof=1.0):
+        """Slope of values (with `ddof` degrees of freedom)."""
+        sxx = self._xstats.variance(ddof) * (self._count - ddof)
         return self._sxy / sxx
 
-    def intercept(self):
-        """Intercept of values."""
-        return self._ystats.mean() - self.slope() * self._xstats.mean()
+    def intercept(self, ddof=1.0):
+        """Intercept of values (with `ddof` degrees of freedom)."""
+        return self._ystats.mean() - self.slope(ddof) * self._xstats.mean()
 
-    def correlation(self):
-        """Correlation of values."""
-        term = self._xstats.stddev() * self._ystats.stddev()
-        return self._sxy / ((self._count - 1) * term)
+    def correlation(self, ddof=1.0):
+        """Correlation of values (with `ddof` degrees of freedom)."""
+        term = self._xstats.stddev(ddof) * self._ystats.stddev(ddof)
+        return self._sxy / ((self._count - ddof) * term)
 
     def __add__(self, that):
         """Add two Regression objects together."""
