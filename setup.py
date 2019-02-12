@@ -1,3 +1,11 @@
+"""Package Setup for RunStats
+
+Build binary extension in-place for testing with:
+
+$ python setup.py build_ext --inplace
+
+"""
+
 from setuptools import Extension, setup
 from setuptools.command.test import test as TestCommand
 
