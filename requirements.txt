@@ -1,4 +1,11 @@
-Cython==0.25.1
-Sphinx==1.4.8
-coverage==4.2
-nose==1.3.7
+coverage
+cython
+doc8
+gj
+pylint
+pytest
+pytest-cov
+sphinx
+tox
+twine
+wheel

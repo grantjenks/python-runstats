@@ -1,12 +1,17 @@
-RunStats API Reference
-======================
+.. automodule:: runstats
 
-.. _Statistics:
+
+Statistics
+..........
+
 .. autoclass:: runstats.Statistics
    :members:
    :special-members:
 
-.. _Regression:
+
+Regression
+..........
+
 .. autoclass:: runstats.Regression
    :members:
    :special-members:

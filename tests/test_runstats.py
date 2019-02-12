@@ -6,9 +6,8 @@ import copy
 import functools
 import math
 import pickle
+import pytest
 import random
-
-from nose.tools import raises
 
 from runstats import Statistics as FastStatistics
 from runstats import Regression as FastRegression
@@ -331,14 +330,9 @@ def test_multiply(Statistics, Regression):
     assert stats1.mean() == stats5.mean()
 
 
-@raises(TypeError)
 @wrap_core_fast
 def test_raise_if_invalid_multiply(Statistics, Regression):
     stats1 = Statistics(range(10))
     stats2 = Statistics(range(10)) * 2
-    stats1 * stats2
-
-
-if __name__ == '__main__':
-    import nose
-    nose.run()
+    with pytest.raises(TypeError):
+        stats1 * stats2

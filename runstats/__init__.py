@@ -1,4 +1,6 @@
-"""Python RunStats - Online Statistics and Regression
+"""
+Python RunStats - Online Statistics and Regression
+==================================================
 
 """
 
