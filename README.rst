@@ -60,7 +60,7 @@ If you want the Cython-optimized version then first install `Cython
   $ pip install runstats
 
 You can access documentation in the interpreter with Python's built-in help
-function::
+function:
 
 .. code-block:: python
 
@@ -73,7 +73,7 @@ Tutorial
 
 The Python `RunStats`_ module provides two types for computing running
 Statistics and Regression. The Regression object leverages Statistics
-internally for its calculations. Each can be initialized without arguments::
+internally for its calculations. Each can be initialized without arguments:
 
 .. code-block:: python
 
@@ -83,7 +83,7 @@ internally for its calculations. Each can be initialized without arguments::
 
 Statistics objects support four methods for modification. Use `push` to add
 values to the summary, `clear` to reset the summary, sum to combine Statistics
-summaries and multiply to weight a Statistics summary by a scalar.
+summaries and multiply to weight summary Statistics by a scalar.
 
 .. code-block:: python
 
@@ -112,7 +112,7 @@ summaries and multiply to weight a Statistics summary by a scalar.
 Use the Python built-in `len` for the number of pushed values. Unfortunately
 the Python `min` and `max` built-ins may not be used for the minimum and
 maximum as sequences are instead expected. There are instead `minimum` and
-`maximum` methods which are provided for that purpose::
+`maximum` methods which are provided for that purpose:
 
 .. code-block:: python
 
@@ -124,7 +124,7 @@ maximum as sequences are instead expected. There are instead `minimum` and
    1000
    >>> min(stats)
    Traceback (most recent call last):
-   File "<stdin>", line 1, in <module>
+       ...
    TypeError: iteration over non-sequence
    >>> stats.minimum()
    0.00024069652516689466
@@ -132,7 +132,7 @@ maximum as sequences are instead expected. There are instead `minimum` and
    0.9996851255769114
 
 Statistics summaries provide five measures of a series: mean, variance,
-standard deviation, skewness and kurtosis::
+standard deviation, skewness and kurtosis:
 
 .. code-block:: python
 
@@ -151,7 +151,7 @@ standard deviation, skewness and kurtosis::
 All internal calculations use Python's `float` type.
 
 Like Statistics, the Regression type supports some methods for modification:
-`push`, `clear` and sum::
+`push`, `clear` and sum:
 
 .. code-block:: python
 
@@ -177,7 +177,7 @@ Like Statistics, the Regression type supports some methods for modification:
 
 Regression summaries provide three measures of a series of pairs: slope,
 intercept and correlation. Note that, as a regression, the points need not
-exactly lie on a line::
+exactly lie on a line:
 
 .. code-block:: python
 
