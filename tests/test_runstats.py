@@ -51,15 +51,10 @@ def error(value, test):
     return abs((test - value) / value)
 
 
-def wrap_core_fast(func):
-    @functools.wraps(func)
-    def wrapper():
-        func(CoreStatistics, CoreRegression)
-        func(FastStatistics, FastRegression)
-    return wrapper
-
-
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_statistics(Statistics, Regression):
     random.seed(0)
     alpha = [random.random() for _ in range(count)]
@@ -120,7 +115,10 @@ def test_statistics(Statistics, Regression):
     assert delta_stats.maximum() == max(alpha + beta)
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_add_statistics(Statistics, Regression):
     stats0 = Statistics()
     stats10 = Statistics(range(10))
@@ -137,7 +135,10 @@ def correlation(values):
     return (sigma_xy - sigma_x * sigma_y) / (((sigma_x2 - sigma_x ** 2) * (sigma_y2 - sigma_y ** 2)) ** 0.5)
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_regression(Statistics, Regression):
     random.seed(0)
     alpha, beta, rand = 5.0, 10.0, 1.0
@@ -179,7 +180,10 @@ def test_regression(Statistics, Regression):
     assert error(regr.correlation(), regr_copy.correlation()) < limit
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_get_set_state_statistics(Statistics, Regression):
     random.seed(0)
     tail = -10
@@ -207,7 +211,10 @@ def test_get_set_state_statistics(Statistics, Regression):
     assert stats == Statistics.fromstate(stats.get_state())
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_get_set_state_regression(Statistics, Regression):
     random.seed(0)
     tail = -10
@@ -234,7 +241,10 @@ def test_get_set_state_regression(Statistics, Regression):
     assert regr == Regression.fromstate(regr.get_state())
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_pickle_statistics(Statistics, Regression):
     stats = Statistics(range(10))
     for num in range(pickle.HIGHEST_PROTOCOL):
@@ -243,7 +253,10 @@ def test_pickle_statistics(Statistics, Regression):
         assert stats == unpickled_stats, 'protocol: %s' % num
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_pickle_regression(Statistics, Regression):
     regr = Regression(enumerate(range(10)))
     for num in range(pickle.HIGHEST_PROTOCOL):
@@ -252,7 +265,10 @@ def test_pickle_regression(Statistics, Regression):
         assert regr == unpickled_regr, 'protocol: %s' % num
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_copy_statistics(Statistics, Regression):
     stats = Statistics(range(10))
     copy_stats = copy.copy(stats)
@@ -261,7 +277,10 @@ def test_copy_statistics(Statistics, Regression):
     assert stats == deepcopy_stats
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_copy_regression(Statistics, Regression):
     regr = Regression(enumerate(range(10)))
     copy_regr = copy.copy(regr)
@@ -270,7 +289,10 @@ def test_copy_regression(Statistics, Regression):
     assert regr == deepcopy_regr
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_equality_statistics(Statistics, Regression):
     stats1 = Statistics(range(10))
     stats2 = Statistics(range(10))
@@ -279,7 +301,10 @@ def test_equality_statistics(Statistics, Regression):
     assert stats1 != stats2
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_equality_regression(Statistics, Regression):
     regr1 = Regression(enumerate(range(10)))
     regr2 = Regression(enumerate(range(10)))
@@ -288,7 +313,10 @@ def test_equality_regression(Statistics, Regression):
     assert regr1 != regr2
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_sum_stats_count0(Statistics, Regression):
     stats1 = Statistics()
     stats2 = Statistics()
@@ -296,7 +324,10 @@ def test_sum_stats_count0(Statistics, Regression):
     assert len(sumstats) == 0
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_sum_regr_count0(Statistics, Regression):
     regr1 = Regression()
     regr2 = Regression()
@@ -304,7 +335,10 @@ def test_sum_regr_count0(Statistics, Regression):
     assert len(sumregr) == 0
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_multiply(Statistics, Regression):
     stats1 = Statistics(range(10))
     stats2 = Statistics(range(10)) * 2
@@ -330,7 +364,10 @@ def test_multiply(Statistics, Regression):
     assert stats1.mean() == stats5.mean()
 
 
-@wrap_core_fast
+@pytest.mark.parametrize('Statistics,Regression', [
+    (CoreStatistics, CoreRegression),
+    (FastStatistics, FastRegression),
+])
 def test_raise_if_invalid_multiply(Statistics, Regression):
     stats1 = Statistics(range(10))
     stats2 = Statistics(range(10)) * 2
