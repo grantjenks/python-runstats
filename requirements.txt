@@ -5,6 +5,7 @@ gj
 pylint
 pytest
 pytest-cov
+rstcheck
 sphinx
 tox
 twine
