@@ -37,8 +37,11 @@ Features
   kurtosis, minimum and maximum.
 - Regression summary computes slope, intercept and correlation.
 - Developed on Python 3.7
-- Tested on CPython 2.7, 3.4, 3.5, 3.6, 3.7 and PyPy, PyPy3
+- Tested on CPython 2.7, 3.5, 3.6, 3.7, 3.8 and PyPy, PyPy3
 - Tested using Travis CI
+
+.. image:: https://github.com/grantjenks/python-runstats/workflows/Python%20package/badge.svg
+   :target: http://www.grantjenks.com/docs/runstats/
 
 .. image:: https://api.travis-ci.org/grantjenks/python-runstats.svg?branch=master
    :target: http://www.grantjenks.com/docs/runstats/
