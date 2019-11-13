@@ -42,15 +42,25 @@ class Statistics(object):
     def get_state(self):
         """Get internal state."""
         return (
-            self._count, self._eta, self._rho, self._tau, self._phi,
-            self._min, self._max
+            self._count,
+            self._eta,
+            self._rho,
+            self._tau,
+            self._phi,
+            self._min,
+            self._max,
         )
 
     def set_state(self, state):
         """Set internal state."""
         (
-            self._count, self._eta, self._rho, self._tau, self._phi,
-            self._min, self._max
+            self._count,
+            self._eta,
+            self._rho,
+            self._tau,
+            self._phi,
+            self._min,
+            self._max,
         ) = state
 
     @classmethod
