@@ -40,7 +40,7 @@ Features
 - Tested on CPython 2.7, 3.5, 3.6, 3.7, 3.8 and PyPy, PyPy3
 - Tested using Travis CI
 
-.. image:: https://github.com/grantjenks/python-runstats/workflows/Python%20package/badge.svg
+.. image:: https://github.com/grantjenks/python-runstats/workflows/integration/badge.svg
    :target: http://www.grantjenks.com/docs/runstats/
 
 .. image:: https://api.travis-ci.org/grantjenks/python-runstats.svg?branch=master
