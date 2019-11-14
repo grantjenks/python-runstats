@@ -28,7 +28,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         architecture: x64
-    - name: Install Cython
-      run: pip install cython
+    - name: Install Dependencies
+      run: pip install cython wheel
     - name: Build Binary Wheel
       run: python setup.py bdist_wheel
