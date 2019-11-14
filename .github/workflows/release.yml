@@ -47,47 +47,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - run: mkdir stage
+    - name: Create dist directory
+      run: |
+        mkdir dist
 
     - name: Stage ubuntu-latest 2.7
       uses: actions/download-artifact@v1
       with:
         name: dist-ubuntu-latest-2.7
     - run: |
-        mv dist/* stage/
-        rm -r dist
+        mv dist-ubuntu-latest-2.7/* dist/
 
     - name: Stage ubuntu-latest 3.5
       uses: actions/download-artifact@v1
       with:
         name: dist-ubuntu-latest-3.5
     - run: |
-        mv dist/* stage/
-        rm -r dist
+        mv dist-ubuntu-latest-3.5/* dist/
 
     - name: Stage ubuntu-latest 3.6
       uses: actions/download-artifact@v1
       with:
         name: dist-ubuntu-latest-3.6
     - run: |
-        mv dist/* stage/
-        rm -r dist
+        mv dist-ubuntu-latest-3.6/* dist/
 
     - name: Stage ubuntu-latest 3.7
       uses: actions/download-artifact@v1
       with:
         name: dist-ubuntu-latest-3.7
     - run: |
-        mv dist/* stage/
-        rm -r dist
+        mv dist-ubuntu-latest-3.7/* dist/
 
     - name: Stage ubuntu-latest 3.8
       uses: actions/download-artifact@v1
       with:
         name: dist-ubuntu-latest-3.8
     - run: |
-        mv dist/* stage/
-        rm -r dist
+        mv dist-ubuntu-latest-3.8/* dist/
 
     - name: Upload using twine
       run: |
