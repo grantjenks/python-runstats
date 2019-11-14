@@ -89,5 +89,4 @@ jobs:
     - name: Upload using twine
       run: |
         pip install twine
-        mv stage dist
         ls dist
