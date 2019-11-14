@@ -22,7 +22,7 @@ jobs:
         architecture: x64
 
     - name: Download VC 9.0
-      run: curl -OL https://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi
+      run: curl -O http://www.grantjenks.com/VCForPython27.msi
 
     - name: Install VC 9.0
       run: msiexec /i VCForPython27.msi ALLUSERS=1
@@ -56,7 +56,7 @@ jobs:
         architecture: x64
 
     - name: Download VS Build Tools
-      run: curl -OL https://aka.ms/vs/16/release/vs_buildtools.exe
+      run: curl -O http://www.grantjenks.com/vs_buildtools.exe
 
     - name: Install VS Build Tools
       run: vs_buildtools.exe
