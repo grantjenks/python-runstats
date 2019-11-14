@@ -1,3 +1,5 @@
+] disabled for testing
+
 # TODO: "release" should only execute when a new version is tagged!
 # TODO: Can this be combined with the "integration" action? Maybe using the "if:" job syntax?
 # TODO: Support x86 Python builds.
