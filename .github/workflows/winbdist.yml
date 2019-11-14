@@ -26,6 +26,7 @@ jobs:
 
     - name: Install VC 9.0
       run: msiexec /i VCForPython27.msi ALLUSERS=1
+      shell: bash
 
     - name: Install dependencies
       run: |
@@ -59,7 +60,8 @@ jobs:
       run: curl -O http://www.grantjenks.com/vs_buildtools.exe
 
     - name: Install VS Build Tools
-      run: vs_buildtools.exe
+      run: ./vs_buildtools.exe
+      shell: bash
 
     - name: Install dependencies
       run: |
