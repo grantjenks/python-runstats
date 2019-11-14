@@ -1,5 +1,9 @@
+# TODO: "release" should only execute when a new version is tagged!
 # TODO: Can this be combined with the "integration" action? Maybe using the "if:" job syntax?
 # TODO: Support x86 Python builds.
+# TODO: Support Windows builds.
+# - Must install:
+#   https://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi
 
 name: release
 
@@ -17,8 +21,8 @@ jobs:
     strategy:
       max-parallel: 8
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
+        os: [ubuntu-latest, macos-latest]
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8]]
 
     steps:
     - uses: actions/checkout@master
