@@ -1,5 +1,4 @@
 # TODO: Support x86 Python builds.
-# TODO: Support Python 3.5, 3.6, 3.7, 3.8 using VC 14.2
 
 name: release
 
@@ -10,7 +9,7 @@ on:
 
 jobs:
 
-  build27:
+  build-27-x64:
     runs-on: windows-latest
 
     steps:
@@ -33,6 +32,7 @@ jobs:
         pip install --upgrade setuptools
         pip install --upgrade cython
         pip install --upgrade wheel
+      shell: bash {0}
 
     - name: Build Binary Wheel
       run: python setup.py bdist_wheel
@@ -41,4 +41,38 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: dist-windows-latest-27-x64
+        path: dist
+
+  build-38-x64:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Set up Python 3.8 x64
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+        architecture: x64
+
+    - name: Download VS Build Tools
+      run: curl -O https://aka.ms/vs/16/release/vs_buildtools.exe
+
+    - name: Install VS Build Tools
+      run: vs_buildtools.exe
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade setuptools
+        pip install --upgrade cython
+        pip install --upgrade wheel
+      shell: bash {0}
+
+    - name: Build Binary Wheel
+      run: python setup.py bdist_wheel
+
+    - name: Archive Dist Artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: dist-windows-latest-38-x64
         path: dist
