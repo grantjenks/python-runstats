@@ -1,4 +1,5 @@
-# Can this be combined with the "integration" action? Maybe using the "if:" job syntax?
+# TODO: Can this be combined with the "integration" action? Maybe using the "if:" job syntax?
+# TODO: Support x86 Python builds.
 
 name: release
 
@@ -21,16 +22,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
-
-    - name: Setup Python ${{ matrix.python-version }} x86
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-        architecture: x86
-    - name: Install Cython
-      run: pip install cython
-    - name: Build Binary Wheel
-      run: python setup.py bdist_wheel
 
     - name: Setup Python ${{ matrix.python-version }} x64
       uses: actions/setup-python@v1
