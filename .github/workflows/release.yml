@@ -32,3 +32,61 @@ jobs:
       run: pip install cython wheel
     - name: Build Binary Wheel
       run: python setup.py bdist_wheel
+    - name: Archive Dist Artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: dist-${{ matrix.os }}-${{ matrix.python-version }}
+        path: dist
+
+  upload:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - run: mkdir stage
+
+    - name: Stage ubuntu-latest 2.7
+      uses: actions/download-artifact@v1
+      with:
+        name: dist-ubuntu-latest-2.7
+    - run: |
+        mv dist/* stage/
+        rm -r dist
+
+    - name: Stage ubuntu-latest 3.5
+      uses: actions/download-artifact@v1
+      with:
+        name: dist-ubuntu-latest-3.5
+    - run: |
+        mv dist/* stage/
+        rm -r dist
+
+    - name: Stage ubuntu-latest 3.6
+      uses: actions/download-artifact@v1
+      with:
+        name: dist-ubuntu-latest-3.6
+    - run: |
+        mv dist/* stage/
+        rm -r dist
+
+    - name: Stage ubuntu-latest 3.7
+      uses: actions/download-artifact@v1
+      with:
+        name: dist-ubuntu-latest-3.7
+    - run: |
+        mv dist/* stage/
+        rm -r dist
+
+    - name: Stage ubuntu-latest 3.8
+      uses: actions/download-artifact@v1
+      with:
+        name: dist-ubuntu-latest-3.8
+    - run: |
+        mv dist/* stage/
+        rm -r dist
+
+    - name: Upload using twine
+      run: |
+        pip install twine
+        mv stage dist
+        ls dist
