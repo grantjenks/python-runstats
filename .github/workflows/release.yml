@@ -26,10 +26,7 @@ jobs:
 
     - name: Run vs_buildtools.exe install
       if: matrix.os == 'windows-latest'
-      run: >
-        ./vs_buildtools.exe --quiet --wait --norestart --nocache --includeRecommended
-          --add Microsoft.VisualStudio.Workload.VCTools
-          --add Microsoft.VisualStudio.Component.VC.140
+      run: ./vs_buildtools.exe --quiet --wait --norestart --nocache --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.VC.140 --includeRecommended
 
     - name: Set up Python ${{ matrix.python-version }} x64
       uses: actions/setup-python@v1
