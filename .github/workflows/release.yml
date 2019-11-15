@@ -15,7 +15,7 @@ jobs:
       max-parallel: 12
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@master
@@ -66,12 +66,6 @@ jobs:
     - name: Create source dist
       run: python setup.py sdist
 
-    - name: Stage windows-latest 3.5
-      uses: actions/download-artifact@v1
-      with:
-        name: dist-windows-latest-3.5
-    - run: mv dist-windows-latest-3.5/* dist/
-
     - name: Stage windows-latest 3.6
       uses: actions/download-artifact@v1
       with:
@@ -90,12 +84,6 @@ jobs:
         name: dist-windows-latest-3.8
     - run: mv dist-windows-latest-3.8/* dist/
 
-    - name: Stage ubuntu-latest 3.5
-      uses: actions/download-artifact@v1
-      with:
-        name: dist-ubuntu-latest-3.5
-    - run: mv dist-ubuntu-latest-3.5/* dist/
-
     - name: Stage ubuntu-latest 3.6
       uses: actions/download-artifact@v1
       with:
@@ -113,12 +101,6 @@ jobs:
       with:
         name: dist-ubuntu-latest-3.8
     - run: mv dist-ubuntu-latest-3.8/* dist/
-
-    - name: Stage macos-latest 3.5
-      uses: actions/download-artifact@v1
-      with:
-        name: dist-macos-latest-3.5
-    - run: mv dist-macos-latest-3.5/* dist/
 
     - name: Stage macos-latest 3.6
       uses: actions/download-artifact@v1
