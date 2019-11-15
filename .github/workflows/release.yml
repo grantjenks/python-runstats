@@ -70,73 +70,55 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: dist-windows-latest-3.6
-    - run: |
-        mv dist-windows-latest-3.6/* dist/
-        ls -al dist
+    - run: mv -v dist-windows-latest-3.6/* dist/
 
     - name: Stage windows-latest 3.7
       uses: actions/download-artifact@v1
       with:
         name: dist-windows-latest-3.7
-    - run: |
-        mv dist-windows-latest-3.7/* dist/
-        ls -al dist
+    - run: mv -v dist-windows-latest-3.7/* dist/
 
     - name: Stage windows-latest 3.8
       uses: actions/download-artifact@v1
       with:
         name: dist-windows-latest-3.8
-    - run: |
-        mv dist-windows-latest-3.8/* dist/
-        ls -al dist
+    - run: mv -v dist-windows-latest-3.8/* dist/
 
     - name: Stage ubuntu-latest 3.6
       uses: actions/download-artifact@v1
       with:
         name: dist-ubuntu-latest-3.6
-    - run: |
-        mv dist-ubuntu-latest-3.6/* dist/
-        ls -al dist
+    - run: mv -v dist-ubuntu-latest-3.6/* dist/
 
     - name: Stage ubuntu-latest 3.7
       uses: actions/download-artifact@v1
       with:
         name: dist-ubuntu-latest-3.7
-    - run: |
-        mv dist-ubuntu-latest-3.7/* dist/
-        ls -al dist
+    - run: mv -v dist-ubuntu-latest-3.7/* dist/
 
     - name: Stage ubuntu-latest 3.8
       uses: actions/download-artifact@v1
       with:
         name: dist-ubuntu-latest-3.8
-    - run: |
-        mv dist-ubuntu-latest-3.8/* dist/
-        ls -al dist
+    - run: mv -v dist-ubuntu-latest-3.8/* dist/
 
     - name: Stage macos-latest 3.6
       uses: actions/download-artifact@v1
       with:
         name: dist-macos-latest-3.6
-    - run: |
-        mv dist-macos-latest-3.6/* dist/
-        ls -al dist
+    - run: mv -v dist-macos-latest-3.6/* dist/
 
     - name: Stage macos-latest 3.7
       uses: actions/download-artifact@v1
       with:
         name: dist-macos-latest-3.7
-    - run: |
-        mv dist-macos-latest-3.7/* dist/
-        ls -al dist
+    - run: mv -v dist-macos-latest-3.7/* dist/
 
     - name: Stage macos-latest 3.8
       uses: actions/download-artifact@v1
       with:
         name: dist-macos-latest-3.8
-    - run: |
-        mv dist-macos-latest-3.8/* dist/
-        ls -al dist
+    - run: mv -v dist-macos-latest-3.8/* dist/
 
     - name: Upload using twine
       run: |
