@@ -1,3 +1,5 @@
+# TODO: Use docker hub
+
 name: winbdist
 
 on:
@@ -20,7 +22,7 @@ jobs:
       run: Invoke-WebRequest -Uri https://aka.ms/vs/16/release/vs_buildtools.exe -OutFile vs_buildtools.exe
 
     - name: Run vs_buildtools.exe install
-      run: vs_buildtools.exe --quiet --wait --norestart --nocache --channelUri VisualStudio.chman --installChannelUri VisualStudio.chman --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.VC.140 --includeRecommended
+      run: ./vs_buildtools.exe --quiet --wait --norestart --nocache --channelUri VisualStudio.chman --installChannelUri VisualStudio.chman --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.VC.140 --includeRecommended
 
     - name: Set up Python 3.8 x64
       uses: actions/setup-python@v1
