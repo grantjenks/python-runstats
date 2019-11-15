@@ -1,5 +1,3 @@
-# TODO: Support x86 Python builds.
-
 name: winbdist
 
 on:
@@ -9,59 +7,26 @@ on:
 
 jobs:
 
-  build-27-x64:
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@master
-
-    - name: Set up Python 2.7 x64
-      uses: actions/setup-python@v1
-      with:
-        python-version: 2.7
-        architecture: x64
-
-    - name: Download VC 9.0
-      run: curl -O http://www.grantjenks.com/VCForPython27.msi
-
-    - name: Install VC 9.0
-      run: msiexec /i VCForPython27.msi ALLUSERS=1
-      shell: bash
-
-    - name: Install dependencies
-      run: |
-        pip install --upgrade setuptools
-        pip install --upgrade cython
-        pip install --upgrade wheel
-      shell: bash {0}
-
-    - name: Build Binary Wheel
-      run: python setup.py bdist_wheel
-
-    - name: Archive Dist Artifacts
-      uses: actions/upload-artifact@v1
-      with:
-        name: dist-windows-latest-27-x64
-        path: dist
-
   build-38-x64:
     runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@master
 
+    - name: Download channel for fixed installed
+      run: Invoke-WebRequest -Uri https://aka.ms/vs/16/release/channel -OutFile VisualStudio.chman
+
+    - name: Download Build Tools for Visual Studio 2019
+      run: Invoke-WebRequest -Uri https://aka.ms/vs/16/release/vs_buildtools.exe -OutFile vs_buildtools.exe
+
+    - name: Run vs_buildtools.exe install
+      run: vs_buildtools.exe --quiet --wait --norestart --nocache --channelUri VisualStudio.chman --installChannelUri VisualStudio.chman --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.VC.140 --includeRecommended
+
     - name: Set up Python 3.8 x64
       uses: actions/setup-python@v1
       with:
         python-version: 3.8
         architecture: x64
-
-    - name: Download VS Build Tools
-      run: curl -O http://www.grantjenks.com/vs_buildtools.exe
-
-    - name: Install VS Build Tools
-      run: ./vs_buildtools.exe
-      shell: bash
 
     - name: Install dependencies
       run: |

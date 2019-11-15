@@ -1,11 +1,8 @@
 ] disabled for testing
 
-# TODO: "release" should only execute when a new version is tagged!
 # TODO: Can this be combined with the "integration" action? Maybe using the "if:" job syntax?
-# TODO: Support x86 Python builds.
-# TODO: Support Windows builds.
-# - Must install:
-#   https://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi
+#       Only release if integration passes!
+# TODO: Use caching layer instead of artifacts layer!
 
 name: release
 
