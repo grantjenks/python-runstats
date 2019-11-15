@@ -38,9 +38,7 @@ jobs:
       run: pip install cython wheel
 
     - name: Build binary wheel
-      run: |
-        python setup.py bdist_wheel
-        ls -al dist
+      run: python setup.py bdist_wheel
 
     - name: Archive dist artifacts
       uses: actions/upload-artifact@v1
