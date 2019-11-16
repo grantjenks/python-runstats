@@ -26,7 +26,7 @@ jobs:
 
     - name: Run vs_buildtools.exe install
       if: matrix.os == 'windows-latest'
-      run: ./vs_buildtools.exe --quiet --wait --norestart --nocache --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows10SDK.18362 --includeRecommended
+      run: ./vs_buildtools.exe --quiet --wait --norestart --nocache --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.VC.v141.x86.x64 --add Microsoft.VisualStudio.Component.VC.140 --includeRecommended
 
     - name: Set up Python ${{ matrix.python-version }} x64
       uses: actions/setup-python@v1
