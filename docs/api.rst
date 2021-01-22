@@ -15,3 +15,10 @@ Regression
 .. autoclass:: runstats.Regression
    :members:
    :special-members:
+
+ExponentialStatistics
+..........
+
+.. autoclass:: runstats.ExponentialStatistics
+   :members:
+   :special-members:

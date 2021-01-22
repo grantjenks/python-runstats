@@ -44,6 +44,38 @@ def main():
 
     speedup_stats = core_stats / fast_stats - 1
 
+    core_exp_stats = timeit.repeat(
+        setup="""
+    from __main__ import values
+    from runstats.core import ExponentialStatistics
+    exp_stats = ExponentialStatistics()
+        """,
+        stmt="""
+    for value in values:
+        exp_stats.push(value)
+    exp_stats.mean()
+        """,
+        number=1,
+        repeat=7,
+    )[2]
+
+    fast_exp_stats = timeit.repeat(
+        setup="""
+    from __main__ import values
+    from runstats.fast import ExponentialStatistics
+    exp_stats = ExponentialStatistics()
+        """,
+        stmt="""
+    for value in values:
+        exp_stats.push(value)
+    exp_stats.mean()
+        """,
+        number=1,
+        repeat=7,
+    )[2]
+
+    speedup_exp_stats = core_exp_stats / fast_exp_stats - 1
+
     core_regr = timeit.repeat(
         setup="""
     from __main__ import pairs
@@ -79,6 +111,10 @@ def main():
     print('core.Statistics:', core_stats)
     print('fast.Statistics:', fast_stats)
     print('  Stats Speedup: %.2fx faster' % speedup_stats)
+
+    print('core.ExponentialStatistics:', core_exp_stats)
+    print('fast.ExponentialStatistics:', fast_exp_stats)
+    print('  ExpStats Speedup: %.2fx faster' % speedup_exp_stats)
 
     print('core.Regression:', core_regr)
     print('fast.Regression:', fast_regr)
