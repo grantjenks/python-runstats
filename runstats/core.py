@@ -228,6 +228,104 @@ def make_statistics(state):
     return Statistics.fromstate(state)
 
 
+class ExponentialStatistics:
+    """Compute exponential mean and variance in a single pass.
+
+    Statistics objects may also be copied.
+
+     Based on
+     "Finch, 2009, Incremental Calculation of Weighted Mean and Variance" at
+     https://nanopdf.com/download/incremental-calculation-of-weighted-mean-and-variance_pdf
+    """
+
+    def __init__(self, decay, initial_mean=0.0, iterable=()):
+        self._check_weight(decay)
+
+        self._mean = float(initial_mean)
+        self._variance = self._count = 0.0
+        self._decay = decay
+
+        for value in iterable:
+            self.push(value)
+
+    def clear(self, new_mean=0.0, new_decay=None):
+        self._mean = float(new_mean)
+        self._variance = self._count = 0.0
+
+        if new_decay is not None:
+            self._decay = float(new_decay)
+
+    def change_decay(self, new_decay):
+        self._check_weight(new_decay)
+        self._decay = new_decay
+
+    def __eq__(self, that):
+        return self.get_state() == that.get_state()
+
+    def __ne__(self, that):
+        return self.get_state() != that.get_state()
+
+    def get_state(self):
+        return self._mean, self._variance, self._decay, self._count
+
+    def set_state(self, state):
+        (
+            self._mean,
+            self._variance,
+            self._decay,
+            self._count
+        ) = state
+
+    @classmethod
+    def fromstate(cls, state):
+        """Return Statistics object from state."""
+        stats = cls()
+        stats.set_state(state)
+        return stats
+
+    def __reduce__(self):
+        return make_exponential_statistics, (self.get_state(),)
+
+    def copy(self, _=None):
+        """Copy Statistics object."""
+        return self.fromstate(self.get_state())
+
+    __copy__ = copy
+    __deepcopy__ = copy
+
+    def __len__(self):
+        """Number of values that have been pushed."""
+        return int(self._count)
+
+    def push(self, value):
+        value = float(value)
+
+        alpha = (1.0 - self._decay)
+        diff = (value - self._mean)
+        incr = alpha * diff
+        self._variance += alpha * (self._decay * diff ** 2 - self._variance)
+        self._mean += incr
+
+    def mean(self):
+        return self._mean
+
+    def variance(self):
+        return self._variance
+
+    def stddev(self):
+        return self.variance() ** 0.5
+
+    @staticmethod
+    def _check_weight(decay):
+        if decay >= 1 | decay <= 0:
+            raise ValueError("decay must be strictly greater 0 "
+                             "and strictly smaller 1")
+
+
+def make_exponential_statistics(state):
+    return ExponentialStatistics.fromstate(state)
+
+
 class Regression(object):
     """
     Compute simple linear regression in a single pass.
