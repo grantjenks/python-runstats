@@ -237,7 +237,7 @@ cdef class Statistics(object):
 cdef class ExponentialStatistics(object):
     """Compute exponential mean and variance in a single pass.
 
-    Statistics objects may also be copied.
+    ExponentialStatistics objects may also be copied.
 
      Based on
      "Finch, 2009, Incremental Calculation of Weighted Mean and Variance" at
@@ -319,7 +319,7 @@ cdef class ExponentialStatistics(object):
     @classmethod
     def fromstate(cls, state):
         """Return ExponentialStatistics object from state."""
-        stats = cls(None)
+        stats = cls(0.0001)
         stats.set_state(state)
         return stats
 

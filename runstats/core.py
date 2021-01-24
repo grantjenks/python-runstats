@@ -231,7 +231,7 @@ def make_statistics(state):
 class ExponentialStatistics:
     """Compute exponential mean and variance in a single pass.
 
-    Statistics objects may also be copied.
+    ExponentialStatistics objects may also be copied.
 
      Based on
      "Finch, 2009, Incremental Calculation of Weighted Mean and Variance" at

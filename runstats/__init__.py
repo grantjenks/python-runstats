@@ -5,10 +5,10 @@ Python RunStats - Online Statistics and Regression
 """
 
 try:
-    from .fast import Statistics, Regression
+    from .fast import Statistics, Regression, ExponentialStatistics
     __compiled__ = True
 except ImportError:
-    from .core import Statistics, Regression
+    from .core import Statistics, Regression, ExponentialStatistics
     __compiled__ = False
 
 __title__ = 'runstats'
