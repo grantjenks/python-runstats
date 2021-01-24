@@ -280,7 +280,7 @@ cdef class ExponentialStatistics(object):
         for value in iterable:
             self.push(value)
 
-    cpdef clear(self, double new_mean=0.0, double new_var=0.0, new_decay=None) except -1:
+    cpdef clear(self, double new_mean=0.0, double new_var=0.0, new_decay=None):
         """Clear ExponentialStatistics object."""
         self._mean = new_mean
         self._variance = new_var
