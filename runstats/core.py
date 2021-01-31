@@ -271,10 +271,10 @@ class ExponentialStatistics:
         for value in iterable:
             self.push(value)
 
-    def clear(self, new_mean=0.0, new_var=0.0, new_decay=None):
+    def clear(self, new_mean=0.0, new_variance=0.0, new_decay=None):
         """Clear ExponentialStatistics object."""
         self._mean = float(new_mean)
-        self._variance = float(new_var)
+        self._variance = float(new_variance)
 
         if new_decay is not None:
             new_decay = float(new_decay)
@@ -308,7 +308,7 @@ class ExponentialStatistics:
     @classmethod
     def fromstate(cls, state):
         """Return ExponentialStatistics object from state."""
-        stats = cls(None)
+        stats = cls(0.9)
         stats.set_state(state)
         return stats
 
@@ -362,6 +362,8 @@ class ExponentialStatistics:
         sigma = self.copy()
         sigma *= that
         return sigma
+
+    __rmul__ = __mul__
 
     def __imul__(self, that):
         """Multiply by a scalar in (0,1) to change ExponentialStatistics

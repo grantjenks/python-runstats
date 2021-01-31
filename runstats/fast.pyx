@@ -280,10 +280,10 @@ cdef class ExponentialStatistics(object):
         for value in iterable:
             self.push(value)
 
-    cpdef clear(self, double new_mean=0.0, double new_var=0.0, new_decay=None):
+    cpdef clear(self, double new_mean=0.0, double new_variance=0.0, new_decay=None):
         """Clear ExponentialStatistics object."""
         self._mean = new_mean
-        self._variance = new_var
+        self._variance = new_variance
 
         if new_decay is not None:
             new_decay = float(new_decay)
@@ -319,7 +319,7 @@ cdef class ExponentialStatistics(object):
     @classmethod
     def fromstate(cls, state):
         """Return ExponentialStatistics object from state."""
-        stats = cls(0.0001)
+        stats = cls(0.9)
         stats.set_state(state)
         return stats
 
