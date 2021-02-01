@@ -312,17 +312,20 @@ def test_get_set_state_statistics(Statistics, Regression):
 def test_get_set_state_exponential_statistics(ExponentialStatistics):
     random.seed(0)
     vals = [random.random() for _ in range(count)]
-    exp_stats = ExponentialStatistics(0.9, iterable=vals)
+    exp_stats = ExponentialStatistics(iterable=vals)
     exp_state = exp_stats.get_state()
 
-    new_exp_stats = ExponentialStatistics(0.9)
+    new_exp_stats = ExponentialStatistics(0.8)
     assert exp_stats != new_exp_stats
+    assert new_exp_stats.get_decay() == 0.8
     new_exp_stats.set_state(exp_state)
+    assert new_exp_stats.get_decay() == 0.9
     assert exp_stats == new_exp_stats
     new_exp_stats.change_decay(0.1)
     assert exp_stats != new_exp_stats
     assert exp_stats.mean() == new_exp_stats.mean()
     assert exp_stats.variance() == new_exp_stats.variance()
+    assert new_exp_stats.get_decay() == 0.1
 
     assert exp_stats == ExponentialStatistics.fromstate(exp_stats.get_state())
 

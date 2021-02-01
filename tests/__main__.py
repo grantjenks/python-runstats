@@ -3,8 +3,10 @@ from __future__ import print_function
 import sys
 
 from runstats import Statistics as FastStatistics
+from runstats import ExponentialStatistics as FastExponentialStatistics
 from runstats import Regression as FastRegression
 from runstats.core import Statistics as CoreStatistics
+from runstats.core import ExponentialStatistics as CoreExponentialStatistics
 from runstats.core import Regression as CoreRegression
 
 from .test_runstats import mean, variance, stddev, skewness, kurtosis
@@ -47,6 +49,30 @@ def main():
     print('StdDev:', core_stats.stddev())
     print('Skewness:', core_stats.skewness())
     print('Kurtosis:', core_stats.kurtosis())
+
+    fast_exp_stats = FastExponentialStatistics()
+
+    for arg in args:
+        fast_exp_stats.push(arg)
+
+    print()
+    print('FastExponentialStatistics')
+    print('Decay Rate (default):', fast_exp_stats.get_decay())
+    print('Exponential Mean:', fast_exp_stats.mean())
+    print('Exponential Variance:', fast_exp_stats.variance())
+    print('Exponential StdDev:', fast_exp_stats.stddev())
+
+    core_exp_stats = CoreExponentialStatistics()
+
+    for arg in args:
+        core_exp_stats.push(arg)
+
+    print()
+    print('CoreExponentialStatistics')
+    print('Decay Rate (default):', core_exp_stats.get_decay())
+    print('Exponential Mean:', core_exp_stats.mean())
+    print('Exponential Variance:', core_exp_stats.variance())
+    print('Exponential StdDev:', core_exp_stats.stddev())
 
     fast_regr = FastRegression()
 

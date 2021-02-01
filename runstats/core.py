@@ -243,7 +243,7 @@ class ExponentialStatistics:
 
     def __init__(
             self,
-            decay,
+            decay=0.9,
             initial_mean=0.0,
             initial_variance=0.0,
             iterable=()
@@ -280,6 +280,10 @@ class ExponentialStatistics:
             new_decay = float(new_decay)
             self._check_weight(new_decay)
             self._decay = new_decay
+
+    def get_decay(self):
+        """Get decay rate of ExponentialStatistics object."""
+        return self._decay
 
     def change_decay(self, new_decay):
         """Change decay rate of ExponentialStatistics object."""
