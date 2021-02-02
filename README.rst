@@ -74,22 +74,25 @@ function:
 
 .. code-block:: python
 
-   >>> from runstats import Statistics, Regression
+   >>> from runstats import Statistics, Regression, ExponentialStatistics
    >>> help(Statistics)
    >>> help(Regression)
+   >>> help(ExponentialStatistics)
 
 Tutorial
 --------
 
-The Python `RunStats`_ module provides two types for computing running
-Statistics and Regression. The Regression object leverages Statistics
-internally for its calculations. Each can be initialized without arguments:
+The Python `RunStats`_ module provides three types for computing running
+statistics: Statistics, ExponentialStatistics and Regression.The Regression
+object leverages Statistics internally for its calculations. Each can be
+initialized without arguments:
 
 .. code-block:: python
 
-   >>> from runstats import Statistics, Regression
+   >>> from runstats import Statistics, Regression, ExponentialStatistics
    >>> stats = Statistics()
    >>> regr = Regression()
+   >>> exp_stats = ExponentialStatistics()
 
 Statistics objects support four methods for modification. Use `push` to add
 values to the summary, `clear` to reset the summary, sum to combine Statistics
@@ -121,8 +124,8 @@ summaries and multiply to weight summary Statistics by a scalar.
 
 Use the Python built-in `len` for the number of pushed values. Unfortunately
 the Python `min` and `max` built-ins may not be used for the minimum and
-maximum as sequences are instead expected. There are instead `minimum` and
-`maximum` methods which are provided for that purpose:
+maximum as sequences are expected instead. Therefore, there are `minimum` and
+`maximum` methods provided for that purpose:
 
 .. code-block:: python
 
@@ -202,6 +205,57 @@ exactly lie on a line:
 Both constructors accept an optional iterable that is consumed and pushed into
 the summary. Note that you may pass a generator as an iterable and the
 generator will be entirely consumed.
+
+Last but not least, ExponentialStatistics are constructed by providing: a decay
+rate that is strictly larger than 0.0 and strictly smaller than 1.0
+(default: 0.9), a initial mean and a initial variance (default: 0.0) as well as
+an iterable as with the other two objects. The decay rate is the weight by which
+the current statistics are discounted by and (1.0 - decay) is the weight of the
+new value on the new statistics. The class has five methods of modification:
+`push()`, `clear()`, sum and multiply as the Statistics class has and
+`change_decay()` to modify the current decay rate in-place.
+The clear method allows to optionally set a new mean, new variance and new
+decay. If none are provided mean and variance reset to 0, while the decay is not
+changed. If two ExponentialStatistics are being added the decay of the left
+hand side is the decay of the new object.
+The statistics supported are `mean()`, `variance()` and `stddev()`.
+The `len()` method is not supported.
+
+TODO############################# Compute results, check if everything is in there
+.. code-block:: python
+
+   >>> exp_stats = ExponentialStatistics(decay=0.5, initial_mean=0.0, initial_variance=0.0, iterable=[5])
+   >>> exp_stats.mean()
+   4.0
+   >>> exp_stats.variance()
+   15.33333333333333
+   >>> exp_stats.stddev()
+   3.915780041490243
+   >>> exp_stats.push(10)
+   >>> exp_stats.mean()
+   0.0
+   >>> exp_stats.change_decay(0.9)
+   >>> exp.stats.get_decay()
+   0.9
+   >>> exp_stats.push(100)
+   >>> exp_stats.mean()
+   0.0
+   >>> exp_stats.clear(new_mean=10.0, new_variance=2.0)
+   >>> new_exp_stats = ExponentialStatistics(decay=0.8, iterable=range(100))
+   >>> new_exp_stats.mean()
+   0.0
+   # Multiply and add are perfect for exponentially weighting two 'batches'
+   >>> final_exp_stats = 0.5 * exp_stats + 0.5 * new_exp_stats
+   >>> final_exp_stats.mean()
+   0.0
+   >>> final_exp_stats.get_decay()
+   >>> final_exp_stats.clear(new_decay=0.5)
+   >>> final_exp_stats.get_state()
+   (0.0, 0.0, 0.5)
+   >>> exp_stats.set_state(final_exp_stats.get_state())
+   >>> exp_stats == final_exp_stats == exp_stats.copy()
+   True
+
 
 All internal calculations are based entirely on the C++ code by John Cook as
 posted in a couple of articles:
