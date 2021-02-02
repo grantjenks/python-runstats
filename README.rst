@@ -19,6 +19,13 @@ calculating the variance and other higher moments requires multiple passes over
 the data. With generators, this is not possible and so computing statistics in
 a single pass is necessary.
 
+Last but not least, there are situations where a user is not interested in a
+complete summary of the entire stream of data but rather wants to observe the
+'current' state of the system based on the recent past. In these cases
+exponential statistics come in handy. Instead of weighting all values uniformly
+in the statistics computation, one can exponentially decay the weight of older
+values. Thus the e.g. current mean is predominantly based on more recent values.
+
 The Python `RunStats`_ module was designed for these cases by providing a pair
 of classes for computing online summary statistics and online linear regression
 in a single pass. Summary objects work on sequences which may be larger than
