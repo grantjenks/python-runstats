@@ -1,6 +1,6 @@
 RunStats: Computing Statistics and Regression in One Pass
 =========================================================
-Test Test Test
+
 `RunStats`_ is an Apache2 licensed Python module for online statistics and
 online regression. Statistics and regression summaries are computed in a single
 pass. Previous values are not recorded in summaries.
