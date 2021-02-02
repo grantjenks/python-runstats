@@ -224,14 +224,15 @@ The `len()` method is not supported.
 TODO############################# Compute results, check if everything is in there
 .. code-block:: python
 
-   >>> exp_stats = ExponentialStatistics(decay=0.5, initial_mean=0.0, initial_variance=0.0, iterable=[5])
+   >>> exp_stats = ExponentialStatistics(decay=0.5, initial_mean=0.0, initial_variance=0.0)
+   >>> exp_stats.push(10)
    >>> exp_stats.mean()
    4.0
    >>> exp_stats.variance()
    15.33333333333333
    >>> exp_stats.stddev()
    3.915780041490243
-   >>> exp_stats.push(10)
+   >>> exp_stats.push(20)
    >>> exp_stats.mean()
    0.0
    >>> exp_stats.change_decay(0.9)
