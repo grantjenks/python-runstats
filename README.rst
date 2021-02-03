@@ -221,34 +221,33 @@ hand side is the decay of the new object.
 The statistics supported are `mean()`, `variance()` and `stddev()`.
 The `len()` method is not supported.
 
-TODO############################# Compute results, check if everything is in there
 .. code-block:: python
 
    >>> exp_stats = ExponentialStatistics(decay=0.5, initial_mean=0.0, initial_variance=0.0)
    >>> exp_stats.push(10)
    >>> exp_stats.mean()
-   4.0
-   >>> exp_stats.variance()
-   15.33333333333333
-   >>> exp_stats.stddev()
-   3.915780041490243
+   5.0
    >>> exp_stats.push(20)
    >>> exp_stats.mean()
-   0.0
-   >>> exp_stats.change_decay(0.9)
-   >>> exp.stats.get_decay()
-   0.9
+   12.5
+   >>> exp_stats.change_decay(0.1)
+   >>> exp_stats.get_decay()
+   0.99
    >>> exp_stats.push(100)
    >>> exp_stats.mean()
-   0.0
+   13.375
    >>> exp_stats.clear(new_mean=10.0, new_variance=2.0)
-   >>> new_exp_stats = ExponentialStatistics(decay=0.8, iterable=range(100))
-   >>> new_exp_stats.mean()
-   0.0
+   >>> new_exp_stats = ExponentialStatistics(decay=0.99, iterable=range(100))
+   >>> round(new_exp_stats.mean(), 2)
+   98.9
+   >>> round(new_exp_stats.variance(), 2)
+   0.12
+   >>> round(new_exp_stats.stddev(), 2)
+   0.35
    # Multiply and add are perfect for exponentially weighting two 'batches'
    >>> final_exp_stats = 0.5 * exp_stats + 0.5 * new_exp_stats
-   >>> final_exp_stats.mean()
-   0.0
+   >>> round(final_exp_stats.mean(), 2)
+   54.44
    >>> final_exp_stats.get_decay()
    >>> final_exp_stats.clear(new_decay=0.5)
    >>> final_exp_stats.get_state()
@@ -258,8 +257,8 @@ TODO############################# Compute results, check if everything is in the
    True
 
 
-All internal calculations are based entirely on the C++ code by John Cook as
-posted in a couple of articles:
+All internal calculations of the Statistics and Regression Classes are based
+entirely on the C++ code by John Cook as posted in a couple of articles:
 
 * `Computing Skewness and Kurtosis in One Pass`_
 * `Computing Linear Regression in One Pass`_
@@ -267,13 +266,17 @@ posted in a couple of articles:
 .. _`Computing Skewness and Kurtosis in One Pass`: http://www.johndcook.com/blog/skewness_kurtosis/
 .. _`Computing Linear Regression in One Pass`: http://www.johndcook.com/blog/running_regression/
 
+The ExponentialStatistics implementation is based on:
+
+* Finch, 2009, Incremental Calculation of Weighted Mean and Variance
+
 The pure-Python and Cython-optimized versions of `RunStats`_ are each directly
 available if preferred.
 
 .. code-block:: python
 
-   >>> from runstats.core import Statistics, Regression  # pure-Python
-   >>> from runstats.fast import Statistics, Regression  # Cython-optimized
+   >>> from runstats.core import Statistics, Regression, ExponentialStatistics  # pure-Python
+   >>> from runstats.fast import Statistics, Regression, ExponentialStatistics  # Cython-optimized
 
 When importing from `runstats` the `fast` version is preferred and the `core`
 version is used as fallback. Micro-benchmarking Statistics and Regression by
