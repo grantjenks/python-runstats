@@ -24,10 +24,11 @@ complete summary of the entire stream of data but rather wants to observe the
 'current' state of the system based on the recent past. In these cases
 exponential statistics come in handy. Instead of weighting all values uniformly
 in the statistics computation, one can exponentially decay the weight of older
-values. Thus the e.g. current mean is predominantly based on more recent values.
+values given a provided decay rate. Thus, one can regulate in how far the e.g.
+current mean is based on recent or old values.
 
-The Python `RunStats`_ module was designed for these cases by providing a pair
-of classes for computing online summary statistics and online linear regression
+The Python `RunStats`_ module was designed for these cases by providing classes
+for computing online summary statistics and online linear regression
 in a single pass. Summary objects work on sequences which may be larger than
 memory or disk space permit. They may also be efficiently combined together to
 create aggregate summaries.
@@ -206,20 +207,20 @@ Both constructors accept an optional iterable that is consumed and pushed into
 the summary. Note that you may pass a generator as an iterable and the
 generator will be entirely consumed.
 
-Last but not least, ExponentialStatistics are constructed by providing: a decay
-rate that is strictly larger than 0.0 and strictly smaller than 1.0
-(default: 0.9), a initial mean and a initial variance (default: 0.0) as well as
-an iterable as with the other two objects. The decay rate is the weight by which
-the current statistics are discounted by and (1.0 - decay) is the weight of the
-new value on the new statistics. The class has five methods of modification:
-`push()`, `clear()`, sum and multiply as the Statistics class has and
-`change_decay()` to modify the current decay rate in-place.
+Last but not least, there are ExponentialStatistics which are constructed by
+providing: a decay rate that is strictly larger than 0.0 and strictly smaller than 1.0
+(default: 0.9), a initial mean and a initial variance (default: 0.0) and finally
+an iterable as for the other two classes. The decay rate is the weight by which
+the current statistics are discounted by. Consequently, (1.0 - decay) is the weight of the
+new value. The class has five methods of modification:
+`push`, `clear`, sum and multiply as the Statistics class and additionally
+`change_decay` to modify the current decay rate in-place.
 The clear method allows to optionally set a new mean, new variance and new
 decay. If none are provided mean and variance reset to 0, while the decay is not
-changed. If two ExponentialStatistics are being added the decay of the left
-hand side is the decay of the new object.
-The statistics supported are `mean()`, `variance()` and `stddev()`.
-The `len()` method is not supported.
+changed. If two ExponentialStatistics are being added the leftmost decay
+is the decay of the new object.
+The statistics supported are `mean`, `variance` and `stddev`.
+The `len` method is not supported.
 
 .. code-block:: python
 
@@ -257,7 +258,7 @@ The `len()` method is not supported.
    True
 
 
-All internal calculations of the Statistics and Regression Classes are based
+All internal calculations of the Statistics and Regression classes are based
 entirely on the C++ code by John Cook as posted in a couple of articles:
 
 * `Computing Skewness and Kurtosis in One Pass`_
