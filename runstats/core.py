@@ -387,6 +387,7 @@ class ExponentialStatistics:
 
 
 def make_exponential_statistics(state):
+    """Make ExponentialStatistics object from state."""
     return ExponentialStatistics.fromstate(state)
 
 
