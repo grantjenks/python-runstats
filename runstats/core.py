@@ -279,6 +279,7 @@ class ExponentialStatistics:
 
     @property
     def decay(self):
+        """Exponential decay rate of old values."""
         return self._decay
 
     @decay.setter

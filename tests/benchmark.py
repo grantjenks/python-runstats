@@ -11,7 +11,7 @@ import timeit
 def main():
     random.seed(0)
     values = [random.random() for _ in range(int(1e4))]
-    pairs = [(pos, pos + (val * 2 - 1)) for pos, val in enumerate(values)]
+    pairs = [(pos, pos + (val * 2 - 1)) for pos, val in enumerate(values)]  # noqa
 
     core_stats = timeit.repeat(
         setup='''

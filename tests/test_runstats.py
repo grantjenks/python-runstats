@@ -632,7 +632,7 @@ def test_raise_if_invalid_multiply(Statistics, Regression):
     'ExponentialStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_raise_if_invalid_multiply(ExponentialStatistics):
+def test_raise_if_invalid_multiply_exp(ExponentialStatistics):
     with pytest.raises(ValueError):
         ExponentialStatistics(0)
         ExponentialStatistics(1)
