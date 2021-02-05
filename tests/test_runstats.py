@@ -142,8 +142,8 @@ def test_exponential_statistics(ExponentialStatistics):
     alpha_exp_stats_zero = ExponentialStatistics(0.9999)
     alpha_exp_stats_init = ExponentialStatistics(
         decay=0.9999,
-        initial_mean=mean(alpha),
-        initial_variance=variance(alpha, 0),
+        mean=mean(alpha),
+        variance=variance(alpha, 0),
     )
 
     for val in big_alpha:
@@ -162,9 +162,9 @@ def test_exponential_statistics(ExponentialStatistics):
     assert error(stddev(big_alpha, 0), alpha_exp_stats_init.stddev()) < limit
 
     alpha_exp_stats_zero.clear()
-    alpha_exp_stats_zero.change_decay(0.1)
+    alpha_exp_stats_zero.decay = 0.1
     alpha_exp_stats_init.clear(
-        new_decay=0.1, new_mean=mean(alpha), new_variance=variance(alpha, 0)
+        decay=0.1, mean=mean(alpha), variance=variance(alpha, 0)
     )
 
     for val in big_alpha:
@@ -203,7 +203,7 @@ def test_exponential_statistics(ExponentialStatistics):
 
     current_mean = alpha_exp_stats.mean()
     current_variance = alpha_exp_stats.variance()
-    alpha_exp_stats.change_decay(0.99999999)
+    alpha_exp_stats.decay = 0.99999999
 
     for val in range(10):
         alpha_exp_stats.push(val)
@@ -211,7 +211,7 @@ def test_exponential_statistics(ExponentialStatistics):
     assert (error(current_mean, alpha_exp_stats.mean())) < limit
     assert (error(current_variance, alpha_exp_stats.variance())) < limit
 
-    alpha_exp_stats.change_decay(0.1)
+    alpha_exp_stats.decay = 0.1
 
     for val in range(10):
         alpha_exp_stats.push(val)
@@ -354,15 +354,15 @@ def test_get_set_state_exponential_statistics(ExponentialStatistics):
 
     new_exp_stats = ExponentialStatistics(0.8)
     assert exp_stats != new_exp_stats
-    assert new_exp_stats.get_decay() == 0.8
+    assert new_exp_stats.decay == 0.8
     new_exp_stats.set_state(exp_state)
-    assert new_exp_stats.get_decay() == 0.9
+    assert new_exp_stats.decay == 0.9
     assert exp_stats == new_exp_stats
-    new_exp_stats.change_decay(0.1)
+    new_exp_stats.decay = 0.1
     assert exp_stats != new_exp_stats
     assert exp_stats.mean() == new_exp_stats.mean()
     assert exp_stats.variance() == new_exp_stats.variance()
-    assert new_exp_stats.get_decay() == 0.1
+    assert new_exp_stats.decay == 0.1
 
     assert exp_stats == ExponentialStatistics.fromstate(exp_stats.get_state())
 
