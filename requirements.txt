@@ -1,7 +1,11 @@
+-e .
+blue
 coverage
 cython
 doc8
-gj
+flake8
+isort
+mypy
 pylint
 pytest
 pytest-cov
