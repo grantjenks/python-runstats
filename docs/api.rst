@@ -16,8 +16,9 @@ Regression
    :members:
    :special-members:
 
+
 ExponentialStatistics
-..........
+.....................
 
 .. autoclass:: runstats.ExponentialStatistics
    :members:
