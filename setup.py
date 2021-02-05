@@ -23,8 +23,10 @@ class Tox(TestCommand):
         TestCommand.finalize_options(self)
         self.test_args = []
         self.test_suite = True
+
     def run_tests(self):
         import tox
+
         errno = tox.cmdline(self.test_args)
         exit(errno)
 

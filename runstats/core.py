@@ -17,6 +17,7 @@ class Statistics(object):
     Based entirely on the C++ code by John D Cook at
     http://www.johndcook.com/skewness_kurtosis.html
     """
+
     def __init__(self, iterable=()):
         """Initialize Statistics object.
 
@@ -108,8 +109,7 @@ class Statistics(object):
             - 4 * delta_n * self._tau
         )
         self._tau += (
-            term * delta_n * (self._count - 2)
-            - 3 * delta_n * self._rho
+            term * delta_n * (self._count - 2) - 3 * delta_n * self._rho
         )
         self._rho += term
 
@@ -159,35 +159,48 @@ class Statistics(object):
         delta4 = delta ** 4
 
         sum_eta = (
-            (self._count * self._eta + that._count * that._eta)
-            / sum_count
-        )
+            self._count * self._eta + that._count * that._eta
+        ) / sum_count
 
         sum_rho = (
-            self._rho + that._rho
+            self._rho
+            + that._rho
             + delta2 * self._count * that._count / sum_count
         )
 
         sum_tau = (
-            self._tau + that._tau
-            + delta3 * self._count * that._count
-            * (self._count - that._count) / (sum_count ** 2)
-            + 3.0 * delta
-            * (self._count * that._rho - that._count * self._rho) / sum_count
+            self._tau
+            + that._tau
+            + delta3
+            * self._count
+            * that._count
+            * (self._count - that._count)
+            / (sum_count ** 2)
+            + 3.0
+            * delta
+            * (self._count * that._rho - that._count * self._rho)
+            / sum_count
         )
 
         sum_phi = (
-            self._phi + that._phi
-            + delta4 * self._count * that._count
+            self._phi
+            + that._phi
+            + delta4
+            * self._count
+            * that._count
             * (self._count ** 2 - self._count * that._count + that._count ** 2)
             / (sum_count ** 3)
-            + 6.0 * delta2 * (
+            + 6.0
+            * delta2
+            * (
                 self._count * self._count * that._rho
                 + that._count * that._count * self._rho
             )
             / (sum_count ** 2)
-            + 4.0 * delta
-            * (self._count * that._tau - that._count * self._tau) / sum_count
+            + 4.0
+            * delta
+            * (self._count * that._tau - that._count * self._tau)
+            / sum_count
         )
 
         if self._count == 0.0:
@@ -241,13 +254,8 @@ class ExponentialStatistics:
     https://nestedsoftware.com/2018/04/04/exponential-moving-average-on-streaming-data-4hhl.24876.html
 
     """
-    def __init__(
-            self,
-            decay=0.9,
-            mean=0.0,
-            variance=0.0,
-            iterable=()
-    ):
+
+    def __init__(self, decay=0.9, mean=0.0, variance=0.0, iterable=()):
         """Initialize ExponentialStatistics object.
 
         Incrementally tracks mean and variance and exponentially discounts old
@@ -279,7 +287,7 @@ class ExponentialStatistics:
         if not (0 <= value <= 1):
             raise ValueError('decay must be between 0 and 1')
         self._decay = value
-        
+
     def clear(self, mean=0.0, variance=0.0, decay=None):
         """Clear ExponentialStatistics object."""
         self._mean = float(mean)
@@ -325,8 +333,8 @@ class ExponentialStatistics:
     def push(self, value):
         """Add `value` to the ExponentialStatistics summary."""
         value = float(value)
-        alpha = (1.0 - self._decay)
-        diff = (value - self._mean)
+        alpha = 1.0 - self._decay
+        diff = value - self._mean
         incr = alpha * diff
         self._variance += alpha * (self._decay * diff ** 2 - self._variance)
         self._mean += incr
@@ -418,8 +426,10 @@ class Regression(object):
     def get_state(self):
         """Get internal state."""
         return (
-            self._count, self._sxy, self._xstats.get_state(),
-            self._ystats.get_state()
+            self._count,
+            self._sxy,
+            self._xstats.get_state(),
+            self._ystats.get_state(),
         )
 
     def set_state(self, state):
@@ -495,7 +505,8 @@ class Regression(object):
         deltax = that._xstats.mean() - self._xstats.mean()
         deltay = that._ystats.mean() - self._ystats.mean()
         sum_sxy = (
-            self._sxy + that._sxy
+            self._sxy
+            + that._sxy
             + self._count * that._count * deltax * deltay / sum_count
         )
 

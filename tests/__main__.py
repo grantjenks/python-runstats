@@ -11,6 +11,7 @@ from runstats.core import Regression as CoreRegression
 
 from .test_runstats import mean, variance, stddev, skewness, kurtosis
 
+
 def main():
     args = list(map(float, sys.argv[1:]))
 
@@ -97,6 +98,7 @@ def main():
     print('Slope:', core_regr.slope())
     print('Intercept:', core_regr.intercept())
     print('Correlation:', core_regr.correlation())
+
 
 if __name__ == '__main__':
     main()
