@@ -2,14 +2,14 @@ from __future__ import print_function
 
 import sys
 
-from runstats import Statistics as FastStatistics
 from runstats import ExponentialStatistics as FastExponentialStatistics
 from runstats import Regression as FastRegression
-from runstats.core import Statistics as CoreStatistics
+from runstats import Statistics as FastStatistics
 from runstats.core import ExponentialStatistics as CoreExponentialStatistics
 from runstats.core import Regression as CoreRegression
+from runstats.core import Statistics as CoreStatistics
 
-from .test_runstats import mean, variance, stddev, skewness, kurtosis
+from .test_runstats import kurtosis, mean, skewness, stddev, variance
 
 
 def main():

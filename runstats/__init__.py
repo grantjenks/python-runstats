@@ -4,7 +4,7 @@ Python RunStats - Online Statistics and Regression
 
 """
 
-from .core import Statistics, Regression, ExponentialStatistics
+from .core import ExponentialStatistics, Regression, Statistics
 
 __all__ = ['Statistics', 'Regression', 'ExponentialStatistics']
 __title__ = 'runstats'

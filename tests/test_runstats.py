@@ -5,15 +5,16 @@
 import copy
 import math
 import pickle
-import pytest
 import random
 
-from runstats import Statistics as FastStatistics
+import pytest
+
 from runstats import ExponentialStatistics as FastExponentialStatistics
 from runstats import Regression as FastRegression
-from runstats.core import Statistics as CoreStatistics
+from runstats import Statistics as FastStatistics
 from runstats.core import ExponentialStatistics as CoreExponentialStatistics
 from runstats.core import Regression as CoreRegression
+from runstats.core import Statistics as CoreStatistics
 
 limit = 1e-2
 count = 1000
