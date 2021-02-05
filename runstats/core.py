@@ -510,3 +510,10 @@ class Regression(object):
 def make_regression(state):
     """Make Regression object from state."""
     return Regression.fromstate(state)
+
+
+if __name__ == 'runstats.core':  # pragma: no cover
+    try:
+        from ._core import *  # noqa # pylint: disable=wildcard-import
+    except ImportError:
+        pass
