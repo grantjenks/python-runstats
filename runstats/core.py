@@ -1,6 +1,6 @@
 """Python RunStats
 
-Compute Statistics, ExponentialStatistics and Regression in a single pass.
+Compute Statistics, Exponential Statistics and Regression in a single pass.
 
 """
 
@@ -233,63 +233,59 @@ class ExponentialStatistics:
 
     ExponentialStatistics objects may also be copied.
 
-     Based on
-     "Finch, 2009, Incremental Calculation of Weighted Mean and Variance" at
-     https://nanopdf.com/download/incremental-calculation-of-weighted-mean-and-variance_pdf
+    Based on
+    "Finch, 2009, Incremental Calculation of Weighted Mean and Variance" at
+    https://nanopdf.com/download/incremental-calculation-of-weighted-mean-and-variance_pdf
 
-     For an explanation of these statistics refer to e.g.:
-     https://nestedsoftware.com/2018/04/04/exponential-moving-average-on-streaming-data-4hhl.24876.html
+    For an explanation of these statistics refer to e.g.:
+    https://nestedsoftware.com/2018/04/04/exponential-moving-average-on-streaming-data-4hhl.24876.html
+
     """
-
     def __init__(
             self,
             decay=0.9,
-            initial_mean=0.0,
-            initial_variance=0.0,
+            mean=0.0,
+            variance=0.0,
             iterable=()
     ):
         """Initialize ExponentialStatistics object.
 
-        Incrementally tracks mean and variance and exponentially discounts
-        old values.
+        Incrementally tracks mean and variance and exponentially discounts old
+        values.
 
-        Requires a `decay` rate in exclusive range (0,1) for discounting
+        Requires a `decay` rate in exclusive range (0, 1) for discounting
         previous statistics.
 
-        Optionally allows setting initial mean and variance. Default 0.0.
+        Optionally allows setting initial mean and variance. Default 0.
 
         Iterates optional parameter `iterable` and pushes each value into the
         statistics summary.
-        """
-        decay = float(decay)
-        self._check_weight(decay)
 
-        self._mean = float(initial_mean)
-        self._variance = initial_variance
-        self._decay = decay
+        """
+        self.decay = decay
+        self._mean = float(mean)
+        self._variance = float(variance)
 
         for value in iterable:
             self.push(value)
 
-    def clear(self, new_mean=0.0, new_variance=0.0, new_decay=None):
-        """Clear ExponentialStatistics object."""
-        self._mean = float(new_mean)
-        self._variance = float(new_variance)
-
-        if new_decay is not None:
-            new_decay = float(new_decay)
-            self._check_weight(new_decay)
-            self._decay = new_decay
-
-    def get_decay(self):
-        """Get decay rate of ExponentialStatistics object."""
+    @property
+    def decay(self):
         return self._decay
 
-    def change_decay(self, new_decay):
-        """Change decay rate of ExponentialStatistics object."""
-        new_decay = float(new_decay)
-        self._check_weight(new_decay)
-        self._decay = new_decay
+    @decay.setter
+    def decay(self, value):
+        value = float(value)
+        if not (0 <= value <= 1):
+            raise ValueError('decay must be between 0 and 1')
+        self._decay = value
+        
+    def clear(self, mean=0.0, variance=0.0, decay=None):
+        """Clear ExponentialStatistics object."""
+        self._mean = float(mean)
+        self._variance = float(variance)
+        if decay is not None:
+            self.decay = decay
 
     def __eq__(self, that):
         return self.get_state() == that.get_state()
@@ -299,20 +295,20 @@ class ExponentialStatistics:
 
     def get_state(self):
         """Get internal state."""
-        return self._mean, self._variance, self._decay
+        return self._decay, self._mean, self._variance
 
     def set_state(self, state):
         """Set internal state."""
         (
+            self._decay,
             self._mean,
             self._variance,
-            self._decay,
         ) = state
 
     @classmethod
     def fromstate(cls, state):
         """Return ExponentialStatistics object from state."""
-        stats = cls(0.9)
+        stats = cls()
         stats.set_state(state)
         return stats
 
@@ -329,7 +325,6 @@ class ExponentialStatistics:
     def push(self, value):
         """Add `value` to the ExponentialStatistics summary."""
         value = float(value)
-
         alpha = (1.0 - self._decay)
         diff = (value - self._mean)
         incr = alpha * diff
@@ -337,15 +332,15 @@ class ExponentialStatistics:
         self._mean += incr
 
     def mean(self):
-        """Exponential Mean of values."""
+        """Exponential mean of values."""
         return self._mean
 
     def variance(self):
-        """Exponential Variance of values."""
+        """Exponential variance of values."""
         return self._variance
 
     def stddev(self):
-        """Exponential Standard deviation of values."""
+        """Exponential standard deviation of values."""
         return self.variance() ** 0.5
 
     def __add__(self, that):
@@ -361,8 +356,7 @@ class ExponentialStatistics:
         return self
 
     def __mul__(self, that):
-        """Multiply by a scalar in (0,1) to change ExponentialStatistics
-        weighting."""
+        """Multiply by a scalar to change ExponentialStatistics weighting."""
         sigma = self.copy()
         sigma *= that
         return sigma
@@ -370,20 +364,14 @@ class ExponentialStatistics:
     __rmul__ = __mul__
 
     def __imul__(self, that):
-        """Multiply by a scalar in (0,1) to change ExponentialStatistics
-        weighting in-place."""
+        """Multiply by a scalar to change ExponentialStatistics weighting
+        in-place.
+
+        """
         that = float(that)
         self._mean *= that
         self._variance *= that
         return self
-
-
-    @staticmethod
-    def _check_weight(decay):
-        """Check if value range of passed decay is correct"""
-        if (decay >= 1.0) | (decay <= 0.0):
-            raise ValueError("decay must be strictly greater 0 "
-                             "and strictly smaller 1")
 
 
 def make_exponential_statistics(state):
