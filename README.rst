@@ -73,10 +73,10 @@ function:
 .. code-block:: python
 
    >>> import runstats
-   >>> help(runstats)
-   >>> help(runstats.Statistics)
-   >>> help(runstats.Regression)
-   >>> help(runstats.ExponentialStatistics)
+   >>> help(runstats)                             # doctest: +SKIP
+   >>> help(runstats.Statistics)                  # doctest: +SKIP
+   >>> help(runstats.Regression)                  # doctest: +SKIP
+   >>> help(runstats.ExponentialStatistics)       # doctest: +SKIP
 
 
 Tutorial
@@ -105,7 +105,7 @@ summaries and multiply to weight summary Statistics by a scalar.
    >>> stats.mean()
    4.5
    >>> stats.maximum()
-   9
+   9.0
    >>> stats += stats
    >>> stats.mean()
    4.5
@@ -119,8 +119,8 @@ summaries and multiply to weight summary Statistics by a scalar.
    >>> stats.clear()
    >>> len(stats)
    0
-   >>> stats.minimum() is None
-   True
+   >>> stats.minimum()
+   nan
 
 Use the Python built-in `len` for the number of pushed values. Unfortunately
 the Python `min` and `max` built-ins may not be used for the minimum and
@@ -138,7 +138,7 @@ maximum as sequences are expected instead. Therefore, there are `minimum` and
    >>> min(stats)
    Traceback (most recent call last):
        ...
-   TypeError: iteration over non-sequence
+   TypeError: 'Statistics' object is not iterable
    >>> stats.minimum()
    0.00024069652516689466
    >>> stats.maximum()
@@ -230,11 +230,11 @@ multiply.
    >>> for num in range(10):
    ...     exp_stats.push(num)
    >>> exp_stats.mean()
-   0.0
+   3.486784400999999
    >>> exp_stats.variance()
-   0.0
+   11.593430921943071
    >>> exp_stats.stddev()
-   0.0
+   3.4049127627507683
 
 The decay of the exponential statistics can also be changed. The value must be
 between 0 and 1.
@@ -247,7 +247,9 @@ between 0 and 1.
    >>> exp_stats.decay
    0.5
    >>> exp_stats.decay = 10
-   Traceback ...
+   Traceback (most recent call last):
+     ...
+   ValueError: decay must be between 0 and 1
 
 The clear method allows to optionally set a new mean, new variance and new
 decay. If none are provided mean and variance reset to zero, while the decay is
@@ -268,16 +270,15 @@ the new object. The `len` method is not supported.
 
 .. code-block:: python
 
-   >>> alpha_stats = ExponentialStatistics()
-   >>> for num in range(10):
-   ...     alpha_stats.push(num)
+   >>> alpha_stats = ExponentialStatistics(iterable=range(10))
    >>> beta_stats = ExponentialStatistics(decay=0.1)
    >>> for num in range(10):
    ...     beta_stats.push(num)
-   >>> exp_stats = alpha_stats + beta_stats
-   >>> exp_stats.decay = 0.9
+   >>> exp_stats = beta_stats + alpha_stats
+   >>> exp_stats.decay
+   0.1
    >>> exp_stats.mean()
-   0.0
+   12.37567329
 
 All internal calculations of the Statistics and Regression classes are based
 entirely on the C++ code by John Cook as posted in a couple of articles:
@@ -297,10 +298,15 @@ available if preferred.
 
 .. code-block:: python
 
-   >>> import runstats.core  # Pure-Python
+   >>> import runstats.core   # Pure-Python
    >>> runstats.core.Statistics
-   >>> import runstats.fast  # Cython-Optimized
-   >>> runstats.fast.Statistics
+   <class 'runstats.core.Statistics'>
+   >>> import runstats._core  # Cython-Optimized
+   >>> runstats._core.Statistics
+   <class 'runstats._core.Statistics'>
+   >>> import runstats        # Prefers Cython-Optimized if available.
+   >>> runstats.Statistics
+   <class 'runstats._core.Statistics'>
 
 When importing from `runstats` the `fast` version is preferred and the `core`
 version is used as fallback. Micro-benchmarking Statistics and Regression by
