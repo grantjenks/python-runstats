@@ -265,8 +265,11 @@ not changed.
    >>> exp_stats.variance()
    0.0
 
-If two `ExponentialStatistics` are added then the leftmost decay is used for
-the new object. The `len` method is not supported.
+Combining `ExponentialStatistics` is done by adding them together. The mean and
+variance are simply added to create a new object. To weight each
+`ExponentialStatistics`, multiply them by a constant factor. If two
+`ExponentialStatistics` are added then the leftmost decay is used for the new
+object. The `len` method is not supported.
 
 .. code-block:: python
 
@@ -274,11 +277,11 @@ the new object. The `len` method is not supported.
    >>> beta_stats = ExponentialStatistics(decay=0.1)
    >>> for num in range(10):
    ...     beta_stats.push(num)
-   >>> exp_stats = beta_stats + alpha_stats
+   >>> exp_stats = beta_stats * 0.5 + alpha_stats * 0.5
    >>> exp_stats.decay
    0.1
    >>> exp_stats.mean()
-   12.37567329
+   6.187836645
 
 All internal calculations of the Statistics and Regression classes are based
 entirely on the C++ code by John Cook as posted in a couple of articles:
