@@ -7,37 +7,40 @@ from __future__ import print_function
 import random
 import timeit
 
+
 def main():
     random.seed(0)
     values = [random.random() for _ in range(int(1e4))]
-    pairs = [(pos, pos + (val * 2 - 1)) for pos, val in enumerate(values)]
+    pairs = [  # noqa
+        (pos, pos + (val * 2 - 1)) for pos, val in enumerate(values)
+    ]
 
     core_stats = timeit.repeat(
-        setup="""
+        setup='''
     from __main__ import values
     from runstats.core import Statistics
     stats = Statistics()
-        """,
-        stmt="""
+        ''',
+        stmt='''
     for value in values:
         stats.push(value)
     stats.mean()
-        """,
+        ''',
         number=1,
         repeat=7,
     )[2]
 
     fast_stats = timeit.repeat(
-        setup="""
+        setup='''
     from __main__ import values
     from runstats.fast import Statistics
     stats = Statistics()
-        """,
-        stmt="""
+        ''',
+        stmt='''
     for value in values:
         stats.push(value)
     stats.mean()
-        """,
+        ''',
         number=1,
         repeat=7,
     )[2]
@@ -45,31 +48,31 @@ def main():
     speedup_stats = core_stats / fast_stats - 1
 
     core_exp_stats = timeit.repeat(
-        setup="""
+        setup='''
     from __main__ import values
     from runstats.core import ExponentialStatistics
     exp_stats = ExponentialStatistics()
-        """,
-        stmt="""
+        ''',
+        stmt='''
     for value in values:
         exp_stats.push(value)
     exp_stats.mean()
-        """,
+        ''',
         number=1,
         repeat=7,
     )[2]
 
     fast_exp_stats = timeit.repeat(
-        setup="""
+        setup='''
     from __main__ import values
     from runstats.fast import ExponentialStatistics
     exp_stats = ExponentialStatistics()
-        """,
-        stmt="""
+        ''',
+        stmt='''
     for value in values:
         exp_stats.push(value)
     exp_stats.mean()
-        """,
+        ''',
         number=1,
         repeat=7,
     )[2]
@@ -77,31 +80,31 @@ def main():
     speedup_exp_stats = core_exp_stats / fast_exp_stats - 1
 
     core_regr = timeit.repeat(
-        setup="""
+        setup='''
     from __main__ import pairs
     from runstats.core import Regression
     regr = Regression()
-        """,
-        stmt="""
+        ''',
+        stmt='''
     for pos, val in pairs:
         regr.push(pos, val)
     regr.slope()
-        """,
+        ''',
         number=1,
         repeat=7,
     )[2]
 
     fast_regr = timeit.repeat(
-        setup="""
+        setup='''
     from __main__ import pairs
     from runstats.fast import Regression
     regr = Regression()
-        """,
-        stmt="""
+        ''',
+        stmt='''
     for pos, val in pairs:
         regr.push(pos, val)
     regr.slope()
-        """,
+        ''',
         number=1,
         repeat=7,
     )[2]
@@ -119,6 +122,7 @@ def main():
     print('core.Regression:', core_regr)
     print('fast.Regression:', fast_regr)
     print('   Regr Speedup: %.2fx faster' % speedup_regr)
+
 
 if __name__ == '__main__':
     main()

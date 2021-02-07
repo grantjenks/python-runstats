@@ -5,15 +5,16 @@
 import copy
 import math
 import pickle
-import pytest
 import random
 
-from runstats import Statistics as FastStatistics
+import pytest
+
 from runstats import ExponentialStatistics as FastExponentialStatistics
 from runstats import Regression as FastRegression
-from runstats.core import Statistics as CoreStatistics
+from runstats import Statistics as FastStatistics
 from runstats.core import ExponentialStatistics as CoreExponentialStatistics
 from runstats.core import Regression as CoreRegression
+from runstats.core import Statistics as CoreStatistics
 
 limit = 1e-2
 count = 1000
@@ -35,8 +36,9 @@ def stddev(values, ddof=1.0):
 def skewness(values):
     temp = mean(values)
     numerator = sum((value - temp) ** 3 for value in values) / len(values)
-    denominator = (sum((value - temp) ** 2 for value in values)
-                   / len(values)) ** 1.5
+    denominator = (
+        sum((value - temp) ** 2 for value in values) / len(values)
+    ) ** 1.5
     return numerator / denominator
 
 
@@ -52,10 +54,13 @@ def error(value, test):
     return abs((test - value) / value)
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_statistics(Statistics, Regression):
     random.seed(0)
     alpha = [random.random() for _ in range(count)]
@@ -93,8 +98,12 @@ def test_statistics(Statistics, Regression):
 
     assert len(beta_stats) != len(gamma_stats)
     assert error(mean(alpha + beta), gamma_stats.mean()) < limit
-    assert error(variance(alpha + beta, 1.0), gamma_stats.variance(1.0)) < limit
-    assert error(variance(alpha + beta, 0.0), gamma_stats.variance(0.0)) < limit
+    assert (
+        error(variance(alpha + beta, 1.0), gamma_stats.variance(1.0)) < limit
+    )
+    assert (
+        error(variance(alpha + beta, 0.0), gamma_stats.variance(0.0)) < limit
+    )
     assert error(stddev(alpha + beta, 1.0), gamma_stats.stddev(1.0)) < limit
     assert error(stddev(alpha + beta, 0.0), gamma_stats.stddev(0.0)) < limit
     assert error(skewness(alpha + beta), gamma_stats.skewness()) < limit
@@ -107,8 +116,12 @@ def test_statistics(Statistics, Regression):
 
     assert len(beta_stats) != len(delta_stats)
     assert error(mean(alpha + beta), delta_stats.mean()) < limit
-    assert error(variance(alpha + beta, 1.0), delta_stats.variance(1.0)) < limit
-    assert error(variance(alpha + beta, 0.0), delta_stats.variance(0.0)) < limit
+    assert (
+        error(variance(alpha + beta, 1.0), delta_stats.variance(1.0)) < limit
+    )
+    assert (
+        error(variance(alpha + beta, 0.0), delta_stats.variance(0.0)) < limit
+    )
     assert error(stddev(alpha + beta, 1.0), delta_stats.stddev(1.0)) < limit
     assert error(stddev(alpha + beta, 0.0), delta_stats.stddev(0.0)) < limit
     assert error(skewness(alpha + beta), delta_stats.skewness()) < limit
@@ -117,9 +130,10 @@ def test_statistics(Statistics, Regression):
     assert delta_stats.maximum() == max(alpha + beta)
 
 
-@pytest.mark.parametrize('ExponentialStatistics', [
-    CoreExponentialStatistics, FastExponentialStatistics
-])
+@pytest.mark.parametrize(
+    'ExponentialStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
 def test_exponential_statistics(ExponentialStatistics):
     random.seed(0)
     alpha = [random.random() for _ in range(count)]
@@ -128,8 +142,8 @@ def test_exponential_statistics(ExponentialStatistics):
     alpha_exp_stats_zero = ExponentialStatistics(0.9999)
     alpha_exp_stats_init = ExponentialStatistics(
         decay=0.9999,
-        initial_mean=mean(alpha),
-        initial_variance=variance(alpha, 0)
+        mean=mean(alpha),
+        variance=variance(alpha, 0),
     )
 
     for val in big_alpha:
@@ -138,30 +152,36 @@ def test_exponential_statistics(ExponentialStatistics):
 
     assert error(mean(big_alpha), alpha_exp_stats_zero.mean()) < limit
     assert error(mean(big_alpha), alpha_exp_stats_init.mean()) < limit
-    assert error(variance(big_alpha, 0), alpha_exp_stats_zero.variance()) < limit
-    assert error(variance(big_alpha, 0), alpha_exp_stats_init.variance()) < limit
+    assert (
+        error(variance(big_alpha, 0), alpha_exp_stats_zero.variance()) < limit
+    )
+    assert (
+        error(variance(big_alpha, 0), alpha_exp_stats_init.variance()) < limit
+    )
     assert error(stddev(big_alpha, 0), alpha_exp_stats_zero.stddev()) < limit
     assert error(stddev(big_alpha, 0), alpha_exp_stats_init.stddev()) < limit
 
     alpha_exp_stats_zero.clear()
-    alpha_exp_stats_zero.change_decay(0.1)
+    alpha_exp_stats_zero.decay = 0.1
     alpha_exp_stats_init.clear(
-        new_decay=0.1,
-        new_mean=mean(alpha),
-        new_variance=variance(alpha, 0)
+        decay=0.1, mean=mean(alpha), variance=variance(alpha, 0)
     )
 
     for val in big_alpha:
         alpha_exp_stats_zero.push(val)
         alpha_exp_stats_init.push(val)
 
-    assert error(alpha_exp_stats_zero.mean(), alpha_exp_stats_init.mean()) < limit
-    assert error(
-        alpha_exp_stats_zero.variance(), alpha_exp_stats_init.variance()
-    ) < limit
-    assert error(
-        alpha_exp_stats_zero.stddev(), alpha_exp_stats_init.stddev()
-    ) < limit
+    assert (
+        error(alpha_exp_stats_zero.mean(), alpha_exp_stats_init.mean()) < limit
+    )
+    assert (
+        error(alpha_exp_stats_zero.variance(), alpha_exp_stats_init.variance())
+        < limit
+    )
+    assert (
+        error(alpha_exp_stats_zero.stddev(), alpha_exp_stats_init.stddev())
+        < limit
+    )
 
     alpha_exp_stats = ExponentialStatistics(0.1, iterable=alpha)
     beta = [random.random() * 2 for _ in range(count)]
@@ -183,7 +203,7 @@ def test_exponential_statistics(ExponentialStatistics):
 
     current_mean = alpha_exp_stats.mean()
     current_variance = alpha_exp_stats.variance()
-    alpha_exp_stats.change_decay(0.99999999)
+    alpha_exp_stats.decay = 0.99999999
 
     for val in range(10):
         alpha_exp_stats.push(val)
@@ -191,7 +211,7 @@ def test_exponential_statistics(ExponentialStatistics):
     assert (error(current_mean, alpha_exp_stats.mean())) < limit
     assert (error(current_variance, alpha_exp_stats.variance())) < limit
 
-    alpha_exp_stats.change_decay(0.1)
+    alpha_exp_stats.decay = 0.1
 
     for val in range(10):
         alpha_exp_stats.push(val)
@@ -200,10 +220,13 @@ def test_exponential_statistics(ExponentialStatistics):
     assert (error(current_variance, alpha_exp_stats.variance())) > limit
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_add_statistics(Statistics, Regression):
     stats0 = Statistics()
     stats10 = Statistics(range(10))
@@ -211,9 +234,10 @@ def test_add_statistics(Statistics, Regression):
     assert (stats10 + stats0) == stats10
 
 
-@pytest.mark.parametrize('ExponentialStatistics', [
-    CoreExponentialStatistics, FastExponentialStatistics
-])
+@pytest.mark.parametrize(
+    'ExponentialStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
 def test_add_exponential_statistics(ExponentialStatistics):
     exp_stats0 = ExponentialStatistics(0.9)
     exp_stats10 = ExponentialStatistics(0.9, iterable=range(10))
@@ -227,19 +251,26 @@ def correlation(values):
     sigma_xy = sum(xxx * yyy for xxx, yyy in values) / len(values)
     sigma_x2 = sum(xxx ** 2 for xxx, yyy in values) / len(values)
     sigma_y2 = sum(yyy ** 2 for xxx, yyy in values) / len(values)
-    return (sigma_xy - sigma_x * sigma_y) / (((sigma_x2 - sigma_x ** 2) * (sigma_y2 - sigma_y ** 2)) ** 0.5)
+    return (sigma_xy - sigma_x * sigma_y) / (
+        ((sigma_x2 - sigma_x ** 2) * (sigma_y2 - sigma_y ** 2)) ** 0.5
+    )
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_regression(Statistics, Regression):
     random.seed(0)
     alpha, beta, rand = 5.0, 10.0, 1.0
 
-    points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
-              for xxx in range(count)]
+    points = [
+        (xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
+        for xxx in range(count)
+    ]
 
     regr = Regression()
 
@@ -252,8 +283,10 @@ def test_regression(Statistics, Regression):
 
     regr_copy = regr.copy()
 
-    more_points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
-                   for xxx in range(count, 2 * count)]
+    more_points = [
+        (xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
+        for xxx in range(count, 2 * count)
+    ]
 
     for xxx, yyy in more_points:
         regr_copy.push(xxx, yyy)
@@ -275,10 +308,13 @@ def test_regression(Statistics, Regression):
     assert error(regr.correlation(), regr_copy.correlation()) < limit
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_get_set_state_statistics(Statistics, Regression):
     random.seed(0)
     tail = -10
@@ -306,9 +342,10 @@ def test_get_set_state_statistics(Statistics, Regression):
     assert stats == Statistics.fromstate(stats.get_state())
 
 
-@pytest.mark.parametrize('ExponentialStatistics', [
-    CoreExponentialStatistics, FastExponentialStatistics
-])
+@pytest.mark.parametrize(
+    'ExponentialStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
 def test_get_set_state_exponential_statistics(ExponentialStatistics):
     random.seed(0)
     vals = [random.random() for _ in range(count)]
@@ -317,28 +354,34 @@ def test_get_set_state_exponential_statistics(ExponentialStatistics):
 
     new_exp_stats = ExponentialStatistics(0.8)
     assert exp_stats != new_exp_stats
-    assert new_exp_stats.get_decay() == 0.8
+    assert new_exp_stats.decay == 0.8
     new_exp_stats.set_state(exp_state)
-    assert new_exp_stats.get_decay() == 0.9
+    assert new_exp_stats.decay == 0.9
     assert exp_stats == new_exp_stats
-    new_exp_stats.change_decay(0.1)
+    new_exp_stats.decay = 0.1
     assert exp_stats != new_exp_stats
     assert exp_stats.mean() == new_exp_stats.mean()
     assert exp_stats.variance() == new_exp_stats.variance()
-    assert new_exp_stats.get_decay() == 0.1
+    assert new_exp_stats.decay == 0.1
 
     assert exp_stats == ExponentialStatistics.fromstate(exp_stats.get_state())
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_get_set_state_regression(Statistics, Regression):
     random.seed(0)
     tail = -10
     alpha, beta, rand = 5.0, 10.0, 20.0
-    points = [(xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
-              for xxx in range(count)]
+    points = [
+        (xxx, alpha * xxx + beta + rand * (0.5 - random.random()))
+        for xxx in range(count)
+    ]
 
     regr = Regression(points[:tail])
     state = regr.get_state()
@@ -359,10 +402,13 @@ def test_get_set_state_regression(Statistics, Regression):
     assert regr == Regression.fromstate(regr.get_state())
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_pickle_statistics(Statistics, Regression):
     stats = Statistics(range(10))
     for num in range(pickle.HIGHEST_PROTOCOL):
@@ -371,9 +417,10 @@ def test_pickle_statistics(Statistics, Regression):
         assert stats == unpickled_stats, 'protocol: %s' % num
 
 
-@pytest.mark.parametrize('ExponentialStatistics', [
-    CoreExponentialStatistics, FastExponentialStatistics
-])
+@pytest.mark.parametrize(
+    'ExponentialStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
 def test_pickle_exponential_statistics(ExponentialStatistics):
     exp_stats = ExponentialStatistics(0.9, iterable=range(10))
     for num in range(pickle.HIGHEST_PROTOCOL):
@@ -382,10 +429,13 @@ def test_pickle_exponential_statistics(ExponentialStatistics):
         assert exp_stats == unpickled_exp_stats, 'protocol: %s' % num
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_pickle_regression(Statistics, Regression):
     regr = Regression(enumerate(range(10)))
     for num in range(pickle.HIGHEST_PROTOCOL):
@@ -394,10 +444,13 @@ def test_pickle_regression(Statistics, Regression):
         assert regr == unpickled_regr, 'protocol: %s' % num
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_copy_statistics(Statistics, Regression):
     stats = Statistics(range(10))
     copy_stats = copy.copy(stats)
@@ -406,9 +459,10 @@ def test_copy_statistics(Statistics, Regression):
     assert stats == deepcopy_stats
 
 
-@pytest.mark.parametrize('ExponentialStatistics', [
-    CoreExponentialStatistics, FastExponentialStatistics
-])
+@pytest.mark.parametrize(
+    'ExponentialStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
 def test_copy_exponential_statistics(ExponentialStatistics):
     exp_stats = ExponentialStatistics(0.9, iterable=range(10))
     copy_exp_stats = copy.copy(exp_stats)
@@ -417,10 +471,13 @@ def test_copy_exponential_statistics(ExponentialStatistics):
     assert exp_stats == deepcopy_exp_stats
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_copy_regression(Statistics, Regression):
     regr = Regression(enumerate(range(10)))
     copy_regr = copy.copy(regr)
@@ -429,10 +486,13 @@ def test_copy_regression(Statistics, Regression):
     assert regr == deepcopy_regr
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_equality_statistics(Statistics, Regression):
     stats1 = Statistics(range(10))
     stats2 = Statistics(range(10))
@@ -441,9 +501,10 @@ def test_equality_statistics(Statistics, Regression):
     assert stats1 != stats2
 
 
-@pytest.mark.parametrize('ExponentialStatistics', [
-    CoreExponentialStatistics, FastExponentialStatistics
-])
+@pytest.mark.parametrize(
+    'ExponentialStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
 def test_equality_exponential_statistics(ExponentialStatistics):
     exp_stats1 = ExponentialStatistics(0.9, iterable=range(10))
     exp_stats2 = ExponentialStatistics(0.9, iterable=range(10))
@@ -452,10 +513,13 @@ def test_equality_exponential_statistics(ExponentialStatistics):
     assert exp_stats1 != exp_stats2
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_equality_regression(Statistics, Regression):
     regr1 = Regression(enumerate(range(10)))
     regr2 = Regression(enumerate(range(10)))
@@ -464,10 +528,13 @@ def test_equality_regression(Statistics, Regression):
     assert regr1 != regr2
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_sum_stats_count0(Statistics, Regression):
     stats1 = Statistics()
     stats2 = Statistics()
@@ -475,10 +542,13 @@ def test_sum_stats_count0(Statistics, Regression):
     assert len(sumstats) == 0
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_sum_regr_count0(Statistics, Regression):
     regr1 = Regression()
     regr2 = Regression()
@@ -486,10 +556,13 @@ def test_sum_regr_count0(Statistics, Regression):
     assert len(sumregr) == 0
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_multiply(Statistics, Regression):
     stats1 = Statistics(range(10))
     stats2 = Statistics(range(10)) * 2
@@ -539,10 +612,39 @@ def test_expoential_batch(ExponentialStatistics):
 
 
 
-@pytest.mark.parametrize('Statistics,Regression', [
-    (CoreStatistics, CoreRegression),
-    (FastStatistics, FastRegression),
-])
+@pytest.mark.parametrize(
+    'ExponentialStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
+def test_expoential_batch(ExponentialStatistics):
+    random.seed(0)
+
+    alpha = [random.random() for _ in range(count)]
+    beta = [random.random() * 2 for _ in range(count)]
+
+    alpha_exp_stats = ExponentialStatistics(0.1, iterable=alpha)
+    beta_exp_stats = ExponentialStatistics(0.9, iterable=beta)
+
+    gamma_exp_stats = alpha_exp_stats * 0.3 + beta_exp_stats * 0.7
+
+    weighted_mean = alpha_exp_stats.mean() * 0.3 + beta_exp_stats.mean() * 0.7
+    assert weighted_mean == gamma_exp_stats.mean()
+
+    weighted_var = (
+        alpha_exp_stats.variance() * 0.3 + beta_exp_stats.variance() * 0.7
+    )
+    assert weighted_var == gamma_exp_stats.variance()
+    assert alpha_exp_stats._decay == gamma_exp_stats._decay
+    assert beta_exp_stats._decay != gamma_exp_stats._decay
+
+
+@pytest.mark.parametrize(
+    'Statistics,Regression',
+    [
+        (CoreStatistics, CoreRegression),
+        (FastStatistics, FastRegression),
+    ],
+)
 def test_raise_if_invalid_multiply(Statistics, Regression):
     stats1 = Statistics(range(10))
     stats2 = Statistics(range(10)) * 2
@@ -550,10 +652,11 @@ def test_raise_if_invalid_multiply(Statistics, Regression):
         stats1 * stats2
 
 
-@pytest.mark.parametrize('ExponentialStatistics', [
-    CoreExponentialStatistics, FastExponentialStatistics
-])
-def test_raise_if_invalid_multiply(ExponentialStatistics):
+@pytest.mark.parametrize(
+    'ExponentialStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
+def test_raise_if_invalid_multiply_exp(ExponentialStatistics):
     with pytest.raises(ValueError):
         ExponentialStatistics(0)
         ExponentialStatistics(1)

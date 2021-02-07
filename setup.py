@@ -4,6 +4,12 @@ Build binary extension in-place for testing with:
 
 $ python setup.py build_ext --inplace
 
+Create annotations for optimization:
+
+    $ cython -3 -a runstats/core.py
+    $ python3 -m http.server
+    # Open runstats/core.html in browser.
+
 """
 
 from setuptools import Extension, setup
@@ -17,8 +23,10 @@ class Tox(TestCommand):
         TestCommand.finalize_options(self)
         self.test_args = []
         self.test_suite = True
+
     def run_tests(self):
         import tox
+
         errno = tox.cmdline(self.test_args)
         exit(errno)
 
@@ -45,27 +53,28 @@ args = dict(
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy',
     ),
 )
 
 try:
     from Cython.Build import cythonize
-    ext_modules = [Extension('runstats.fast', ['runstats/fast.pyx'])]
-    setup(ext_modules=cythonize(ext_modules), **args)
+
+    ext_modules = [Extension('runstats._core', ['runstats/core.py'])]
+    setup(
+        ext_modules=cythonize(ext_modules, language_level='3'),
+        **args,
+    )
 except Exception as exception:
-    print('*' * 75)
+    print('*' * 79)
     print(exception)
-    print('*' * 75)
-    print('Failed to setup runstats with Cython. See error message above.')
-    print('Using pure-Python implementation.')
-    print ('*' * 75)
+    print('*' * 79)
+    print('Failed to setup sksequitur with Cython. See error message above.')
+    print('Falling back to pure-Python implementation.')
+    print('*' * 79)
     setup(**args)

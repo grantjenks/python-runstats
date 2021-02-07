@@ -19,19 +19,19 @@ calculating the variance and other higher moments requires multiple passes over
 the data. With generators, this is not possible and so computing statistics in
 a single pass is necessary.
 
-Last but not least, there are situations where a user is not interested in a
-complete summary of the entire stream of data but rather wants to observe the
-'current' state of the system based on the recent past. In these cases
-exponential statistics come in handy. Instead of weighting all values uniformly
-in the statistics computation, one can exponentially decay the weight of older
-values given a provided decay rate. Thus, one can regulate in how far the e.g.
-current mean is based on recent or old values.
+There are also scenarios where a user is not interested in a complete summary
+of the entire stream of data but rather wants to observe the current state of
+the system based on the recent past. In these cases exponential statistics are
+used. Instead of weighting all values uniformly in the statistics computation,
+an exponential decay weight is applied to older values. The decay rate is
+configurable and provides a mechanism for balancing recent values with past
+values.
 
 The Python `RunStats`_ module was designed for these cases by providing classes
-for computing online summary statistics and online linear regression
-in a single pass. Summary objects work on sequences which may be larger than
-memory or disk space permit. They may also be efficiently combined together to
-create aggregate summaries.
+for computing online summary statistics and online linear regression in a
+single pass. Summary objects work on sequences which may be larger than memory
+or disk space permit. They may also be efficiently combined together to create
+aggregate summaries.
 
 Features
 --------
@@ -44,18 +44,14 @@ Features
 - Statistics summary computes mean, variance, standard deviation, skewness,
   kurtosis, minimum and maximum.
 - Regression summary computes slope, intercept and correlation.
-- Developed on Python 3.7
-- Tested on CPython 2.7, 3.5, 3.6, 3.7, 3.8 and PyPy, PyPy3
-- Tested using Travis CI
+- Developed on Python 3.9
+- Tested on CPython 3.6, 3.7, 3.8, 3.9
+- Tested on Linux, Mac OS X, and Windows
+- Tested using GitHub Actions
 
 .. image:: https://github.com/grantjenks/python-runstats/workflows/integration/badge.svg
    :target: http://www.grantjenks.com/docs/runstats/
 
-.. image:: https://api.travis-ci.org/grantjenks/python-runstats.svg?branch=master
-   :target: http://www.grantjenks.com/docs/runstats/
-
-.. image:: https://ci.appveyor.com/api/projects/status/github/grantjenks/python-runstats?branch=master&svg=true
-   :target: http://www.grantjenks.com/docs/runstats/
 
 Quickstart
 ----------
@@ -75,10 +71,12 @@ function:
 
 .. code-block:: python
 
-   >>> from runstats import Statistics, Regression, ExponentialStatistics
-   >>> help(Statistics)
-   >>> help(Regression)
-   >>> help(ExponentialStatistics)
+   >>> import runstats
+   >>> help(runstats)
+   >>> help(runstats.Statistics)
+   >>> help(runstats.Regression)
+   >>> help(runstats.ExponentialStatistics)
+
 
 Tutorial
 --------
@@ -207,56 +205,78 @@ Both constructors accept an optional iterable that is consumed and pushed into
 the summary. Note that you may pass a generator as an iterable and the
 generator will be entirely consumed.
 
-Last but not least, there are ExponentialStatistics which are constructed by
-providing: a decay rate that is strictly larger than 0.0 and strictly smaller than 1.0
-(default: 0.9), a initial mean and a initial variance (default: 0.0) and finally
-an iterable as for the other two classes. The decay rate is the weight by which
-the current statistics are discounted by. Consequently, (1.0 - decay) is the weight of the
-new value. The class has five methods of modification:
-`push`, `clear`, sum and multiply as the Statistics class and additionally
-`change_decay` to modify the current decay rate in-place.
-The clear method allows to optionally set a new mean, new variance and new
-decay. If none are provided mean and variance reset to 0, while the decay is not
-changed. If two ExponentialStatistics are being added the leftmost decay
-is the decay of the new object.
-The statistics supported are `mean`, `variance` and `stddev`.
-The `len` method is not supported.
+The ExponentialStatistics are constructed by providing a decay rate, initial
+mean, and initial variance. The decay rate has default 0.9 and must be between
+0 and 1. The initial mean and variance default to zero.
 
 .. code-block:: python
 
-   >>> exp_stats = ExponentialStatistics(decay=0.5, initial_mean=0.0, initial_variance=0.0)
-   >>> exp_stats.push(10)
+   >>> exp_stats = ExponentialStatistics()
+   >>> exp_stats.decay
+   0.9
    >>> exp_stats.mean()
-   5.0
-   >>> exp_stats.push(20)
-   >>> exp_stats.mean()
-   12.5
-   >>> exp_stats.change_decay(0.1)
-   >>> exp_stats.get_decay()
-   0.99
-   >>> exp_stats.push(100)
-   >>> exp_stats.mean()
-   13.375
-   >>> exp_stats.clear(new_mean=10.0, new_variance=2.0)
-   >>> new_exp_stats = ExponentialStatistics(decay=0.99, iterable=range(100))
-   >>> round(new_exp_stats.mean(), 2)
-   98.9
-   >>> round(new_exp_stats.variance(), 2)
-   0.12
-   >>> round(new_exp_stats.stddev(), 2)
-   0.35
-   # Multiply and add are perfect for exponentially weighting two 'batches'
-   >>> final_exp_stats = 0.5 * exp_stats + 0.5 * new_exp_stats
-   >>> round(final_exp_stats.mean(), 2)
-   54.44
-   >>> final_exp_stats.get_decay()
-   >>> final_exp_stats.clear(new_decay=0.5)
-   >>> final_exp_stats.get_state()
-   (0.0, 0.0, 0.5)
-   >>> exp_stats.set_state(final_exp_stats.get_state())
-   >>> exp_stats == final_exp_stats == exp_stats.copy()
-   True
+   0.0
+   >>> exp_stats.variance()
+   0.0
 
+The decay rate is the weight by which the current statistics are discounted
+by. Consequently, (1 - decay) is the weight of the new value. Like the `Statistics` class,
+there are four methods for modification: `push`, `clear`, sum and
+multiply.
+
+.. code-block:: python
+
+   >>> for num in range(10):
+   ...     exp_stats.push(num)
+   >>> exp_stats.mean()
+   0.0
+   >>> exp_stats.variance()
+   0.0
+   >>> exp_stats.stddev()
+   0.0
+
+The decay of the exponential statistics can also be changed. The value must be
+between 0 and 1.
+
+.. code-block:: python
+
+   >>> exp_stats.decay
+   0.9
+   >>> exp_stats.decay = 0.5
+   >>> exp_stats.decay
+   0.5
+   >>> exp_stats.decay = 10
+   Traceback ...
+
+The clear method allows to optionally set a new mean, new variance and new
+decay. If none are provided mean and variance reset to zero, while the decay is
+not changed.
+
+.. code-block:: python
+
+   >>> exp_stats.clear()
+   >>> exp_stats.decay
+   0.5
+   >>> exp_stats.mean()
+   0.0
+   >>> exp_stats.variance()
+   0.0
+
+If two `ExponentialStatistics` are added then the leftmost decay is used for
+the new object. The `len` method is not supported.
+
+.. code-block:: python
+
+   >>> alpha_stats = ExponentialStatistics()
+   >>> for num in range(10):
+   ...     alpha_stats.push(num)
+   >>> beta_stats = ExponentialStatistics(decay=0.1)
+   >>> for num in range(10):
+   ...     beta_stats.push(num)
+   >>> exp_stats = alpha_stats + beta_stats
+   >>> exp_stats.decay = 0.9
+   >>> exp_stats.mean()
+   0.0
 
 All internal calculations of the Statistics and Regression classes are based
 entirely on the C++ code by John Cook as posted in a couple of articles:
@@ -276,8 +296,10 @@ available if preferred.
 
 .. code-block:: python
 
-   >>> from runstats.core import Statistics, Regression, ExponentialStatistics  # pure-Python
-   >>> from runstats.fast import Statistics, Regression, ExponentialStatistics  # Cython-optimized
+   >>> import runstats.core  # Pure-Python
+   >>> runstats.core.Statistics
+   >>> import runstats.fast  # Cython-Optimized
+   >>> runstats.fast.Statistics
 
 When importing from `runstats` the `fast` version is preferred and the `core`
 version is used as fallback. Micro-benchmarking Statistics and Regression by
@@ -285,6 +307,7 @@ calling `push` repeatedly shows the Cython-optimized extension as 20-40 times
 faster than the pure-Python extension.
 
 .. _`RunStats`: http://www.grantjenks.com/docs/runstats/
+
 
 Reference and Indices
 ---------------------
@@ -301,10 +324,11 @@ Reference and Indices
 .. _`RunStats at GitHub`: https://github.com/grantjenks/python-runstats/
 .. _`RunStats Issue Tracker`: https://github.com/grantjenks/python-runstats/issues/
 
+
 License
 -------
 
-Copyright 2013-2019 Grant Jenks
+Copyright 2013-2021 Grant Jenks
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this file except in compliance with the License.  You may obtain a copy of the
