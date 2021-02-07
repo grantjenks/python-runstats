@@ -293,25 +293,19 @@ The ExponentialStatistics implementation is based on:
 
 * Finch, 2009, Incremental Calculation of Weighted Mean and Variance
 
-The pure-Python and Cython-optimized versions of `RunStats`_ are each directly
-available if preferred.
+The pure-Python version of `RunStats`_ is directly available if preferred.
 
 .. code-block:: python
 
    >>> import runstats.core   # Pure-Python
    >>> runstats.core.Statistics
    <class 'runstats.core.Statistics'>
-   >>> import runstats._core  # Cython-Optimized
-   >>> runstats._core.Statistics
-   <class 'runstats._core.Statistics'>
-   >>> import runstats        # Prefers Cython-Optimized if available.
-   >>> runstats.Statistics
-   <class 'runstats._core.Statistics'>
 
-When importing from `runstats` the `fast` version is preferred and the `core`
-version is used as fallback. Micro-benchmarking Statistics and Regression by
-calling `push` repeatedly shows the Cython-optimized extension as 20-40 times
-faster than the pure-Python extension.
+When importing from `runstats` the Cython-optimized version `_core` is
+preferred and the `core` version is used as fallback. Micro-benchmarking
+Statistics and Regression by calling `push` repeatedly shows the
+Cython-optimized extension as 20-40 times faster than the pure-Python
+extension.
 
 .. _`RunStats`: http://www.grantjenks.com/docs/runstats/
 
