@@ -1,6 +1,8 @@
 """
-Python RunStats - Online Statistics and Regression
-==================================================
+Python RunStats API
+===================
+
+Online statistics and regression.
 
 """
 
