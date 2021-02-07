@@ -33,6 +33,7 @@ single pass. Summary objects work on sequences which may be larger than memory
 or disk space permit. They may also be efficiently combined together to create
 aggregate summaries.
 
+
 Features
 --------
 

@@ -587,36 +587,12 @@ def test_multiply(Statistics, Regression):
     stats5 = math.e * stats1
     assert stats1.mean() == stats5.mean()
 
-@pytest.mark.parametrize('ExponentialStatistics', [
-    CoreExponentialStatistics, FastExponentialStatistics
-])
-def test_expoential_batch(ExponentialStatistics):
-    random.seed(0)
-
-    alpha = [random.random() for _ in range(count)]
-    beta = [random.random() * 2 for _ in range(count)]
-
-    alpha_exp_stats = ExponentialStatistics(0.1, iterable=alpha)
-    beta_exp_stats = ExponentialStatistics(0.9, iterable=beta)
-
-    gamma_exp_stats = alpha_exp_stats * 0.3 + beta_exp_stats * 0.7
-
-    weighted_mean = alpha_exp_stats.mean() * 0.3 + beta_exp_stats.mean() * 0.7
-    assert weighted_mean == gamma_exp_stats.mean()
-
-    weighted_var = alpha_exp_stats.variance() * 0.3 \
-                   + beta_exp_stats.variance() * 0.7
-    assert weighted_var == gamma_exp_stats.variance()
-    assert alpha_exp_stats._decay == gamma_exp_stats._decay
-    assert beta_exp_stats._decay != gamma_exp_stats._decay
-
-
 
 @pytest.mark.parametrize(
     'ExponentialStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_expoential_batch(ExponentialStatistics):
+def test_exponential_batch(ExponentialStatistics):
     random.seed(0)
 
     alpha = [random.random() for _ in range(count)]

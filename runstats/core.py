@@ -248,7 +248,7 @@ class ExponentialStatistics:
 
     Based on
     "Finch, 2009, Incremental Calculation of Weighted Mean and Variance" at
-    https://fanf2.user.srcf.net/hermes/doc/antiforgery/stats.pdf
+    https://nanopdf.com/download/incremental-calculation-of-weighted-mean-and-variance_pdf
 
     For an explanation of these statistics refer to e.g.:
     https://nestedsoftware.com/2018/04/04/exponential-moving-average-on-streaming-data-4hhl.24876.html
@@ -381,6 +381,7 @@ class ExponentialStatistics:
         self._mean *= that
         self._variance *= that
         return self
+
 
 def make_exponential_statistics(state):
     """Make ExponentialStatistics object from state."""
