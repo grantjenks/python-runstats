@@ -163,9 +163,8 @@ def test_exponential_statistics(ExponentialStatistics):
 
     alpha_exp_stats_zero.clear()
     alpha_exp_stats_zero.decay = 0.1
-    alpha_exp_stats_init.clear(
-        decay=0.1, mean=mean(alpha), variance=variance(alpha, 0)
-    )
+    alpha_exp_stats_init.clear()
+    alpha_exp_stats_init.decay = 0.1
 
     for val in big_alpha:
         alpha_exp_stats_zero.push(val)

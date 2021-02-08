@@ -1,6 +1,7 @@
 """Python RunStats
 
-Compute Statistics, Exponential Statistics and Regression in a single pass.
+Compute Statistics, Exponential Statistics, Regression and Exponential
+Covariance in a single pass.
 
 """
 
@@ -244,7 +245,7 @@ def make_statistics(state):
 class ExponentialStatistics:
     """Compute exponential mean and variance in a single pass.
 
-    ExponentialStatistics objects may also be copied.
+    ExponentialStatistics objects may also be added and copied.
 
     Based on
     "Finch, 2009, Incremental Calculation of Weighted Mean and Variance" at
@@ -271,8 +272,10 @@ class ExponentialStatistics:
 
         """
         self.decay = decay
-        self._mean = float(mean)
-        self._variance = float(variance)
+        self._initial_mean = float(mean)
+        self._initial_variance = float(variance)
+        self._mean = self._initial_mean
+        self._variance = self._initial_variance
 
         for value in iterable:
             self.push(value)
@@ -289,12 +292,10 @@ class ExponentialStatistics:
             raise ValueError('decay must be between 0 and 1')
         self._decay = value
 
-    def clear(self, mean=0.0, variance=0.0, decay=None):
+    def clear(self):
         """Clear ExponentialStatistics object."""
-        self._mean = float(mean)
-        self._variance = float(variance)
-        if decay is not None:
-            self.decay = decay
+        self._mean = self._initial_mean
+        self._variance = self._initial_variance
 
     def __eq__(self, that):
         return self.get_state() == that.get_state()
@@ -304,12 +305,20 @@ class ExponentialStatistics:
 
     def get_state(self):
         """Get internal state."""
-        return self._decay, self._mean, self._variance
+        return (
+            self._decay,
+            self._initial_mean,
+            self._initial_variance,
+            self._mean,
+            self._variance,
+        )
 
     def set_state(self, state):
         """Set internal state."""
         (
             self._decay,
+            self._initial_mean,
+            self._initial_variance,
             self._mean,
             self._variance,
         ) = state
@@ -389,8 +398,7 @@ def make_exponential_statistics(state):
 
 
 class Regression(object):
-    """
-    Compute simple linear regression in a single pass.
+    """Compute simple linear regression in a single pass.
 
     Computes the slope, intercept, and correlation.
     Regression objects may also be added together and copied.
@@ -522,6 +530,125 @@ class Regression(object):
 def make_regression(state):
     """Make Regression object from state."""
     return Regression.fromstate(state)
+
+
+class ExponentialCovariance(object):
+    """Compute exponential covariance and correlation in a single pass.
+
+    ExponentialCovariance objects may also be added and copied.
+
+    """
+
+    def __init__(
+        self,
+        decay=0.9,
+        mean_x=0.0,
+        variance_x=0.0,
+        mean_y=0.0,
+        variance_y=0.0,
+        covariance=0.0,
+        iterable=(),
+    ):
+        """Initialize ExponentialCovariance object.
+
+        Incrementally tracks covariance and exponentially discounts old
+        values.
+
+        Requires a `decay` rate in exclusive range (0, 1) for discounting
+        previous statistics.
+
+        Optionally allows setting initial covariance. Default 0.
+
+        Iterates optional parameter `iterable` and pushes each pair into the
+        statistics summary.
+
+        """
+        self.decay = decay
+        self._initial_covariance = float(covariance)
+        self._covariance = self._initial_covariance
+        self._xstats = ExponentialStatistics(
+            decay=decay, mean=mean_x, variance=variance_x, iterable=iterable
+        )
+        self._ystats = ExponentialStatistics(
+            decay=decay, mean=mean_y, variance=variance_y, iterable=iterable
+        )
+
+        for x_val, y_val in iterable:
+            self.push(x_val, y_val)
+
+    @property
+    def decay(self):
+        """Exponential decay rate of old values."""
+        return self._decay
+
+    @decay.setter
+    def decay(self, value):
+        value = float(value)
+        self._xstats.decay = value
+        self._ystats.decay = value
+        self._decay = value
+
+    def clear(self):
+        """Clear ExponentialCovariance object."""
+        self._xstats.clear()
+        self._ystats.clear()
+        self._covariance = self._initial_covariance
+
+    def __eq__(self, that):
+        return self.get_state() == that.get_state()
+
+    def __ne__(self, that):
+        return self.get_state() != that.get_state()
+
+    def get_state(self):
+        """Get internal state."""
+        return (
+            self._decay,
+            self._initial_covariance,
+            self._covariance,
+            self._xstats.get_state(),
+            self._ystats.get_state(),
+        )
+
+    def set_state(self, state):
+        """Set internal state."""
+        decay, initial_covariance, covariance, xstate, ystate = state
+        self._decay = decay
+        self._initial_covariance = initial_covariance
+        self._covariance = covariance
+        self._xstats.set_state(xstate)
+        self._ystats.set_state(ystate)
+
+    @classmethod
+    def fromstate(cls, state):
+        """Return ExponentialCovariance object from state."""
+        stats = cls()
+        stats.set_state(state)
+        return stats
+
+    def __reduce__(self):
+        return make_exponential_covariance, (self.get_state(),)
+
+    def copy(self, _=None):
+        """Copy ExponentialCovariance object."""
+        return self.fromstate(self.get_state())
+
+    __copy__ = copy
+    __deepcopy__ = copy
+
+    def push(self, x_val, y_val):
+        pass
+
+    def covariance(self):
+        return self._covariance
+
+    def correlation(self):
+        pass
+
+
+def make_exponential_covariance(state):
+    """Make Regression object from state."""
+    return ExponentialCovariance.fromstate(state)
 
 
 if __name__ == 'runstats.core':  # pragma: no cover
