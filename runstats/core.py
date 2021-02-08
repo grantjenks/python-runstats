@@ -8,7 +8,7 @@ Covariance in a single pass.
 from __future__ import division
 
 
-class Statistics(object):
+class Statistics:
     """Compute statistics in a single pass.
 
     Computes the minimum, maximum, mean, variance, standard deviation,
@@ -25,7 +25,8 @@ class Statistics(object):
         Iterates optional parameter `iterable` and pushes each value into the
         statistics summary.
         """
-        self.clear()
+        self._count = self._eta = self._rho = self._tau = self._phi = 0.0
+        self._min = self._max = float('nan')
 
         for value in iterable:
             self.push(value)
@@ -288,7 +289,7 @@ class ExponentialStatistics:
     @decay.setter
     def decay(self, value):
         value = float(value)
-        if not (0 <= value <= 1):
+        if not 0 <= value <= 1:
             raise ValueError('decay must be between 0 and 1')
         self._decay = value
 
@@ -397,8 +398,9 @@ def make_exponential_statistics(state):
     return ExponentialStatistics.fromstate(state)
 
 
-class Regression(object):
-    """Compute simple linear regression in a single pass.
+class Regression:
+    """
+    Compute simple linear regression in a single pass.
 
     Computes the slope, intercept, and correlation.
     Regression objects may also be added together and copied.
@@ -415,7 +417,7 @@ class Regression(object):
         """
         self._xstats = Statistics()
         self._ystats = Statistics()
-        self.clear()
+        self._count = self._sxy = 0.0
 
         for xcoord, ycoord in iterable:
             self.push(xcoord, ycoord)

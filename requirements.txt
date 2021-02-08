@@ -9,6 +9,7 @@ mypy
 pylint
 pytest
 pytest-cov
+pytest-xdist
 rstcheck
 sphinx
 tox

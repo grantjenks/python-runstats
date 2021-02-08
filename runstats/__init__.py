@@ -1,10 +1,15 @@
 """
-Python RunStats - Online Statistics and Regression
-==================================================
+Python RunStats API
+===================
+
+Online statistics and regression.
 
 """
 
-from .core import ExponentialStatistics, Regression, Statistics
+try:
+    from ._core import ExponentialStatistics, Regression, Statistics
+except ImportError:  # pragma: no cover
+    from .core import ExponentialStatistics, Regression, Statistics
 
 __all__ = ['Statistics', 'Regression', 'ExponentialStatistics']
 __title__ = 'runstats'
