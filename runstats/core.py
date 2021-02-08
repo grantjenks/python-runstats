@@ -565,15 +565,13 @@ class ExponentialCovariance(object):
         statistics summary.
 
         """
-        self.decay = decay
         self._initial_covariance = float(covariance)
         self._covariance = self._initial_covariance
         self._xstats = ExponentialStatistics(
-            decay=decay, mean=mean_x, variance=variance_x, iterable=iterable
-        )
+            decay=decay, mean=mean_x, variance=variance_x)
         self._ystats = ExponentialStatistics(
-            decay=decay, mean=mean_y, variance=variance_y, iterable=iterable
-        )
+            decay=decay, mean=mean_y, variance=variance_y)
+        self.decay = decay
 
         for x_val, y_val in iterable:
             self.push(x_val, y_val)
@@ -638,14 +636,25 @@ class ExponentialCovariance(object):
     __copy__ = copy
     __deepcopy__ = copy
 
-    def push(self, x_val, y_val):
-        pass
+    def push(self, x_val, y_val):  # TODO: is that the same as with same mean
+        """Add a pair `(x, y)` to the ExponentialCovariance summary."""
+        self._xstats.push(x_val)
+        alpha = (1.0 - self.decay)
+        self._covariance = self.decay * self.covariance() + alpha * (x_val - self._xstats.mean()) * (y_val - self._ystats.mean())
+        self._ystats.push(y_val)
 
     def covariance(self):
+        """Covariance of values"""
         return self._covariance
 
+    # TODO: is it fine to use that variance, not more correct to used n-1 variance?
+    # TODO: numerical stability
     def correlation(self):
-        pass
+        """Correlation of values"""
+        root_x = self._xstats.variance() ** 0.5
+        root_y = self._ystats.variance() ** 0.5
+        denom = root_x * root_y
+        return self.covariance() / denom
 
 
 def make_exponential_covariance(state):
