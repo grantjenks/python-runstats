@@ -7,11 +7,26 @@ Online statistics and regression.
 """
 
 try:
-    from ._core import ExponentialCovariance, ExponentialStatistics, Regression, Statistics
+    from ._core import (
+        ExponentialCovariance,
+        ExponentialStatistics,
+        Regression,
+        Statistics,
+    )
 except ImportError:  # pragma: no cover
-    from .core import ExponentialCovariance, ExponentialStatistics, Regression, Statistics
+    from .core import (
+        ExponentialCovariance,
+        ExponentialStatistics,
+        Regression,
+        Statistics,
+    )
 
-__all__ = ['Statistics', 'Regression', 'ExponentialStatistics', 'ExponentialCovariance']
+__all__ = [
+    'Statistics',
+    'Regression',
+    'ExponentialStatistics',
+    'ExponentialCovariance',
+]
 __title__ = 'runstats'
 __version__ = '1.8.0'
 __author__ = 'Grant Jenks'

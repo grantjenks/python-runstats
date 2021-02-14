@@ -6,7 +6,6 @@ Covariance in a single pass.
 """
 
 from __future__ import division
-from math import exp, log
 
 
 class Statistics:
@@ -351,7 +350,6 @@ class ExponentialStatistics:
         self._variance += alpha * (self._decay * diff ** 2 - self._variance)
         self._mean += incr
 
-
     def mean(self):
         """Exponential mean of values."""
         return self._mean
@@ -570,9 +568,11 @@ class ExponentialCovariance(object):
         self._initial_covariance = float(covariance)
         self._covariance = self._initial_covariance
         self._xstats = ExponentialStatistics(
-            decay=decay, mean=mean_x, variance=variance_x)
+            decay=decay, mean=mean_x, variance=variance_x
+        )
         self._ystats = ExponentialStatistics(
-            decay=decay, mean=mean_y, variance=variance_y)
+            decay=decay, mean=mean_y, variance=variance_y
+        )
         self.decay = decay
 
         for x_val, y_val in iterable:
@@ -641,8 +641,10 @@ class ExponentialCovariance(object):
     def push(self, x_val, y_val):
         """Add a pair `(x, y)` to the ExponentialCovariance summary."""
         self._xstats.push(x_val)
-        alpha = (1.0 - self.decay)
-        self._covariance = self.decay * self.covariance() + alpha * (x_val - self._xstats.mean()) * (y_val - self._ystats.mean())
+        alpha = 1.0 - self.decay
+        self._covariance = self.decay * self.covariance() + alpha * (
+            x_val - self._xstats.mean()
+        ) * (y_val - self._ystats.mean())
         self._ystats.push(y_val)
 
     def covariance(self):
@@ -653,8 +655,6 @@ class ExponentialCovariance(object):
         """Correlation of values"""
         denom = self._xstats.stddev() * self._ystats.stddev()
         return self.covariance() / denom
-
-
 
 
 def make_exponential_covariance(state):
