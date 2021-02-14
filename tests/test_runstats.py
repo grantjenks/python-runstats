@@ -570,7 +570,7 @@ def test_pickle_exponential_statistics(ExponentialStatistics):
     'ExponentialCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
-def test_pickle_exponential_statistics(ExponentialCovariance):
+def test_pickle_exponential_covariance(ExponentialCovariance):
     exp_cov = ExponentialCovariance(0.9, iterable=zip(range(10), range(10)))
     for num in range(pickle.HIGHEST_PROTOCOL):
         pickled_exp_cov = pickle.dumps(exp_cov, protocol=num)
@@ -873,7 +873,7 @@ def test_raise_if_invalid_multiply(Statistics, Regression):
     'ExponentialStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_raise_if_invalid_decay_exp(ExponentialStatistics):
+def test_raise_if_invalid_decay_exp_stats(ExponentialStatistics):
     with pytest.raises(ValueError):
         ExponentialStatistics(0)
         ExponentialStatistics(1)
@@ -885,7 +885,7 @@ def test_raise_if_invalid_decay_exp(ExponentialStatistics):
     'ExponentialCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
-def test_raise_if_invalid_decay_exp(ExponentialCovariance):
+def test_raise_if_invalid_decay_exp_cov(ExponentialCovariance):
     with pytest.raises(ValueError):
         ExponentialCovariance(0)
         ExponentialCovariance(1)
