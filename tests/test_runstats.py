@@ -53,10 +53,6 @@ def kurtosis(values):
     return (numerator / denominator) - 3
 
 
-def error(value, test):
-    return abs((test - value) / value)
-
-
 def covariance(values):
     values = list(values)
     x_vals = [x for x, y in values]
@@ -64,6 +60,17 @@ def covariance(values):
     mean_x = mean(x_vals)
     mean_y = mean(y_vals)
     return sum((x - mean_x) * (y - mean_y) for x, y in values) / len(values)
+
+
+def correlation(values):
+    sigma_x = sum(xxx for xxx, yyy in values) / len(values)
+    sigma_y = sum(yyy for xxx, yyy in values) / len(values)
+    sigma_xy = sum(xxx * yyy for xxx, yyy in values) / len(values)
+    sigma_x2 = sum(xxx ** 2 for xxx, yyy in values) / len(values)
+    sigma_y2 = sum(yyy ** 2 for xxx, yyy in values) / len(values)
+    return (sigma_xy - sigma_x * sigma_y) / (
+        ((sigma_x2 - sigma_x ** 2) * (sigma_y2 - sigma_y ** 2)) ** 0.5
+    )
 
 
 def exponential_weight(decay, pos):
@@ -112,6 +119,10 @@ def exp_cov_cor(decay, iterable):
     correlation = covar / (variance_1 * variance_2) ** 0.5
 
     return covar, correlation
+
+
+def error(value, test):
+    return abs((test - value) / value)
 
 
 @pytest.mark.parametrize(
@@ -318,6 +329,9 @@ def test_exponential_covariance(ExponentialCovariance):
     assert exp_cov.decay == 0.1
     assert exp_cov == exp_cov_2
 
+    exp_cov_3 = exp_cov * 0.5 + exp_cov * 0.5
+    assert exp_cov_3 == exp_cov
+
 
 @pytest.mark.parametrize(
     'Statistics,Regression',
@@ -344,15 +358,15 @@ def test_add_exponential_statistics(ExponentialStatistics):
     assert (exp_stats10 + exp_stats0) == exp_stats10
 
 
-def correlation(values):
-    sigma_x = sum(xxx for xxx, yyy in values) / len(values)
-    sigma_y = sum(yyy for xxx, yyy in values) / len(values)
-    sigma_xy = sum(xxx * yyy for xxx, yyy in values) / len(values)
-    sigma_x2 = sum(xxx ** 2 for xxx, yyy in values) / len(values)
-    sigma_y2 = sum(yyy ** 2 for xxx, yyy in values) / len(values)
-    return (sigma_xy - sigma_x * sigma_y) / (
-        ((sigma_x2 - sigma_x ** 2) * (sigma_y2 - sigma_y ** 2)) ** 0.5
-    )
+@pytest.mark.parametrize(
+    'ExponentialCovariance',
+    [CoreExponentialCovariance, FastExponentialCovariance],
+)
+def test_add_exponential_covariance(ExponentialCovariance):
+    exp_cov0 = ExponentialCovariance(0.9)
+    exp_cov10 = ExponentialCovariance(0.9, iterable=zip(range(10), range(10)))
+    assert (exp_cov0 + exp_cov10) == exp_cov10
+    assert (exp_cov10 + exp_cov0) == exp_cov10
 
 
 @pytest.mark.parametrize(
@@ -467,6 +481,30 @@ def test_get_set_state_exponential_statistics(ExponentialStatistics):
 
 
 @pytest.mark.parametrize(
+    'ExponentialCovariance',
+    [CoreExponentialCovariance, FastExponentialCovariance],
+)
+def test_get_set_state_exponential_covariance(ExponentialCovariance):
+    random.seed(0)
+    vals = [(random.random(), random.random()) for _ in range(count)]
+    exp_cov = ExponentialCovariance(iterable=vals)
+    exp_state = exp_cov.get_state()
+
+    new_exp_cov = ExponentialCovariance(0.8)
+    assert exp_cov != new_exp_cov
+    assert new_exp_cov.decay == 0.8
+    new_exp_cov.set_state(exp_state)
+    assert new_exp_cov.decay == 0.9
+    assert exp_cov == new_exp_cov
+    new_exp_cov.decay = 0.1
+    assert exp_cov != new_exp_cov
+    assert exp_cov.covariance() == new_exp_cov.covariance()
+    assert new_exp_cov.decay == 0.1
+
+    assert exp_cov == ExponentialCovariance.fromstate(exp_cov.get_state())
+
+
+@pytest.mark.parametrize(
     'Statistics,Regression',
     [
         (CoreStatistics, CoreRegression),
@@ -529,6 +567,18 @@ def test_pickle_exponential_statistics(ExponentialStatistics):
 
 
 @pytest.mark.parametrize(
+    'ExponentialCovariance',
+    [CoreExponentialCovariance, FastExponentialCovariance],
+)
+def test_pickle_exponential_statistics(ExponentialCovariance):
+    exp_cov = ExponentialCovariance(0.9, iterable=zip(range(10), range(10)))
+    for num in range(pickle.HIGHEST_PROTOCOL):
+        pickled_exp_cov = pickle.dumps(exp_cov, protocol=num)
+        unpickled_exp_cov = pickle.loads(pickled_exp_cov)
+        assert exp_cov == unpickled_exp_cov, 'protocol: %s' % num
+
+
+@pytest.mark.parametrize(
     'Statistics,Regression',
     [
         (CoreStatistics, CoreRegression),
@@ -571,6 +621,18 @@ def test_copy_exponential_statistics(ExponentialStatistics):
 
 
 @pytest.mark.parametrize(
+    'ExponentialCovariance',
+    [CoreExponentialCovariance, FastExponentialCovariance],
+)
+def test_copy_exponential_covariance(ExponentialCovariance):
+    exp_cov = ExponentialCovariance(0.9, iterable=zip(range(10), range(10)))
+    copy_exp_cov = copy.copy(exp_cov)
+    assert exp_cov == copy_exp_cov
+    deepcopy_exp_cov = copy.deepcopy(exp_cov)
+    assert exp_cov == deepcopy_exp_cov
+
+
+@pytest.mark.parametrize(
     'Statistics,Regression',
     [
         (CoreStatistics, CoreRegression),
@@ -610,6 +672,18 @@ def test_equality_exponential_statistics(ExponentialStatistics):
     assert exp_stats1 == exp_stats2
     exp_stats2.push(42)
     assert exp_stats1 != exp_stats2
+
+
+@pytest.mark.parametrize(
+    'ExponentialCovariance',
+    [CoreExponentialCovariance, FastExponentialCovariance],
+)
+def test_equality_exponential_covariance(ExponentialCovariance):
+    exp_cov1 = ExponentialCovariance(0.9, iterable=enumerate(range(10)))
+    exp_cov2 = ExponentialCovariance(0.9, iterable=enumerate(range(10)))
+    assert exp_cov1 == exp_cov2
+    exp_cov2.push(42, 42)
+    assert exp_cov1 != exp_cov2
 
 
 @pytest.mark.parametrize(
@@ -691,13 +765,16 @@ def test_multiply(Statistics, Regression):
     'ExponentialStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_exponential_batch(ExponentialStatistics):
+def test_exponential_statistics_batch(ExponentialStatistics):
     random.seed(0)
 
     alpha = [random.random() for _ in range(count)]
     beta = [random.random() * 2 for _ in range(count)]
 
     alpha_exp_stats = ExponentialStatistics(0.1, iterable=alpha)
+
+    assert (alpha_exp_stats * 0.5 + alpha_exp_stats * 0.5) == alpha_exp_stats
+
     beta_exp_stats = ExponentialStatistics(0.9, iterable=beta)
 
     gamma_exp_stats = alpha_exp_stats * 0.3 + beta_exp_stats * 0.7
@@ -711,6 +788,31 @@ def test_exponential_batch(ExponentialStatistics):
     assert weighted_var == gamma_exp_stats.variance()
     assert alpha_exp_stats._decay == gamma_exp_stats._decay
     assert beta_exp_stats._decay != gamma_exp_stats._decay
+
+
+@pytest.mark.parametrize(
+    'ExponentialCovariance',
+    [CoreExponentialCovariance, FastExponentialCovariance],
+)
+def test_exponential_covariance_batch(ExponentialCovariance):
+    random.seed(0)
+
+    alpha = [(random.random(), random.random()) for _ in range(count)]
+    beta = [(random.random() * 2, random.random() * 2) for _ in range(count)]
+
+    alpha_exp_cov = ExponentialCovariance(0.1, iterable=alpha)
+
+    assert (alpha_exp_cov * 0.5 + alpha_exp_cov * 0.5) == alpha_exp_cov
+
+    beta_exp_cov = ExponentialCovariance(0.9, iterable=beta)
+
+    gamma_exp_cov = alpha_exp_cov * 0.3 + beta_exp_cov * 0.7
+
+    weighted_cov = alpha_exp_cov.covariance() * 0.3 + beta_exp_cov.covariance() * 0.7
+    assert weighted_cov == gamma_exp_cov.covariance()
+
+    assert alpha_exp_cov._decay == gamma_exp_cov._decay
+    assert beta_exp_cov._decay != gamma_exp_cov._decay
 
 
 @pytest.mark.parametrize(
@@ -769,9 +871,21 @@ def test_raise_if_invalid_multiply(Statistics, Regression):
     'ExponentialStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_raise_if_invalid_multiply_exp(ExponentialStatistics):
+def test_raise_if_invalid_decay_exp(ExponentialStatistics):
     with pytest.raises(ValueError):
         ExponentialStatistics(0)
         ExponentialStatistics(1)
         ExponentialStatistics(-1)
         ExponentialStatistics(2)
+
+
+@pytest.mark.parametrize(
+    'ExponentialCovariance',
+    [CoreExponentialCovariance, FastExponentialCovariance],
+)
+def test_raise_if_invalid_decay_exp(ExponentialCovariance):
+    with pytest.raises(ValueError):
+        ExponentialCovariance(0)
+        ExponentialCovariance(1)
+        ExponentialCovariance(-1)
+        ExponentialCovariance(2)
