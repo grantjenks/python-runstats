@@ -808,7 +808,9 @@ def test_exponential_covariance_batch(ExponentialCovariance):
 
     gamma_exp_cov = alpha_exp_cov * 0.3 + beta_exp_cov * 0.7
 
-    weighted_cov = alpha_exp_cov.covariance() * 0.3 + beta_exp_cov.covariance() * 0.7
+    weighted_cov = (
+        alpha_exp_cov.covariance() * 0.3 + beta_exp_cov.covariance() * 0.7
+    )
     assert weighted_cov == gamma_exp_cov.covariance()
 
     assert alpha_exp_cov._decay == gamma_exp_cov._decay
