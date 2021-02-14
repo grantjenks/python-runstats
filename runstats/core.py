@@ -6,6 +6,7 @@ Covariance in a single pass.
 """
 
 from __future__ import division
+from math import exp, log
 
 
 class Statistics:
@@ -350,6 +351,7 @@ class ExponentialStatistics:
         self._variance += alpha * (self._decay * diff ** 2 - self._variance)
         self._mean += incr
 
+
     def mean(self):
         """Exponential mean of values."""
         return self._mean
@@ -636,7 +638,7 @@ class ExponentialCovariance(object):
     __copy__ = copy
     __deepcopy__ = copy
 
-    def push(self, x_val, y_val):  # TODO: is that the same as with same mean
+    def push(self, x_val, y_val):
         """Add a pair `(x, y)` to the ExponentialCovariance summary."""
         self._xstats.push(x_val)
         alpha = (1.0 - self.decay)
@@ -647,14 +649,12 @@ class ExponentialCovariance(object):
         """Covariance of values"""
         return self._covariance
 
-    # TODO: is it fine to use that variance, not more correct to used n-1 variance?
-    # TODO: numerical stability
     def correlation(self):
         """Correlation of values"""
-        root_x = self._xstats.variance() ** 0.5
-        root_y = self._ystats.variance() ** 0.5
-        denom = root_x * root_y
+        denom = self._xstats.stddev() * self._ystats.stddev()
         return self.covariance() / denom
+
+
 
 
 def make_exponential_covariance(state):

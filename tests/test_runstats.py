@@ -6,13 +6,16 @@ import copy
 import math
 import pickle
 import random
+import itertools
 
 import pytest
 
 from runstats import ExponentialStatistics as FastExponentialStatistics
+from runstats import ExponentialCovariance as FastExponentialCovariance
 from runstats import Regression as FastRegression
 from runstats import Statistics as FastStatistics
 from runstats.core import ExponentialStatistics as CoreExponentialStatistics
+from runstats.core import ExponentialCovariance as CoreExponentialCovariance
 from runstats.core import Regression as CoreRegression
 from runstats.core import Statistics as CoreStatistics
 
@@ -52,6 +55,54 @@ def kurtosis(values):
 
 def error(value, test):
     return abs((test - value) / value)
+
+
+def exponential_weight(decay, pos):
+    return (1-decay) * decay ** pos
+
+
+def exp_mean_var(decay, iterable):
+    indecies = list(range(len(iterable)))
+    weights = list(map(lambda x: exponential_weight(decay, x), indecies))[::-1]
+
+    mean = 0.0
+    for val, weight in zip(iterable, weights):
+        mean += val * weight
+
+    variance = (0 - mean) ** 2 * (1 - sum(weights))
+    for val, weight in zip(iterable, weights):
+        variance += (val - mean) ** 2 * weight
+
+    return mean, variance
+
+
+def exp_cov_cor(decay, iterable):
+    lst = list(iterable)
+    indecies = list(range(len(lst)))
+    weights = list(map(lambda x: exponential_weight(decay, x), indecies))[::-1]
+
+    mean_1 = 0.0
+    mean_2 = 0.0
+    for vals, weight in zip(lst, weights):
+        x_1, x_2 = vals
+        mean_1 += x_1 * weight
+        mean_2 += x_2 * weight
+
+    variance_1 = (0 - mean_1) ** 2 * (1 - sum(weights))
+    variance_2 = (0 - mean_2) ** 2 * (1 - sum(weights))
+    for vals, weight in zip(lst, weights):
+        x_1, x_2 = vals
+        variance_1 += (x_1 - mean_1) ** 2 * weight
+        variance_2 += (x_2 - mean_2) ** 2 * weight
+
+    covar = (0 - mean_1) * (0 - mean_2) * (1 - sum(weights))
+    for vals, weight in zip(lst, weights):
+        x_1, x_2 = vals
+        covar += (x_1 - mean_1) * (x_2 - mean_2) * weight
+
+    correlation = covar / (variance_1 * variance_2) ** 0.5
+
+    return covar, correlation
 
 
 @pytest.mark.parametrize(
@@ -217,6 +268,40 @@ def test_exponential_statistics(ExponentialStatistics):
 
     assert (error(current_mean, alpha_exp_stats.mean())) > limit
     assert (error(current_variance, alpha_exp_stats.variance())) > limit
+
+
+@pytest.mark.parametrize(
+    'ExponentialStatistics, decay',
+    list(itertools.product(
+        [CoreExponentialStatistics, FastExponentialStatistics],
+        [0.01, 0.1, 0.3, 0.5, 0.7, 0.9, 0.99]
+    )),
+)
+def test_exponential_statistics_decays(ExponentialStatistics, decay):
+    random.seed(0)
+    alpha = [random.random() for _ in range(count)]
+    exp_stats = ExponentialStatistics(decay=decay, iterable=alpha)
+    true_mean, true_variance = exp_mean_var(decay=decay, iterable=alpha)
+
+    assert (error(true_mean, exp_stats.mean())) < limit
+    assert (error(true_mean, exp_stats.mean())) < limit
+
+
+@pytest.mark.parametrize(
+    'ExponentialCovariance, decay',
+    list(itertools.product(
+        [CoreExponentialCovariance, FastExponentialCovariance],
+        [0.01, 0.1, 0.3, 0.5, 0.7, 0.9, 0.99]
+    )),
+)
+def test_exponential_covariance_decays(ExponentialCovariance, decay):
+    random.seed(0)
+    alpha = [(random.random(), random.random()) for _ in range(count)]
+    exp_stats = ExponentialCovariance(decay=decay, iterable=alpha)
+    true_cov, true_cor = exp_cov_cor(decay=decay, iterable=alpha)
+
+    assert (error(true_cov, exp_stats.covariance())) < limit
+    assert (error(true_cor, exp_stats.correlation())) < limit
 
 
 @pytest.mark.parametrize(
