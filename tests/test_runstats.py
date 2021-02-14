@@ -280,25 +280,6 @@ def test_exponential_statistics(ExponentialStatistics):
 
 
 @pytest.mark.parametrize(
-    'ExponentialStatistics, decay',
-    list(
-        itertools.product(
-            [CoreExponentialStatistics, FastExponentialStatistics],
-            [0.01, 0.1, 0.3, 0.5, 0.7, 0.9, 0.99],
-        )
-    ),
-)
-def test_exponential_statistics_decays(ExponentialStatistics, decay):
-    random.seed(0)
-    alpha = [random.random() for _ in range(count)]
-    exp_stats = ExponentialStatistics(decay=decay, iterable=alpha)
-    true_mean, true_variance = exp_mean_var(decay=decay, iterable=alpha)
-
-    assert (error(true_mean, exp_stats.mean())) < limit
-    assert (error(true_mean, exp_stats.mean())) < limit
-
-
-@pytest.mark.parametrize(
     'ExponentialCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
@@ -336,25 +317,6 @@ def test_exponential_covariance(ExponentialCovariance):
     exp_cov_2.decay = 0.1
     assert exp_cov.decay == 0.1
     assert exp_cov == exp_cov_2
-
-
-@pytest.mark.parametrize(
-    'ExponentialCovariance, decay',
-    list(
-        itertools.product(
-            [CoreExponentialCovariance, FastExponentialCovariance],
-            [0.01, 0.1, 0.3, 0.5, 0.7, 0.9, 0.99],
-        )
-    ),
-)
-def test_exponential_covariance_decays(ExponentialCovariance, decay):
-    random.seed(0)
-    alpha = [(random.random(), random.random()) for _ in range(count)]
-    exp_stats = ExponentialCovariance(decay=decay, iterable=alpha)
-    true_cov, true_cor = exp_cov_cor(decay=decay, iterable=alpha)
-
-    assert (error(true_cov, exp_stats.covariance())) < limit
-    assert (error(true_cor, exp_stats.correlation())) < limit
 
 
 @pytest.mark.parametrize(
@@ -749,6 +711,44 @@ def test_exponential_batch(ExponentialStatistics):
     assert weighted_var == gamma_exp_stats.variance()
     assert alpha_exp_stats._decay == gamma_exp_stats._decay
     assert beta_exp_stats._decay != gamma_exp_stats._decay
+
+
+@pytest.mark.parametrize(
+    'ExponentialStatistics, decay',
+    list(
+        itertools.product(
+            [CoreExponentialStatistics, FastExponentialStatistics],
+            [0.01, 0.1, 0.3, 0.5, 0.7, 0.9, 0.99],
+        )
+    ),
+)
+def test_exponential_statistics_decays(ExponentialStatistics, decay):
+    random.seed(0)
+    alpha = [random.random() for _ in range(count)]
+    exp_stats = ExponentialStatistics(decay=decay, iterable=alpha)
+    true_mean, true_variance = exp_mean_var(decay=decay, iterable=alpha)
+
+    assert (error(true_mean, exp_stats.mean())) < limit
+    assert (error(true_mean, exp_stats.mean())) < limit
+
+
+@pytest.mark.parametrize(
+    'ExponentialCovariance, decay',
+    list(
+        itertools.product(
+            [CoreExponentialCovariance, FastExponentialCovariance],
+            [0.01, 0.1, 0.3, 0.5, 0.7, 0.9, 0.99],
+        )
+    ),
+)
+def test_exponential_covariance_decays(ExponentialCovariance, decay):
+    random.seed(0)
+    alpha = [(random.random(), random.random()) for _ in range(count)]
+    exp_stats = ExponentialCovariance(decay=decay, iterable=alpha)
+    true_cov, true_cor = exp_cov_cor(decay=decay, iterable=alpha)
+
+    assert (error(true_cov, exp_stats.covariance())) < limit
+    assert (error(true_cor, exp_stats.correlation())) < limit
 
 
 @pytest.mark.parametrize(
