@@ -534,7 +534,7 @@ def make_regression(state):
     return Regression.fromstate(state)
 
 
-class ExponentialCovariance(object):
+class ExponentialCovariance:
     """Compute exponential covariance and correlation in a single pass.
 
     ExponentialCovariance objects may also be added and copied.
@@ -655,6 +655,38 @@ class ExponentialCovariance(object):
         """Correlation of values"""
         denom = self._xstats.stddev() * self._ystats.stddev()
         return self.covariance() / denom
+
+    def __add__(self, that):
+        """Add two ExponentialCovariance objects together."""
+        sigma = self.copy()
+        sigma += that
+        return sigma
+
+    def __iadd__(self, that):
+        """Add another ExponentialCovariance object to this one."""
+        self._xstats += that._xstats
+        self._ystats += that._ystats
+        self._covariance += that.covariance()
+        return self
+
+    def __mul__(self, that):
+        """Multiply by a scalar to change ExponentialCovariance weighting."""
+        sigma = self.copy()
+        sigma *= that
+        return sigma
+
+    __rmul__ = __mul__
+
+    def __imul__(self, that):
+        """Multiply by a scalar to change ExponentialCovariance weighting
+        in-place.
+
+        """
+        that = float(that)
+        self._xstats *= that
+        self._ystats *= that
+        self._covariance *= that
+        return self
 
 
 def make_exponential_covariance(state):
