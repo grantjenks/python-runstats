@@ -550,7 +550,7 @@ class ExponentialCovariance:
         variance_y=0.0,
         covariance=0.0,
         iterable=(),
-    ):
+    ):  # pylint: disable=too-many-arguments
         """Initialize ExponentialCovariance object.
 
         Incrementally tracks covariance and exponentially discounts old

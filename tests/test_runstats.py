@@ -3,19 +3,19 @@
 """
 
 import copy
+import itertools
 import math
 import pickle
 import random
-import itertools
 
 import pytest
 
-from runstats import ExponentialStatistics as FastExponentialStatistics
 from runstats import ExponentialCovariance as FastExponentialCovariance
+from runstats import ExponentialStatistics as FastExponentialStatistics
 from runstats import Regression as FastRegression
 from runstats import Statistics as FastStatistics
-from runstats.core import ExponentialStatistics as CoreExponentialStatistics
 from runstats.core import ExponentialCovariance as CoreExponentialCovariance
+from runstats.core import ExponentialStatistics as CoreExponentialStatistics
 from runstats.core import Regression as CoreRegression
 from runstats.core import Statistics as CoreStatistics
 
