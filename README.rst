@@ -303,7 +303,7 @@ The pure-Python version of `RunStats`_ is directly available if preferred.
 .. code-block:: python
 
    >>> import runstats.core   # Pure-Python
-   >>> runstats.core.Statistics
+   >>> runstats._core.Statistics
    <class 'runstats._core.Statistics'>
 
 When importing from `runstats` the Cython-optimized version `_core` is
