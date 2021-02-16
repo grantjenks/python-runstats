@@ -2,10 +2,12 @@ from __future__ import print_function
 
 import sys
 
-from runstats import ExponentialStatistics as FastExponentialStatistics
+from runstats import ExponentialMovingStatistics as FastExponentialStatistics
 from runstats import Regression as FastRegression
 from runstats import Statistics as FastStatistics
-from runstats.core import ExponentialStatistics as CoreExponentialStatistics
+from runstats.core import (
+    ExponentialMovingStatistics as CoreExponentialStatistics,
+)
 from runstats.core import Regression as CoreRegression
 from runstats.core import Statistics as CoreStatistics
 

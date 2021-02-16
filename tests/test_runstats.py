@@ -11,11 +11,13 @@ import random
 import pytest
 
 from runstats import ExponentialCovariance as FastExponentialCovariance
-from runstats import ExponentialStatistics as FastExponentialStatistics
+from runstats import ExponentialMovingStatistics as FastExponentialStatistics
 from runstats import Regression as FastRegression
 from runstats import Statistics as FastStatistics
 from runstats.core import ExponentialCovariance as CoreExponentialCovariance
-from runstats.core import ExponentialStatistics as CoreExponentialStatistics
+from runstats.core import (
+    ExponentialMovingStatistics as CoreExponentialStatistics,
+)
 from runstats.core import Regression as CoreRegression
 from runstats.core import Statistics as CoreStatistics
 
@@ -202,16 +204,16 @@ def test_statistics(Statistics, Regression):
 
 
 @pytest.mark.parametrize(
-    'ExponentialStatistics',
+    'ExponentialMovingStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_exponential_statistics(ExponentialStatistics):
+def test_exponential_statistics(ExponentialMovingStatistics):
     random.seed(0)
     alpha = [random.random() for _ in range(count)]
     big_alpha = [random.random() for _ in range(count * 100)]
 
-    alpha_exp_stats_zero = ExponentialStatistics(0.9999)
-    alpha_exp_stats_init = ExponentialStatistics(
+    alpha_exp_stats_zero = ExponentialMovingStatistics(0.9999)
+    alpha_exp_stats_init = ExponentialMovingStatistics(
         decay=0.9999,
         mean=mean(alpha),
         variance=variance(alpha, 0),
@@ -253,9 +255,9 @@ def test_exponential_statistics(ExponentialStatistics):
         < limit
     )
 
-    alpha_exp_stats = ExponentialStatistics(0.1, iterable=alpha)
+    alpha_exp_stats = ExponentialMovingStatistics(0.1, iterable=alpha)
     beta = [random.random() * 2 for _ in range(count)]
-    beta_exp_stats = ExponentialStatistics(0.1)
+    beta_exp_stats = ExponentialMovingStatistics(0.1)
 
     assert alpha_exp_stats != beta_exp_stats
 
@@ -348,12 +350,12 @@ def test_add_statistics(Statistics, Regression):
 
 
 @pytest.mark.parametrize(
-    'ExponentialStatistics',
+    'ExponentialMovingStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_add_exponential_statistics(ExponentialStatistics):
-    exp_stats0 = ExponentialStatistics(0.9)
-    exp_stats10 = ExponentialStatistics(0.9, iterable=range(10))
+def test_add_exponential_statistics(ExponentialMovingStatistics):
+    exp_stats0 = ExponentialMovingStatistics(0.9)
+    exp_stats10 = ExponentialMovingStatistics(0.9, iterable=range(10))
     assert (exp_stats0 + exp_stats10) == exp_stats10
     assert (exp_stats10 + exp_stats0) == exp_stats10
 
@@ -456,16 +458,16 @@ def test_get_set_state_statistics(Statistics, Regression):
 
 
 @pytest.mark.parametrize(
-    'ExponentialStatistics',
+    'ExponentialMovingStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_get_set_state_exponential_statistics(ExponentialStatistics):
+def test_get_set_state_exponential_statistics(ExponentialMovingStatistics):
     random.seed(0)
     vals = [random.random() for _ in range(count)]
-    exp_stats = ExponentialStatistics(iterable=vals)
+    exp_stats = ExponentialMovingStatistics(iterable=vals)
     exp_state = exp_stats.get_state()
 
-    new_exp_stats = ExponentialStatistics(0.8)
+    new_exp_stats = ExponentialMovingStatistics(0.8)
     assert exp_stats != new_exp_stats
     assert new_exp_stats.decay == 0.8
     new_exp_stats.set_state(exp_state)
@@ -477,7 +479,9 @@ def test_get_set_state_exponential_statistics(ExponentialStatistics):
     assert exp_stats.variance() == new_exp_stats.variance()
     assert new_exp_stats.decay == 0.1
 
-    assert exp_stats == ExponentialStatistics.fromstate(exp_stats.get_state())
+    assert exp_stats == ExponentialMovingStatistics.fromstate(
+        exp_stats.get_state()
+    )
 
 
 @pytest.mark.parametrize(
@@ -555,11 +559,11 @@ def test_pickle_statistics(Statistics, Regression):
 
 
 @pytest.mark.parametrize(
-    'ExponentialStatistics',
+    'ExponentialMovingStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_pickle_exponential_statistics(ExponentialStatistics):
-    exp_stats = ExponentialStatistics(0.9, iterable=range(10))
+def test_pickle_exponential_statistics(ExponentialMovingStatistics):
+    exp_stats = ExponentialMovingStatistics(0.9, iterable=range(10))
     for num in range(pickle.HIGHEST_PROTOCOL):
         pickled_exp_stats = pickle.dumps(exp_stats, protocol=num)
         unpickled_exp_stats = pickle.loads(pickled_exp_stats)
@@ -609,11 +613,11 @@ def test_copy_statistics(Statistics, Regression):
 
 
 @pytest.mark.parametrize(
-    'ExponentialStatistics',
+    'ExponentialMovingStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_copy_exponential_statistics(ExponentialStatistics):
-    exp_stats = ExponentialStatistics(0.9, iterable=range(10))
+def test_copy_exponential_statistics(ExponentialMovingStatistics):
+    exp_stats = ExponentialMovingStatistics(0.9, iterable=range(10))
     copy_exp_stats = copy.copy(exp_stats)
     assert exp_stats == copy_exp_stats
     deepcopy_exp_stats = copy.deepcopy(exp_stats)
@@ -663,12 +667,12 @@ def test_equality_statistics(Statistics, Regression):
 
 
 @pytest.mark.parametrize(
-    'ExponentialStatistics',
+    'ExponentialMovingStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_equality_exponential_statistics(ExponentialStatistics):
-    exp_stats1 = ExponentialStatistics(0.9, iterable=range(10))
-    exp_stats2 = ExponentialStatistics(0.9, iterable=range(10))
+def test_equality_exponential_statistics(ExponentialMovingStatistics):
+    exp_stats1 = ExponentialMovingStatistics(0.9, iterable=range(10))
+    exp_stats2 = ExponentialMovingStatistics(0.9, iterable=range(10))
     assert exp_stats1 == exp_stats2
     exp_stats2.push(42)
     assert exp_stats1 != exp_stats2
@@ -762,20 +766,20 @@ def test_multiply(Statistics, Regression):
 
 
 @pytest.mark.parametrize(
-    'ExponentialStatistics',
+    'ExponentialMovingStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_exponential_statistics_batch(ExponentialStatistics):
+def test_exponential_statistics_batch(ExponentialMovingStatistics):
     random.seed(0)
 
     alpha = [random.random() for _ in range(count)]
     beta = [random.random() * 2 for _ in range(count)]
 
-    alpha_exp_stats = ExponentialStatistics(0.1, iterable=alpha)
+    alpha_exp_stats = ExponentialMovingStatistics(0.1, iterable=alpha)
 
     assert (alpha_exp_stats * 0.5 + alpha_exp_stats * 0.5) == alpha_exp_stats
 
-    beta_exp_stats = ExponentialStatistics(0.9, iterable=beta)
+    beta_exp_stats = ExponentialMovingStatistics(0.9, iterable=beta)
 
     gamma_exp_stats = alpha_exp_stats * 0.3 + beta_exp_stats * 0.7
 
@@ -818,7 +822,7 @@ def test_exponential_covariance_batch(ExponentialCovariance):
 
 
 @pytest.mark.parametrize(
-    'ExponentialStatistics, decay',
+    'ExponentialMovingStatistics, decay',
     list(
         itertools.product(
             [CoreExponentialStatistics, FastExponentialStatistics],
@@ -826,10 +830,10 @@ def test_exponential_covariance_batch(ExponentialCovariance):
         )
     ),
 )
-def test_exponential_statistics_decays(ExponentialStatistics, decay):
+def test_exponential_statistics_decays(ExponentialMovingStatistics, decay):
     random.seed(0)
     alpha = [random.random() for _ in range(count)]
-    exp_stats = ExponentialStatistics(decay=decay, iterable=alpha)
+    exp_stats = ExponentialMovingStatistics(decay=decay, iterable=alpha)
     true_mean, true_variance = exp_mean_var(decay=decay, iterable=alpha)
 
     assert (error(true_mean, exp_stats.mean())) < limit
@@ -870,15 +874,15 @@ def test_raise_if_invalid_multiply(Statistics, Regression):
 
 
 @pytest.mark.parametrize(
-    'ExponentialStatistics',
+    'ExponentialMovingStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_raise_if_invalid_decay_exp_stats(ExponentialStatistics):
+def test_raise_if_invalid_decay_exp_stats(ExponentialMovingStatistics):
     with pytest.raises(ValueError):
-        ExponentialStatistics(0)
-        ExponentialStatistics(1)
-        ExponentialStatistics(-1)
-        ExponentialStatistics(2)
+        ExponentialMovingStatistics(0)
+        ExponentialMovingStatistics(1)
+        ExponentialMovingStatistics(-1)
+        ExponentialMovingStatistics(2)
 
 
 @pytest.mark.parametrize(

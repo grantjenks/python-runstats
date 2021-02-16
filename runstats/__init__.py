@@ -9,14 +9,14 @@ Online statistics and regression.
 try:
     from ._core import (
         ExponentialCovariance,
-        ExponentialStatistics,
+        ExponentialMovingStatistics,
         Regression,
         Statistics,
     )
 except ImportError:  # pragma: no cover
     from .core import (
         ExponentialCovariance,
-        ExponentialStatistics,
+        ExponentialMovingStatistics,
         Regression,
         Statistics,
     )
@@ -24,7 +24,7 @@ except ImportError:  # pragma: no cover
 __all__ = [
     'Statistics',
     'Regression',
-    'ExponentialStatistics',
+    'ExponentialMovingStatistics',
     'ExponentialCovariance',
 ]
 __title__ = 'runstats'

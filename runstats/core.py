@@ -243,10 +243,10 @@ def make_statistics(state):
     return Statistics.fromstate(state)
 
 
-class ExponentialStatistics:
+class ExponentialMovingStatistics:
     """Compute exponential mean and variance in a single pass.
 
-    ExponentialStatistics objects may also be added and copied.
+    ExponentialMovingStatistics objects may also be added and copied.
 
     Based on
     "Finch, 2009, Incremental Calculation of Weighted Mean and Variance" at
@@ -258,7 +258,7 @@ class ExponentialStatistics:
     """
 
     def __init__(self, decay=0.9, mean=0.0, variance=0.0, iterable=()):
-        """Initialize ExponentialStatistics object.
+        """Initialize ExponentialMovingStatistics object.
 
         Incrementally tracks mean and variance and exponentially discounts old
         values.
@@ -294,7 +294,7 @@ class ExponentialStatistics:
         self._decay = value
 
     def clear(self):
-        """Clear ExponentialStatistics object."""
+        """Clear ExponentialMovingStatistics object."""
         self._mean = self._initial_mean
         self._variance = self._initial_variance
 
@@ -326,7 +326,7 @@ class ExponentialStatistics:
 
     @classmethod
     def fromstate(cls, state):
-        """Return ExponentialStatistics object from state."""
+        """Return ExponentialMovingStatistics object from state."""
         stats = cls()
         stats.set_state(state)
         return stats
@@ -335,14 +335,14 @@ class ExponentialStatistics:
         return make_exponential_statistics, (self.get_state(),)
 
     def copy(self, _=None):
-        """Copy ExponentialStatistics object."""
+        """Copy ExponentialMovingStatistics object."""
         return self.fromstate(self.get_state())
 
     __copy__ = copy
     __deepcopy__ = copy
 
     def push(self, value):
-        """Add `value` to the ExponentialStatistics summary."""
+        """Add `value` to the ExponentialMovingStatistics summary."""
         value = float(value)
         alpha = 1.0 - self._decay
         diff = value - self._mean
@@ -363,19 +363,19 @@ class ExponentialStatistics:
         return self.variance() ** 0.5
 
     def __add__(self, that):
-        """Add two ExponentialStatistics objects together."""
+        """Add two ExponentialMovingStatistics objects together."""
         sigma = self.copy()
         sigma += that
         return sigma
 
     def __iadd__(self, that):
-        """Add another ExponentialStatistics object to this one."""
+        """Add another ExponentialMovingStatistics object to this one."""
         self._mean += that.mean()
         self._variance += that.variance()
         return self
 
     def __mul__(self, that):
-        """Multiply by a scalar to change ExponentialStatistics weighting."""
+        """Multiply by a scalar to change ExponentialMovingStatistics weighting."""
         sigma = self.copy()
         sigma *= that
         return sigma
@@ -383,7 +383,7 @@ class ExponentialStatistics:
     __rmul__ = __mul__
 
     def __imul__(self, that):
-        """Multiply by a scalar to change ExponentialStatistics weighting
+        """Multiply by a scalar to change ExponentialMovingStatistics weighting
         in-place.
 
         """
@@ -394,8 +394,8 @@ class ExponentialStatistics:
 
 
 def make_exponential_statistics(state):
-    """Make ExponentialStatistics object from state."""
-    return ExponentialStatistics.fromstate(state)
+    """Make ExponentialMovingStatistics object from state."""
+    return ExponentialMovingStatistics.fromstate(state)
 
 
 class Regression:
@@ -567,10 +567,10 @@ class ExponentialCovariance:
         """
         self._initial_covariance = float(covariance)
         self._covariance = self._initial_covariance
-        self._xstats = ExponentialStatistics(
+        self._xstats = ExponentialMovingStatistics(
             decay=decay, mean=mean_x, variance=variance_x
         )
-        self._ystats = ExponentialStatistics(
+        self._ystats = ExponentialMovingStatistics(
             decay=decay, mean=mean_y, variance=variance_y
         )
         self.decay = decay
