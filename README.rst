@@ -304,7 +304,6 @@ The pure-Python version of `RunStats`_ is directly available if preferred.
 
    >>> import runstats.core   # Pure-Python
    >>> runstats.core.Statistics
-   <class 'runstats.core.Statistics'>
 
 When importing from `runstats` the Cython-optimized version `_core` is
 preferred and the `core` version is used as fallback. Micro-benchmarking
