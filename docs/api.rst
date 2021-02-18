@@ -17,9 +17,9 @@ Regression
    :special-members:
 
 
-ExponentialStatistics
-.....................
+ExponentialMovingStatistics
+...........................
 
-.. autoclass:: runstats.ExponentialStatistics
+.. autoclass:: runstats.ExponentialMovingStatistics
    :members:
    :special-members:

@@ -76,23 +76,23 @@ function:
    >>> help(runstats)                             # doctest: +SKIP
    >>> help(runstats.Statistics)                  # doctest: +SKIP
    >>> help(runstats.Regression)                  # doctest: +SKIP
-   >>> help(runstats.ExponentialStatistics)       # doctest: +SKIP
+   >>> help(runstats.ExponentialMovingStatistics)       # doctest: +SKIP
 
 
 Tutorial
 --------
 
 The Python `RunStats`_ module provides three types for computing running
-statistics: Statistics, ExponentialStatistics and Regression.The Regression
+statistics: Statistics, ExponentialMovingStatistics and Regression.The Regression
 object leverages Statistics internally for its calculations. Each can be
 initialized without arguments:
 
 .. code-block:: python
 
-   >>> from runstats import Statistics, Regression, ExponentialStatistics
+   >>> from runstats import Statistics, Regression, ExponentialMovingStatistics
    >>> stats = Statistics()
    >>> regr = Regression()
-   >>> exp_stats = ExponentialStatistics()
+   >>> exp_stats = ExponentialMovingStatistics()
 
 Statistics objects support four methods for modification. Use `push` to add
 values to the summary, `clear` to reset the summary, sum to combine Statistics
@@ -206,13 +206,13 @@ Both constructors accept an optional iterable that is consumed and pushed into
 the summary. Note that you may pass a generator as an iterable and the
 generator will be entirely consumed.
 
-The ExponentialStatistics are constructed by providing a decay rate, initial
+The ExponentialMovingStatistics are constructed by providing a decay rate, initial
 mean, and initial variance. The decay rate has default 0.9 and must be between
 0 and 1. The initial mean and variance default to zero.
 
 .. code-block:: python
 
-   >>> exp_stats = ExponentialStatistics()
+   >>> exp_stats = ExponentialMovingStatistics()
    >>> exp_stats.decay
    0.9
    >>> exp_stats.mean()
@@ -265,16 +265,16 @@ not changed.
    >>> exp_stats.variance()
    0.0
 
-Combining `ExponentialStatistics` is done by adding them together. The mean and
+Combining `ExponentialMovingStatistics` is done by adding them together. The mean and
 variance are simply added to create a new object. To weight each
-`ExponentialStatistics`, multiply them by a constant factor. If two
-`ExponentialStatistics` are added then the leftmost decay is used for the new
+`ExponentialMovingStatistics`, multiply them by a constant factor. If two
+`ExponentialMovingStatistics` are added then the leftmost decay is used for the new
 object. The `len` method is not supported.
 
 .. code-block:: python
 
-   >>> alpha_stats = ExponentialStatistics(iterable=range(10))
-   >>> beta_stats = ExponentialStatistics(decay=0.1)
+   >>> alpha_stats = ExponentialMovingStatistics(iterable=range(10))
+   >>> beta_stats = ExponentialMovingStatistics(decay=0.1)
    >>> for num in range(10):
    ...     beta_stats.push(num)
    >>> exp_stats = beta_stats * 0.5 + alpha_stats * 0.5
@@ -292,7 +292,7 @@ entirely on the C++ code by John Cook as posted in a couple of articles:
 .. _`Computing Skewness and Kurtosis in One Pass`: http://www.johndcook.com/blog/skewness_kurtosis/
 .. _`Computing Linear Regression in One Pass`: http://www.johndcook.com/blog/running_regression/
 
-The ExponentialStatistics implementation is based on:
+The ExponentialMovingStatistics implementation is based on:
 
 * `Finch, 2009, Incremental Calculation of Weighted Mean and Variance`_
 

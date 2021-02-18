@@ -50,8 +50,8 @@ def main():
     core_exp_stats = timeit.repeat(
         setup='''
     from __main__ import values
-    from runstats.core import ExponentialStatistics
-    exp_stats = ExponentialStatistics()
+    from runstats.core import ExponentialMovingStatistics
+    exp_stats = ExponentialMovingStatistics()
         ''',
         stmt='''
     for value in values:
@@ -65,8 +65,8 @@ def main():
     fast_exp_stats = timeit.repeat(
         setup='''
     from __main__ import values
-    from runstats.fast import ExponentialStatistics
-    exp_stats = ExponentialStatistics()
+    from runstats.fast import ExponentialMovingStatistics
+    exp_stats = ExponentialMovingStatistics()
         ''',
         stmt='''
     for value in values:
@@ -115,8 +115,8 @@ def main():
     print('fast.Statistics:', fast_stats)
     print('  Stats Speedup: %.2fx faster' % speedup_stats)
 
-    print('core.ExponentialStatistics:', core_exp_stats)
-    print('fast.ExponentialStatistics:', fast_exp_stats)
+    print('core.ExponentialMovingStatistics:', core_exp_stats)
+    print('fast.ExponentialMovingStatistics:', fast_exp_stats)
     print('  ExpStats Speedup: %.2fx faster' % speedup_exp_stats)
 
     print('core.Regression:', core_regr)
