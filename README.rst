@@ -294,7 +294,9 @@ entirely on the C++ code by John Cook as posted in a couple of articles:
 
 The ExponentialStatistics implementation is based on:
 
-* Finch, 2009, Incremental Calculation of Weighted Mean and Variance
+* `Finch, 2009, Incremental Calculation of Weighted Mean and Variance`_
+
+.. _`Finch, 2009, Incremental Calculation of Weighted Mean and Variance`: https://fanf2.user.srcf.net/hermes/doc/antiforgery/stats.pdf
 
 The pure-Python version of `RunStats`_ is directly available if preferred.
 
@@ -309,8 +311,6 @@ preferred and the `core` version is used as fallback. Micro-benchmarking
 Statistics and Regression by calling `push` repeatedly shows the
 Cython-optimized extension as 20-40 times faster than the pure-Python
 extension.
-
-.. _`RunStats`: http://www.grantjenks.com/docs/runstats/
 
 
 Reference and Indices
