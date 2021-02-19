@@ -372,7 +372,7 @@ class ExponentialMovingStatistics:
 
     def clear_timer(self):
         """Reset _current_time to now"""
-        if self._current_time:
+        if self.is_time_based():
             self._current_time = time.time()
         else:
             raise AttributeError(
@@ -382,7 +382,7 @@ class ExponentialMovingStatistics:
 
     def freeze(self):
         """freeze time i.e. save the difference between now and _current_time"""
-        if self._current_time:
+        if self.is_time_based():
             self._time_diff = time.time() - self._current_time
         else:
             raise AttributeError(
@@ -393,7 +393,7 @@ class ExponentialMovingStatistics:
     def unfreeze(self):
         """unfreeze time i.e. set the _current_time to be difference between
         now and _time_diff"""
-        if self._current_time is None:
+        if not self.is_time_based():
             raise AttributeError(
                 'unfreeze on a non-time time based (i.e. delay == None) '
                 'ExponentialMovingStatistics object is illegal'
@@ -406,9 +406,12 @@ class ExponentialMovingStatistics:
 
         self._current_time = time.time() - self._time_diff
 
+    def is_time_based(self):
+        return True if self._delay else False
+
     def push(self, value):
         """Add `value` to the ExponentialMovingStatistics summary."""
-        if self.delay:
+        if self.is_time_based():
             norm_diff = (time.time() - self._current_time) / self.delay
             decay = self.decay ** norm_diff
         else:
@@ -433,7 +436,7 @@ class ExponentialMovingStatistics:
         """Exponential standard deviation of values."""
         return self.variance() ** 0.5
 
-    def __add__(self, that):
+    def __add__(self, that):  # TODO: fail if not both same "type" + if add -> new time else left time
         """Add two ExponentialMovingStatistics objects together."""
         sigma = self.copy()
         sigma += that
