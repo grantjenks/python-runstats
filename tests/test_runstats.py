@@ -892,7 +892,13 @@ def test_exponential_covariance_clear(ExponentialCovariance):
     mean_y = 1000
     variance_y = 2
     covariance = 20
-    exp_cov = ExponentialCovariance(mean_x=mean_x, variance_x=variance_x, mean_y=mean_y, variance_y=variance_y, covariance=covariance)
+    exp_cov = ExponentialCovariance(
+        mean_x=mean_x,
+        variance_x=variance_x,
+        mean_y=mean_y,
+        variance_y=variance_y,
+        covariance=covariance,
+    )
 
     for x, y in alpha:
         exp_cov.push(x, y)

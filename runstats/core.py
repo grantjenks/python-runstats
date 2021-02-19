@@ -257,7 +257,9 @@ class ExponentialMovingStatistics:
 
     """
 
-    def __init__(self, decay=0.9, mean=0.0, variance=0.0, delay=None, iterable=()):  # TODO: Docstring
+    def __init__(
+        self, decay=0.9, mean=0.0, variance=0.0, delay=None, iterable=()
+    ):  # TODO: Docstring
         """Initialize ExponentialMovingStatistics object.
 
         Incrementally tracks mean and variance and exponentially discounts old
@@ -304,7 +306,9 @@ class ExponentialMovingStatistics:
     @delay.setter
     def delay(self, value):
         if value:
-            self._current_time = self._current_time if self._current_time else time.time()
+            self._current_time = (
+                self._current_time if self._current_time else time.time()
+            )
         else:
             self._current_time = None
 
@@ -333,7 +337,7 @@ class ExponentialMovingStatistics:
             self._variance,
             self._delay,
             self._current_time,
-            self._time_diff
+            self._time_diff,
         )
 
     def set_state(self, state):
@@ -346,7 +350,7 @@ class ExponentialMovingStatistics:
             self._variance,
             self._delay,
             self._current_time,
-            self._time_diff
+            self._time_diff,
         ) = state
 
     @classmethod
@@ -367,24 +371,38 @@ class ExponentialMovingStatistics:
     __deepcopy__ = copy
 
     def clear_timer(self):
+        """Reset _current_time to now"""
         if self._current_time:
             self._current_time = time.time()
         else:
-            raise AttributeError("clear_timer on a non-time time based (i.e. delay == None) ExponentialMovingStatistics object is illegal")
+            raise AttributeError(
+                'clear_timer on a non-time time based (i.e. delay == None) '
+                'ExponentialMovingStatistics object is illegal'
+            )
 
     def freeze(self):
         """freeze time i.e. save the difference between now and _current_time"""
         if self._current_time:
             self._time_diff = time.time() - self._current_time
         else:
-            raise AttributeError("freeze on a non-time time based (i.e. delay == None) ExponentialMovingStatistics object is illegal")
+            raise AttributeError(
+                'freeze on a non-time time based (i.e. delay == None) '
+                'ExponentialMovingStatistics object is illegal'
+            )
 
     def unfreeze(self):
+        """unfreeze time i.e. set the _current_time to be difference between
+        now and _time_diff"""
         if self._current_time is None:
-            raise AttributeError("unfreeze on a non-time time based (i.e. delay == None) ExponentialMovingStatistics object is illegal")
+            raise AttributeError(
+                'unfreeze on a non-time time based (i.e. delay == None) '
+                'ExponentialMovingStatistics object is illegal'
+            )
 
         if self._time_diff is None:
-            raise AttributeError("Object must be freezed first before it can be unfreezed")
+            raise AttributeError(
+                'Time must be freezed first before it can be unfreezed'
+            )
 
         self._current_time = time.time() - self._time_diff
 
