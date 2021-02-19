@@ -4,8 +4,8 @@ Compute Statistics, Exponential Statistics, Regression and Exponential
 Covariance in a single pass.
 
 """
-
 from __future__ import division
+import time
 
 
 class Statistics:
@@ -257,14 +257,14 @@ class ExponentialMovingStatistics:
 
     """
 
-    def __init__(self, decay=0.9, mean=0.0, variance=0.0, iterable=()):
+    def __init__(self, decay=0.9, mean=0.0, variance=0.0, delay=None, iterable=()):  # TODO: Docstring
         """Initialize ExponentialMovingStatistics object.
 
         Incrementally tracks mean and variance and exponentially discounts old
         values.
 
         Requires a `decay` rate in exclusive range (0, 1) for discounting
-        previous statistics.
+        previous statistics. Default 0.9
 
         Optionally allows setting initial mean and variance. Default 0.
 
@@ -277,6 +277,9 @@ class ExponentialMovingStatistics:
         self._initial_variance = float(variance)
         self._mean = self._initial_mean
         self._variance = self._initial_variance
+        self._current_time = None
+        self._time_diff = None
+        self.delay = delay
 
         for value in iterable:
             self.push(value)
@@ -293,10 +296,26 @@ class ExponentialMovingStatistics:
             raise ValueError('decay must be between 0 and 1')
         self._decay = value
 
+    @property
+    def delay(self):
+        """Delay in sec for time based discounting"""
+        return self._delay
+
+    @delay.setter
+    def delay(self, value):
+        if value:
+            self._current_time = self._current_time if self._current_time else time.time()
+        else:
+            self._current_time = None
+
+        self._delay = value
+
     def clear(self):
         """Clear ExponentialMovingStatistics object."""
         self._mean = self._initial_mean
         self._variance = self._initial_variance
+        self._current_time = time.time() if self._current_time else None
+        self._time_diff = None
 
     def __eq__(self, that):
         return self.get_state() == that.get_state()
@@ -312,6 +331,9 @@ class ExponentialMovingStatistics:
             self._initial_variance,
             self._mean,
             self._variance,
+            self._delay,
+            self._current_time,
+            self._time_diff
         )
 
     def set_state(self, state):
@@ -322,6 +344,9 @@ class ExponentialMovingStatistics:
             self._initial_variance,
             self._mean,
             self._variance,
+            self._delay,
+            self._current_time,
+            self._time_diff
         ) = state
 
     @classmethod
@@ -341,13 +366,41 @@ class ExponentialMovingStatistics:
     __copy__ = copy
     __deepcopy__ = copy
 
+    def clear_timer(self):
+        if self._current_time:
+            self._current_time = time.time()
+        else:
+            raise AttributeError("clear_timer on a non-time time based (i.e. delay == None) ExponentialMovingStatistics object is illegal")
+
+    def freeze(self):
+        """freeze time i.e. save the difference between now and _current_time"""
+        if self._current_time:
+            self._time_diff = time.time() - self._current_time
+        else:
+            raise AttributeError("freeze on a non-time time based (i.e. delay == None) ExponentialMovingStatistics object is illegal")
+
+    def unfreeze(self):
+        if self._current_time is None:
+            raise AttributeError("unfreeze on a non-time time based (i.e. delay == None) ExponentialMovingStatistics object is illegal")
+
+        if self._time_diff is None:
+            raise AttributeError("Object must be freezed first before it can be unfreezed")
+
+        self._current_time = time.time() - self._time_diff
+
     def push(self, value):
         """Add `value` to the ExponentialMovingStatistics summary."""
+        if self.delay:
+            norm_diff = (time.time() - self._current_time) / self.delay
+            decay = self.decay ** norm_diff
+        else:
+            decay = self.decay
+
         value = float(value)
-        alpha = 1.0 - self._decay
+        alpha = 1.0 - decay
         diff = value - self._mean
         incr = alpha * diff
-        self._variance += alpha * (self._decay * diff ** 2 - self._variance)
+        self._variance += alpha * (decay * diff ** 2 - self._variance)
         self._mean += incr
 
     def mean(self):
