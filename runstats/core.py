@@ -283,7 +283,7 @@ class ExponentialMovingStatistics:
 
     @property
     def decay(self):
-        """Exponential decay rate of old values."""
+        """Decay rate for old values."""
         return self._decay
 
     @decay.setter
@@ -375,7 +375,10 @@ class ExponentialMovingStatistics:
         return self
 
     def __mul__(self, that):
-        """Multiply by a scalar to change ExponentialMovingStatistics weighting."""
+        """Multiply by a scalar to change ExponentialMovingStatistics
+        weighting.
+
+        """
         sigma = self.copy()
         sigma *= that
         return sigma
@@ -580,7 +583,7 @@ class ExponentialCovariance:
 
     @property
     def decay(self):
-        """Exponential decay rate of old values."""
+        """Decay rate for old values."""
         return self._decay
 
     @decay.setter

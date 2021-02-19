@@ -860,6 +860,57 @@ def test_exponential_covariance_decays(ExponentialCovariance, decay):
 
 
 @pytest.mark.parametrize(
+    'ExponentialMovingStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
+def test_exponential_statistics_clear(ExponentialMovingStatistics):
+    random.seed(0)
+    alpha = [random.random() for _ in range(count)]
+    mean = 10
+    variance = 100
+    exp_stats = ExponentialMovingStatistics(mean=mean, variance=variance)
+
+    for val in alpha:
+        exp_stats.push(val)
+
+    assert exp_stats.mean() != mean
+    assert exp_stats.variance() != variance
+    exp_stats.clear()
+    assert exp_stats.mean() == mean
+    assert exp_stats.variance() == variance
+
+
+@pytest.mark.parametrize(
+    'ExponentialCovariance',
+    [CoreExponentialCovariance, FastExponentialCovariance],
+)
+def test_exponential_covariance_clear(ExponentialCovariance):
+    random.seed(0)
+    alpha = [(random.random(), random.random()) for _ in range(count)]
+    mean_x = 10
+    variance_x = 100
+    mean_y = 1000
+    variance_y = 2
+    covariance = 20
+    exp_cov = ExponentialCovariance(mean_x=mean_x, variance_x=variance_x, mean_y=mean_y, variance_y=variance_y, covariance=covariance)
+
+    for x, y in alpha:
+        exp_cov.push(x, y)
+
+    assert exp_cov.covariance() != covariance
+    assert exp_cov._xstats.mean() != mean_x
+    assert exp_cov._xstats.variance() != variance_x
+    assert exp_cov._ystats.mean() != mean_y
+    assert exp_cov._ystats.variance() != variance_y
+    exp_cov.clear()
+    assert exp_cov.covariance() == covariance
+    assert exp_cov._xstats.mean() == mean_x
+    assert exp_cov._xstats.variance() == variance_x
+    assert exp_cov._ystats.mean() == mean_y
+    assert exp_cov._ystats.variance() == variance_y
+
+
+@pytest.mark.parametrize(
     'Statistics,Regression',
     [
         (CoreStatistics, CoreRegression),
