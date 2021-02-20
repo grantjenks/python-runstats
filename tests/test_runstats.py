@@ -7,8 +7,10 @@ import itertools
 import math
 import pickle
 import random
-
+import time
 import pytest
+
+from unittest.mock import patch
 
 from runstats import ExponentialCovariance as FastExponentialCovariance
 from runstats import ExponentialMovingStatistics as FastExponentialStatistics
@@ -348,17 +350,28 @@ def test_add_statistics(Statistics, Regression):
     assert (stats0 + stats10) == stats10
     assert (stats10 + stats0) == stats10
 
-
+@patch("runstats.ExponentialMovingStatistics.clear_timer")
 @pytest.mark.parametrize(
     'ExponentialMovingStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_add_exponential_statistics(ExponentialMovingStatistics):
+def test_add_exponential_statistics(clear_timer_mock, ExponentialMovingStatistics):
     exp_stats0 = ExponentialMovingStatistics(0.9)
     exp_stats10 = ExponentialMovingStatistics(0.9, iterable=range(10))
     assert (exp_stats0 + exp_stats10) == exp_stats10
     assert (exp_stats10 + exp_stats0) == exp_stats10
 
+    exp_stats0.decay = 0.8
+    exp_stats0.delay = 60
+    exp_stats10.delay = 120
+    exp_stats = exp_stats0 + exp_stats10
+    assert exp_stats.delay == exp_stats0.delay != exp_stats10.delay
+    assert exp_stats.decay == exp_stats0.decay != exp_stats10.decay
+
+    exp_stats0 += exp_stats10
+    assert exp_stats0.decay == 0.8
+    assert exp_stats0.delay == 60
+    clear_timer_mock.assert_called_once()
 
 @pytest.mark.parametrize(
     'ExponentialCovariance',
@@ -483,6 +496,15 @@ def test_get_set_state_exponential_statistics(ExponentialMovingStatistics):
         exp_stats.get_state()
     )
 
+    new_exp_stats.decay = 0.9
+    assert exp_stats == new_exp_stats
+    exp_stats.delay = 60
+    assert exp_stats != new_exp_stats
+    exp_stats.freeze()
+
+    assert exp_stats == ExponentialMovingStatistics.fromstate(
+        exp_stats.get_state()
+    )
 
 @pytest.mark.parametrize(
     'ExponentialCovariance',
@@ -563,7 +585,8 @@ def test_pickle_statistics(Statistics, Regression):
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
 def test_pickle_exponential_statistics(ExponentialMovingStatistics):
-    exp_stats = ExponentialMovingStatistics(0.9, iterable=range(10))
+    exp_stats = ExponentialMovingStatistics(0.9, iterable=range(10), delay=30)
+    exp_stats.freeze()
     for num in range(pickle.HIGHEST_PROTOCOL):
         pickled_exp_stats = pickle.dumps(exp_stats, protocol=num)
         unpickled_exp_stats = pickle.loads(pickled_exp_stats)
@@ -617,7 +640,8 @@ def test_copy_statistics(Statistics, Regression):
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
 def test_copy_exponential_statistics(ExponentialMovingStatistics):
-    exp_stats = ExponentialMovingStatistics(0.9, iterable=range(10))
+    exp_stats = ExponentialMovingStatistics(0.9, iterable=range(10), delay=30)
+    exp_stats.freeze()
     copy_exp_stats = copy.copy(exp_stats)
     assert exp_stats == copy_exp_stats
     deepcopy_exp_stats = copy.deepcopy(exp_stats)
@@ -673,9 +697,13 @@ def test_equality_statistics(Statistics, Regression):
 def test_equality_exponential_statistics(ExponentialMovingStatistics):
     exp_stats1 = ExponentialMovingStatistics(0.9, iterable=range(10))
     exp_stats2 = ExponentialMovingStatistics(0.9, iterable=range(10))
-    assert exp_stats1 == exp_stats2
+    exp_stats3 = ExponentialMovingStatistics(0.9, iterable=range(10), delay=30)
+    assert exp_stats1 == exp_stats2 != exp_stats3
     exp_stats2.push(42)
     assert exp_stats1 != exp_stats2
+    exp_stats3.freeze()
+    exp_stats3.delay = None
+    assert exp_stats1 == exp_stats3
 
 
 @pytest.mark.parametrize(
@@ -875,9 +903,30 @@ def test_exponential_statistics_clear(ExponentialMovingStatistics):
 
     assert exp_stats.mean() != mean
     assert exp_stats.variance() != variance
+    assert exp_stats._current_time is None
+    assert exp_stats._time_diff is None
     exp_stats.clear()
     assert exp_stats.mean() == mean
     assert exp_stats.variance() == variance
+    assert exp_stats._current_time is None
+    assert exp_stats._time_diff is None
+
+    exp_stats.delay = 60
+    current_time = exp_stats._current_time
+    assert exp_stats._current_time is not None
+    assert exp_stats._time_diff is None
+    exp_stats.freeze()
+    assert exp_stats._time_diff is not None
+    exp_stats.clear()
+    new_current_time = exp_stats._current_time
+    assert exp_stats._current_time is not None
+    assert exp_stats._current_time != current_time
+    assert exp_stats._time_diff is None
+    exp_stats.freeze()
+    exp_stats.clear_timer()
+    assert exp_stats._current_time is not None
+    assert exp_stats._current_time != new_current_time
+    assert exp_stats._time_diff is None
 
 
 @pytest.mark.parametrize(
@@ -917,6 +966,49 @@ def test_exponential_covariance_clear(ExponentialCovariance):
 
 
 @pytest.mark.parametrize(
+    'ExponentialMovingStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
+def test_exponential_statistics_is_time(ExponentialMovingStatistics):
+    exp_stats = ExponentialMovingStatistics()
+    assert not exp_stats.is_time_based()
+    assert exp_stats.delay is None
+    assert exp_stats._current_time is None
+    assert exp_stats._time_diff is None
+    exp_stats.delay = 30
+    assert exp_stats.is_time_based()
+    assert exp_stats.delay is not None
+    assert exp_stats._current_time is not None
+    assert exp_stats._time_diff is None
+    exp_stats = ExponentialMovingStatistics(delay=30)
+    assert exp_stats.delay is not None
+    assert exp_stats._current_time is not None
+    assert exp_stats._time_diff is None
+    exp_stats.freeze()
+    assert exp_stats is not None
+
+
+@pytest.mark.parametrize(
+    'ExponentialMovingStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
+def test_exponential_statistics_freeze_unfreeze(ExponentialMovingStatistics):
+    exp_stats = ExponentialMovingStatistics(delay=30)
+    current_time = exp_stats._current_time
+    assert exp_stats._time_diff is None
+    exp_stats.freeze()
+    time.sleep(0.01)
+    assert exp_stats._time_diff is not None
+    time_diff = exp_stats._time_diff
+    time.sleep(0.01)
+    exp_stats.unfreeze()
+    future = time.time()
+    assert exp_stats._current_time > current_time
+    assert exp_stats._current_time < future - time_diff
+    assert exp_stats._time_diff is None
+
+
+@pytest.mark.parametrize(
     'Statistics,Regression',
     [
         (CoreStatistics, CoreRegression),
@@ -952,3 +1044,18 @@ def test_raise_if_invalid_decay_exp_cov(ExponentialCovariance):
         ExponentialCovariance(1)
         ExponentialCovariance(-1)
         ExponentialCovariance(2)
+
+
+@pytest.mark.parametrize(
+    'ExponentialMovingStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
+def test_raise_if_not_time_exp_stats(ExponentialMovingStatistics):
+    exp_stats = ExponentialMovingStatistics()
+    exp_stats_time = ExponentialMovingStatistics(delay=60)
+    with pytest.raises(AttributeError):
+        exp_stats.clear_timer()
+        exp_stats.freeze()
+        exp_stats.unfreeze()
+        exp_stats_time.unfreeze()
+        exp_stats + exp_stats_time
