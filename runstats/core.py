@@ -259,7 +259,7 @@ class ExponentialMovingStatistics:
 
     def __init__(
         self, decay=0.9, mean=0.0, variance=0.0, delay=None, iterable=()
-    ):  # TODO: Docstring
+    ):
         """Initialize ExponentialMovingStatistics object.
 
         Incrementally tracks mean and variance and exponentially discounts old
@@ -273,6 +273,18 @@ class ExponentialMovingStatistics:
         Iterates optional parameter `iterable` and pushes each value into the
         statistics summary.
 
+        Can discount values based on time passed instead of position if delay is
+        set from None to a value. Setting delay (in seconds) computes a dynamic
+        decay rate each time a value is pushed for weighting that value:
+        dynamic_decay = decay ** (sec_from_last_push / delay).
+        When the first value x is pushed, sec_from_last_push is the difference
+        (in sec) between setting the delay from None to a value t (usually at
+        object initialization) and the time x is being pushed.
+        When freeze() has been called sec_from_last_push is the difference (in
+        sec) between the last call to push() and the time freeze() has been
+        called().
+        Note that at object initialization the values in iterable are weighted
+        as if delay has not been set.
         """
         self.decay = decay
         self._initial_mean = float(mean)
@@ -374,7 +386,7 @@ class ExponentialMovingStatistics:
     __deepcopy__ = copy
 
     def clear_timer(self):
-        """Reset _current_time to now"""
+        """Reset time counter"""
         if self.is_time_based():
             self._current_time = time.time()
             self._time_diff = None
@@ -385,7 +397,7 @@ class ExponentialMovingStatistics:
             )
 
     def freeze(self):
-        """freeze time i.e. save the difference between now and _current_time"""
+        """Freeze time i.e. save the difference between now and the last push"""
         if self.is_time_based():
             self._time_diff = time.time() - self._current_time
         else:
@@ -395,8 +407,7 @@ class ExponentialMovingStatistics:
             )
 
     def unfreeze(self):
-        """unfreeze time i.e. set the _current_time to be difference between
-        now and _time_diff"""
+        """Unfreeze time i.e. continue counting the time difference"""
         if not self.is_time_based():
             raise AttributeError(
                 'unfreeze on a non-time time based (i.e. delay == None) '
