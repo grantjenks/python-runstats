@@ -106,12 +106,12 @@ class Statistics:
         self._count += 1
         self._eta += delta_n
         self._phi += (
-                term * delta_n2 * (self._count ** 2 - 3 * self._count + 3)
-                + 6 * delta_n2 * self._rho
-                - 4 * delta_n * self._tau
+            term * delta_n2 * (self._count ** 2 - 3 * self._count + 3)
+            + 6 * delta_n2 * self._rho
+            - 4 * delta_n * self._tau
         )
         self._tau += (
-                term * delta_n * (self._count - 2) - 3 * delta_n * self._rho
+            term * delta_n * (self._count - 2) - 3 * delta_n * self._rho
         )
         self._rho += term
 
@@ -161,49 +161,48 @@ class Statistics:
         delta4 = delta ** 4
 
         sum_eta = (
-                          self._count * self._eta + that._count * that._eta
-                  ) / sum_count
+            self._count * self._eta + that._count * that._eta
+        ) / sum_count
 
         sum_rho = (
-                self._rho
-                + that._rho
-                + delta2 * self._count * that._count / sum_count
+            self._rho
+            + that._rho
+            + delta2 * self._count * that._count / sum_count
         )
 
         sum_tau = (
-                self._tau
-                + that._tau
-                + delta3
-                * self._count
-                * that._count
-                * (self._count - that._count)
-                / (sum_count ** 2)
-                + 3.0
-                * delta
-                * (self._count * that._rho - that._count * self._rho)
-                / sum_count
+            self._tau
+            + that._tau
+            + delta3
+            * self._count
+            * that._count
+            * (self._count - that._count)
+            / (sum_count ** 2)
+            + 3.0
+            * delta
+            * (self._count * that._rho - that._count * self._rho)
+            / sum_count
         )
 
         sum_phi = (
-                self._phi
-                + that._phi
-                + delta4
-                * self._count
-                * that._count
-                * (
-                            self._count ** 2 - self._count * that._count + that._count ** 2)
-                / (sum_count ** 3)
-                + 6.0
-                * delta2
-                * (
-                        self._count * self._count * that._rho
-                        + that._count * that._count * self._rho
-                )
-                / (sum_count ** 2)
-                + 4.0
-                * delta
-                * (self._count * that._tau - that._count * self._tau)
-                / sum_count
+            self._phi
+            + that._phi
+            + delta4
+            * self._count
+            * that._count
+            * (self._count ** 2 - self._count * that._count + that._count ** 2)
+            / (sum_count ** 3)
+            + 6.0
+            * delta2
+            * (
+                self._count * self._count * that._rho
+                + that._count * that._count * self._rho
+            )
+            / (sum_count ** 2)
+            + 4.0
+            * delta
+            * (self._count * that._tau - that._count * self._tau)
+            / sum_count
         )
 
         if self._count == 0.0:
@@ -259,7 +258,7 @@ class ExponentialMovingStatistics:
     """
 
     def __init__(
-            self, decay=0.9, mean=0.0, variance=0.0, delay=None, iterable=()
+        self, decay=0.9, mean=0.0, variance=0.0, delay=None, iterable=()
     ):  # TODO: Docstring
         """Initialize ExponentialMovingStatistics object.
 
@@ -419,8 +418,11 @@ class ExponentialMovingStatistics:
     def push(self, value):
         """Add `value` to the ExponentialMovingStatistics summary."""
         if self.is_time_based():
-            diff = self._time_diff if self._time_diff else (
-                        time.time() - self._current_time)
+            diff = (
+                self._time_diff
+                if self._time_diff
+                else (time.time() - self._current_time)
+            )
             norm_diff = diff / self.delay
             decay = self.decay ** norm_diff
             self._current_time = time.time()
@@ -449,9 +451,11 @@ class ExponentialMovingStatistics:
     def __add__(self, that):
         """Add two ExponentialMovingStatistics objects together."""
         if self.is_time_based() != that.is_time_based():
-            raise AttributeError("Adding two ExponentialMovingStatistics "
-                                 "requires both being of same type i.e. "
-                                 "time-based")
+            raise AttributeError(
+                'Adding two ExponentialMovingStatistics '
+                'requires both being of same type i.e. '
+                'time-based'
+            )
 
         sigma = self.copy()
         sigma += that
@@ -571,10 +575,10 @@ class Regression:
     def push(self, xcoord, ycoord):
         """Add a pair `(x, y)` to the Regression summary."""
         self._sxy += (
-                (self._xstats.mean() - xcoord)
-                * (self._ystats.mean() - ycoord)
-                * self._count
-                / (self._count + 1)
+            (self._xstats.mean() - xcoord)
+            * (self._ystats.mean() - ycoord)
+            * self._count
+            / (self._count + 1)
         )
         self._xstats.push(xcoord)
         self._ystats.push(ycoord)
@@ -612,9 +616,9 @@ class Regression:
         deltax = that._xstats.mean() - self._xstats.mean()
         deltay = that._ystats.mean() - self._ystats.mean()
         sum_sxy = (
-                self._sxy
-                + that._sxy
-                + self._count * that._count * deltax * deltay / sum_count
+            self._sxy
+            + that._sxy
+            + self._count * that._count * deltax * deltay / sum_count
         )
 
         self._count = sum_count
@@ -638,14 +642,14 @@ class ExponentialCovariance:
     """
 
     def __init__(
-            self,
-            decay=0.9,
-            mean_x=0.0,
-            variance_x=0.0,
-            mean_y=0.0,
-            variance_y=0.0,
-            covariance=0.0,
-            iterable=(),
+        self,
+        decay=0.9,
+        mean_x=0.0,
+        variance_x=0.0,
+        mean_y=0.0,
+        variance_y=0.0,
+        covariance=0.0,
+        iterable=(),
     ):  # pylint: disable=too-many-arguments
         """Initialize ExponentialCovariance object.
 
@@ -739,7 +743,7 @@ class ExponentialCovariance:
         self._xstats.push(x_val)
         alpha = 1.0 - self.decay
         self._covariance = self.decay * self.covariance() + alpha * (
-                x_val - self._xstats.mean()
+            x_val - self._xstats.mean()
         ) * (y_val - self._ystats.mean())
         self._ystats.push(y_val)
 
