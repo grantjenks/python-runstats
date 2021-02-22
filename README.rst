@@ -95,8 +95,9 @@ initialized without arguments:
    >>> exp_stats = ExponentialMovingStatistics()
 
 Statistics objects support four methods for modification. Use `push` to add
-values to the summary, `clear` to reset the summary, sum to combine Statistics
-summaries and multiply to weight summary Statistics by a scalar.
+values to the summary, `clear` to reset the the object to its initialization
+state, sum to combine Statistics summaries and multiply to weight summary
+Statistics by a scalar.
 
 .. code-block:: python
 
@@ -251,23 +252,10 @@ between 0 and 1.
      ...
    ValueError: decay must be between 0 and 1
 
-The clear method allows to optionally set a new mean, new variance and new
-decay. If none are provided mean and variance reset to zero, while the decay is
-not changed.
-
-.. code-block:: python
-
-   >>> exp_stats.clear()
-   >>> exp_stats.decay
-   0.5
-   >>> exp_stats.mean()
-   0.0
-   >>> exp_stats.variance()
-   0.0
-
 Combining `ExponentialMovingStatistics` is done by adding them together. The mean and
 variance are simply added to create a new object. To weight each
-`ExponentialMovingStatistics`, multiply them by a constant factor. If two
+`ExponentialMovingStatistics`, multiply them by a constant factor.
+Note how this behaviour differs from the two previous classes.
 `ExponentialMovingStatistics` are added then the leftmost decay is used for the new
 object. The `len` method is not supported.
 
