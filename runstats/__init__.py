@@ -15,7 +15,7 @@ try:
     )
 except ImportError:  # pragma: no cover
     from .core import (
-        ExponentialCovariance,
+        ExponentialMovingCovariance,
         ExponentialMovingStatistics,
         Regression,
         Statistics,
@@ -25,7 +25,7 @@ __all__ = [
     'Statistics',
     'Regression',
     'ExponentialMovingStatistics',
-    'ExponentialCovariance',
+    'ExponentialMovingCovariance',
 ]
 __title__ = 'runstats'
 __version__ = '1.8.0'

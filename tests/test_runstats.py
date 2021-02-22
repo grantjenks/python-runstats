@@ -12,11 +12,11 @@ import pytest
 
 from unittest.mock import patch
 
-from runstats import ExponentialCovariance as FastExponentialCovariance
+from runstats import ExponentialMovingCovariance as FastExponentialCovariance
 from runstats import ExponentialMovingStatistics as FastExponentialStatistics
 from runstats import Regression as FastRegression
 from runstats import Statistics as FastStatistics
-from runstats.core import ExponentialCovariance as CoreExponentialCovariance
+from runstats.core import ExponentialMovingCovariance as CoreExponentialCovariance
 from runstats.core import (
     ExponentialMovingStatistics as CoreExponentialStatistics,
 )
@@ -295,10 +295,10 @@ def test_exponential_statistics(ExponentialMovingStatistics):
 
 
 @pytest.mark.parametrize(
-    'ExponentialCovariance',
+    'ExponentialMovingCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
-def test_exponential_covariance(ExponentialCovariance):
+def test_exponential_covariance(ExponentialMovingCovariance):
     random.seed(0)
     alpha = [random.random() for _ in range(count)]
     beta = [x * -10 for x in alpha]
@@ -306,7 +306,7 @@ def test_exponential_covariance(ExponentialCovariance):
     big_beta = [x * -10 for x in big_alpha]
     data = list(zip(big_alpha, big_beta))
 
-    exp_cov = ExponentialCovariance(
+    exp_cov = ExponentialMovingCovariance(
         decay=0.9999,
         mean_x=mean(alpha),
         variance_x=variance(alpha, 0),
@@ -378,12 +378,12 @@ def test_add_exponential_statistics(
 
 
 @pytest.mark.parametrize(
-    'ExponentialCovariance',
+    'ExponentialMovingCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
-def test_add_exponential_covariance(ExponentialCovariance):
-    exp_cov0 = ExponentialCovariance(0.9)
-    exp_cov10 = ExponentialCovariance(0.9, iterable=zip(range(10), range(10)))
+def test_add_exponential_covariance(ExponentialMovingCovariance):
+    exp_cov0 = ExponentialMovingCovariance(0.9)
+    exp_cov10 = ExponentialMovingCovariance(0.9, iterable=zip(range(10), range(10)))
     assert (exp_cov0 + exp_cov10) == exp_cov10
     assert (exp_cov10 + exp_cov0) == exp_cov10
 
@@ -512,16 +512,16 @@ def test_get_set_state_exponential_statistics(ExponentialMovingStatistics):
 
 
 @pytest.mark.parametrize(
-    'ExponentialCovariance',
+    'ExponentialMovingCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
-def test_get_set_state_exponential_covariance(ExponentialCovariance):
+def test_get_set_state_exponential_covariance(ExponentialMovingCovariance):
     random.seed(0)
     vals = [(random.random(), random.random()) for _ in range(count)]
-    exp_cov = ExponentialCovariance(iterable=vals)
+    exp_cov = ExponentialMovingCovariance(iterable=vals)
     exp_state = exp_cov.get_state()
 
-    new_exp_cov = ExponentialCovariance(0.8)
+    new_exp_cov = ExponentialMovingCovariance(0.8)
     assert exp_cov != new_exp_cov
     assert new_exp_cov.decay == 0.8
     new_exp_cov.set_state(exp_state)
@@ -532,7 +532,7 @@ def test_get_set_state_exponential_covariance(ExponentialCovariance):
     assert exp_cov.covariance() == new_exp_cov.covariance()
     assert new_exp_cov.decay == 0.1
 
-    assert exp_cov == ExponentialCovariance.fromstate(exp_cov.get_state())
+    assert exp_cov == ExponentialMovingCovariance.fromstate(exp_cov.get_state())
 
 
 @pytest.mark.parametrize(
@@ -599,11 +599,11 @@ def test_pickle_exponential_statistics(ExponentialMovingStatistics):
 
 
 @pytest.mark.parametrize(
-    'ExponentialCovariance',
+    'ExponentialMovingCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
-def test_pickle_exponential_covariance(ExponentialCovariance):
-    exp_cov = ExponentialCovariance(0.9, iterable=zip(range(10), range(10)))
+def test_pickle_exponential_covariance(ExponentialMovingCovariance):
+    exp_cov = ExponentialMovingCovariance(0.9, iterable=zip(range(10), range(10)))
     for num in range(pickle.HIGHEST_PROTOCOL):
         pickled_exp_cov = pickle.dumps(exp_cov, protocol=num)
         unpickled_exp_cov = pickle.loads(pickled_exp_cov)
@@ -654,11 +654,11 @@ def test_copy_exponential_statistics(ExponentialMovingStatistics):
 
 
 @pytest.mark.parametrize(
-    'ExponentialCovariance',
+    'ExponentialMovingCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
-def test_copy_exponential_covariance(ExponentialCovariance):
-    exp_cov = ExponentialCovariance(0.9, iterable=zip(range(10), range(10)))
+def test_copy_exponential_covariance(ExponentialMovingCovariance):
+    exp_cov = ExponentialMovingCovariance(0.9, iterable=zip(range(10), range(10)))
     copy_exp_cov = copy.copy(exp_cov)
     assert exp_cov == copy_exp_cov
     deepcopy_exp_cov = copy.deepcopy(exp_cov)
@@ -712,12 +712,12 @@ def test_equality_exponential_statistics(ExponentialMovingStatistics):
 
 
 @pytest.mark.parametrize(
-    'ExponentialCovariance',
+    'ExponentialMovingCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
-def test_equality_exponential_covariance(ExponentialCovariance):
-    exp_cov1 = ExponentialCovariance(0.9, iterable=enumerate(range(10)))
-    exp_cov2 = ExponentialCovariance(0.9, iterable=enumerate(range(10)))
+def test_equality_exponential_covariance(ExponentialMovingCovariance):
+    exp_cov1 = ExponentialMovingCovariance(0.9, iterable=enumerate(range(10)))
+    exp_cov2 = ExponentialMovingCovariance(0.9, iterable=enumerate(range(10)))
     assert exp_cov1 == exp_cov2
     exp_cov2.push(42, 42)
     assert exp_cov1 != exp_cov2
@@ -828,20 +828,20 @@ def test_exponential_statistics_batch(ExponentialMovingStatistics):
 
 
 @pytest.mark.parametrize(
-    'ExponentialCovariance',
+    'ExponentialMovingCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
-def test_exponential_covariance_batch(ExponentialCovariance):
+def test_exponential_covariance_batch(ExponentialMovingCovariance):
     random.seed(0)
 
     alpha = [(random.random(), random.random()) for _ in range(count)]
     beta = [(random.random() * 2, random.random() * 2) for _ in range(count)]
 
-    alpha_exp_cov = ExponentialCovariance(0.1, iterable=alpha)
+    alpha_exp_cov = ExponentialMovingCovariance(0.1, iterable=alpha)
 
     assert (alpha_exp_cov * 0.5 + alpha_exp_cov * 0.5) == alpha_exp_cov
 
-    beta_exp_cov = ExponentialCovariance(0.9, iterable=beta)
+    beta_exp_cov = ExponentialMovingCovariance(0.9, iterable=beta)
 
     gamma_exp_cov = alpha_exp_cov * 0.3 + beta_exp_cov * 0.7
 
@@ -874,7 +874,7 @@ def test_exponential_statistics_decays(ExponentialMovingStatistics, decay):
 
 
 @pytest.mark.parametrize(
-    'ExponentialCovariance, decay',
+    'ExponentialMovingCovariance, decay',
     list(
         itertools.product(
             [CoreExponentialCovariance, FastExponentialCovariance],
@@ -882,10 +882,10 @@ def test_exponential_statistics_decays(ExponentialMovingStatistics, decay):
         )
     ),
 )
-def test_exponential_covariance_decays(ExponentialCovariance, decay):
+def test_exponential_covariance_decays(ExponentialMovingCovariance, decay):
     random.seed(0)
     alpha = [(random.random(), random.random()) for _ in range(count)]
-    exp_stats = ExponentialCovariance(decay=decay, iterable=alpha)
+    exp_stats = ExponentialMovingCovariance(decay=decay, iterable=alpha)
     true_cov, true_cor = exp_cov_cor(decay=decay, iterable=alpha)
 
     assert (error(true_cov, exp_stats.covariance())) < limit
@@ -935,10 +935,10 @@ def test_exponential_statistics_clear(ExponentialMovingStatistics):
 
 
 @pytest.mark.parametrize(
-    'ExponentialCovariance',
+    'ExponentialMovingCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
-def test_exponential_covariance_clear(ExponentialCovariance):
+def test_exponential_covariance_clear(ExponentialMovingCovariance):
     random.seed(0)
     alpha = [(random.random(), random.random()) for _ in range(count)]
     mean_x = 10
@@ -946,7 +946,7 @@ def test_exponential_covariance_clear(ExponentialCovariance):
     mean_y = 1000
     variance_y = 2
     covariance = 20
-    exp_cov = ExponentialCovariance(
+    exp_cov = ExponentialMovingCovariance(
         mean_x=mean_x,
         variance_x=variance_x,
         mean_y=mean_y,
@@ -1110,15 +1110,15 @@ def test_raise_if_invalid_decay_exp_stats(ExponentialMovingStatistics):
 
 
 @pytest.mark.parametrize(
-    'ExponentialCovariance',
+    'ExponentialMovingCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
-def test_raise_if_invalid_decay_exp_cov(ExponentialCovariance):
+def test_raise_if_invalid_decay_exp_cov(ExponentialMovingCovariance):
     with pytest.raises(ValueError):
-        ExponentialCovariance(0)
-        ExponentialCovariance(1)
-        ExponentialCovariance(-1)
-        ExponentialCovariance(2)
+        ExponentialMovingCovariance(0)
+        ExponentialMovingCovariance(1)
+        ExponentialMovingCovariance(-1)
+        ExponentialMovingCovariance(2)
 
 
 @pytest.mark.parametrize(

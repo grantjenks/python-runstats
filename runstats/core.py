@@ -645,10 +645,10 @@ def make_regression(state):
     return Regression.fromstate(state)
 
 
-class ExponentialCovariance:
-    """Compute exponential covariance and correlation in a single pass.
+class ExponentialMovingCovariance:
+    """Compute exponential moving covariance and correlation in a single pass.
 
-    ExponentialCovariance objects may also be added and copied.
+    ExponentialMovingCovariance objects may also be added and copied.
 
     """
 
@@ -662,7 +662,7 @@ class ExponentialCovariance:
         covariance=0.0,
         iterable=(),
     ):  # pylint: disable=too-many-arguments
-        """Initialize ExponentialCovariance object.
+        """Initialize ExponentialMovingCovariance object.
 
         Incrementally tracks covariance and exponentially discounts old
         values.
@@ -702,7 +702,7 @@ class ExponentialCovariance:
         self._decay = value
 
     def clear(self):
-        """Clear ExponentialCovariance object."""
+        """Clear ExponentialMovingCovariance object."""
         self._xstats.clear()
         self._ystats.clear()
         self._covariance = self._initial_covariance
@@ -734,7 +734,7 @@ class ExponentialCovariance:
 
     @classmethod
     def fromstate(cls, state):
-        """Return ExponentialCovariance object from state."""
+        """Return ExponentialMovingCovariance object from state."""
         stats = cls()
         stats.set_state(state)
         return stats
@@ -743,14 +743,14 @@ class ExponentialCovariance:
         return make_exponential_covariance, (self.get_state(),)
 
     def copy(self, _=None):
-        """Copy ExponentialCovariance object."""
+        """Copy ExponentialMovingCovariance object."""
         return self.fromstate(self.get_state())
 
     __copy__ = copy
     __deepcopy__ = copy
 
     def push(self, x_val, y_val):
-        """Add a pair `(x, y)` to the ExponentialCovariance summary."""
+        """Add a pair `(x, y)` to the ExponentialMovingCovariance summary."""
         self._xstats.push(x_val)
         alpha = 1.0 - self.decay
         self._covariance = self.decay * self.covariance() + alpha * (
@@ -768,20 +768,20 @@ class ExponentialCovariance:
         return self.covariance() / denom
 
     def __add__(self, that):
-        """Add two ExponentialCovariance objects together."""
+        """Add two ExponentialMovingCovariance objects together."""
         sigma = self.copy()
         sigma += that
         return sigma
 
     def __iadd__(self, that):
-        """Add another ExponentialCovariance object to this one."""
+        """Add another ExponentialMovingCovariance object to this one."""
         self._xstats += that._xstats
         self._ystats += that._ystats
         self._covariance += that.covariance()
         return self
 
     def __mul__(self, that):
-        """Multiply by a scalar to change ExponentialCovariance weighting."""
+        """Multiply by a scalar to change ExponentialMovingCovariance weighting."""
         sigma = self.copy()
         sigma *= that
         return sigma
@@ -789,7 +789,7 @@ class ExponentialCovariance:
     __rmul__ = __mul__
 
     def __imul__(self, that):
-        """Multiply by a scalar to change ExponentialCovariance weighting
+        """Multiply by a scalar to change ExponentialMovingCovariance weighting
         in-place.
 
         """
@@ -802,7 +802,7 @@ class ExponentialCovariance:
 
 def make_exponential_covariance(state):
     """Make Regression object from state."""
-    return ExponentialCovariance.fromstate(state)
+    return ExponentialMovingCovariance.fromstate(state)
 
 
 if __name__ == 'runstats.core':  # pragma: no cover

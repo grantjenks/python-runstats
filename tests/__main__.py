@@ -59,7 +59,7 @@ def main():
         fast_exp_stats.push(arg)
 
     print()
-    print('FastExponentialStatistics')
+    print('FastExponentialMovingStatistics')
     print('Decay Rate (default):', fast_exp_stats.get_decay())
     print('Exponential Mean:', fast_exp_stats.mean())
     print('Exponential Variance:', fast_exp_stats.variance())
@@ -71,7 +71,7 @@ def main():
         core_exp_stats.push(arg)
 
     print()
-    print('CoreExponentialStatistics')
+    print('CoreExponentialMovingStatistics')
     print('Decay Rate (default):', core_exp_stats.get_decay())
     print('Exponential Mean:', core_exp_stats.mean())
     print('Exponential Variance:', core_exp_stats.variance())
