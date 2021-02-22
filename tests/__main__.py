@@ -11,7 +11,10 @@ from runstats.core import (
 from runstats.core import Regression as CoreRegression
 from runstats.core import Statistics as CoreStatistics
 
-from .test_runstats import kurtosis, mean, skewness, stddev, variance
+from runstats import ExponentialMovingCovariance as FastExponentialCoveriance
+from runstats.core import ExponentialMovingCovariance as CoreExponentialCoveriance
+
+from tests.test_runstats import kurtosis, mean, skewness, stddev, variance, exp_mean_var, exp_cov_cor
 
 
 def main():
@@ -24,6 +27,11 @@ def main():
     print('StdDev:', stddev(args))
     print('Skewness:', skewness(args))
     print('Kurtosis:', kurtosis(args))
+
+    exp_mean, exp_var = exp_mean_var(0.9, args)
+    print("Exponential Moving Mean (decay=0.9):", exp_mean)
+    print("Exponential Moving Variance (decay=0.9):", exp_var)
+    print("Exponential Moving StdDev (decay=0.9):", exp_var ** 0.5)
 
     fast_stats = FastStatistics()
 
@@ -60,7 +68,7 @@ def main():
 
     print()
     print('FastExponentialMovingStatistics')
-    print('Decay Rate (default):', fast_exp_stats.get_decay())
+    print('Decay Rate (default):', fast_exp_stats.decay)
     print('Exponential Mean:', fast_exp_stats.mean())
     print('Exponential Variance:', fast_exp_stats.variance())
     print('Exponential StdDev:', fast_exp_stats.stddev())
@@ -72,7 +80,7 @@ def main():
 
     print()
     print('CoreExponentialMovingStatistics')
-    print('Decay Rate (default):', core_exp_stats.get_decay())
+    print('Decay Rate (default):', core_exp_stats.decay)
     print('Exponential Mean:', core_exp_stats.mean())
     print('Exponential Variance:', core_exp_stats.variance())
     print('Exponential StdDev:', core_exp_stats.stddev())
@@ -100,6 +108,28 @@ def main():
     print('Slope:', core_regr.slope())
     print('Intercept:', core_regr.intercept())
     print('Correlation:', core_regr.correlation())
+
+    fast_exp_cov = FastExponentialCoveriance()
+
+    for index, arg in enumerate(args, 1):
+        fast_exp_cov.push(index, arg)
+
+    print()
+    print('FastExponentialCovariance')
+    print('Decay Rate (default):', fast_exp_cov.decay)
+    print('Exponential Moving Covariance:', fast_exp_cov.covariance())
+    print('Exponential Moving Correlation:', fast_exp_cov.correlation())
+
+    core_exp_cov = CoreExponentialCoveriance()
+
+    for index, arg in enumerate(args, 1):
+        core_exp_cov.push(index, arg)
+
+    print()
+    print('CoreExponentialCovariance')
+    print('Decay Rate (default):', core_exp_cov.decay)
+    print('Exponential Moving Covariance:', core_exp_cov.covariance())
+    print('Exponential Moving Correlation:', core_exp_cov.correlation())
 
 
 if __name__ == '__main__':
