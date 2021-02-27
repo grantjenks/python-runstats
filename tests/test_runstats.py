@@ -16,7 +16,9 @@ from runstats import ExponentialMovingCovariance as FastExponentialCovariance
 from runstats import ExponentialMovingStatistics as FastExponentialStatistics
 from runstats import Regression as FastRegression
 from runstats import Statistics as FastStatistics
-from runstats.core import ExponentialMovingCovariance as CoreExponentialCovariance
+from runstats.core import (
+    ExponentialMovingCovariance as CoreExponentialCovariance,
+)
 from runstats.core import (
     ExponentialMovingStatistics as CoreExponentialStatistics,
 )
@@ -383,7 +385,9 @@ def test_add_exponential_statistics(
 )
 def test_add_exponential_covariance(ExponentialMovingCovariance):
     exp_cov0 = ExponentialMovingCovariance(0.9)
-    exp_cov10 = ExponentialMovingCovariance(0.9, iterable=zip(range(10), range(10)))
+    exp_cov10 = ExponentialMovingCovariance(
+        0.9, iterable=zip(range(10), range(10))
+    )
     assert (exp_cov0 + exp_cov10) == exp_cov10
     assert (exp_cov10 + exp_cov0) == exp_cov10
 
@@ -532,7 +536,9 @@ def test_get_set_state_exponential_covariance(ExponentialMovingCovariance):
     assert exp_cov.covariance() == new_exp_cov.covariance()
     assert new_exp_cov.decay == 0.1
 
-    assert exp_cov == ExponentialMovingCovariance.fromstate(exp_cov.get_state())
+    assert exp_cov == ExponentialMovingCovariance.fromstate(
+        exp_cov.get_state()
+    )
 
 
 @pytest.mark.parametrize(
@@ -603,7 +609,9 @@ def test_pickle_exponential_statistics(ExponentialMovingStatistics):
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
 def test_pickle_exponential_covariance(ExponentialMovingCovariance):
-    exp_cov = ExponentialMovingCovariance(0.9, iterable=zip(range(10), range(10)))
+    exp_cov = ExponentialMovingCovariance(
+        0.9, iterable=zip(range(10), range(10))
+    )
     for num in range(pickle.HIGHEST_PROTOCOL):
         pickled_exp_cov = pickle.dumps(exp_cov, protocol=num)
         unpickled_exp_cov = pickle.loads(pickled_exp_cov)
@@ -658,7 +666,9 @@ def test_copy_exponential_statistics(ExponentialMovingStatistics):
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
 def test_copy_exponential_covariance(ExponentialMovingCovariance):
-    exp_cov = ExponentialMovingCovariance(0.9, iterable=zip(range(10), range(10)))
+    exp_cov = ExponentialMovingCovariance(
+        0.9, iterable=zip(range(10), range(10))
+    )
     copy_exp_cov = copy.copy(exp_cov)
     assert exp_cov == copy_exp_cov
     deepcopy_exp_cov = copy.deepcopy(exp_cov)

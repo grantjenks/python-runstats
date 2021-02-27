@@ -12,9 +12,19 @@ from runstats.core import Regression as CoreRegression
 from runstats.core import Statistics as CoreStatistics
 
 from runstats import ExponentialMovingCovariance as FastExponentialCoveriance
-from runstats.core import ExponentialMovingCovariance as CoreExponentialCoveriance
+from runstats.core import (
+    ExponentialMovingCovariance as CoreExponentialCoveriance,
+)
 
-from tests.test_runstats import kurtosis, mean, skewness, stddev, variance, exp_mean_var, exp_cov_cor
+from tests.test_runstats import (
+    kurtosis,
+    mean,
+    skewness,
+    stddev,
+    variance,
+    exp_mean_var,
+    exp_cov_cor,
+)
 
 
 def main():
@@ -29,9 +39,12 @@ def main():
     print('Kurtosis:', kurtosis(args))
 
     exp_mean, exp_var = exp_mean_var(0.9, args)
-    print("Exponential Moving Mean (decay=0.9):", exp_mean)
-    print("Exponential Moving Variance (decay=0.9):", exp_var)
-    print("Exponential Moving StdDev (decay=0.9):", exp_var ** 0.5)
+    exp_cov, exp_cor = exp_cov_cor(0.9, enumerate(args, 1))
+    print('Exponential Moving Mean (decay=0.9):', exp_mean)
+    print('Exponential Moving Variance (decay=0.9):', exp_var)
+    print('Exponential Moving StdDev (decay=0.9):', exp_var ** 0.5)
+    print('Exponential Moving Covariance (decay=0.9):', exp_cov)
+    print('Exponential Moving Correlation (decay=0.9):', exp_cor)
 
     fast_stats = FastStatistics()
 
