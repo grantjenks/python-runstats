@@ -1133,4 +1133,3 @@ def test_raise_if_not_time_exp_stats(ExponentialMovingStatistics):
         exp_stats.freeze()
         exp_stats.unfreeze()
         exp_stats_time.unfreeze()
-        exp_stats + exp_stats_time

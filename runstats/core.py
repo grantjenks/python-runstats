@@ -279,9 +279,9 @@ class ExponentialMovingStatistics:
         dynamic_decay = decay ** (sec_from_last_push / delay).
         When the first value x is pushed, sec_from_last_push is the difference
         (in sec) between setting the delay from None to a value t (usually at
-        object initialization) and the time x is being pushed.
-        When freeze() has been called sec_from_last_push is the difference (in
-        sec) between the last call to push() and the time freeze() has been
+        object construction) and the times when x is being pushed.
+        When freeze() has been called sec_from_last_push is the difference
+        between the last call to push() and the time freeze() has been
         called().
         Note that at object initialization the values in iterable are weighted
         as if delay has not been set.
@@ -461,13 +461,6 @@ class ExponentialMovingStatistics:
 
     def __add__(self, that):
         """Add two ExponentialMovingStatistics objects together."""
-        if self.is_time_based() != that.is_time_based():
-            raise AttributeError(
-                'Adding two ExponentialMovingStatistics '
-                'requires both being of same type i.e. '
-                'time-based'
-            )
-
         sigma = self.copy()
         sigma += that
 
