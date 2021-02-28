@@ -82,17 +82,19 @@ function:
 Tutorial
 --------
 
-The Python `RunStats`_ module provides three types for computing running
-statistics: Statistics, ExponentialMovingStatistics and Regression.The
-Regression object leverages Statistics internally for its calculations.
+The Python `RunStats`_ module provides four types for computing running
+statistics: Statistics, ExponentialMovingStatistics,
+ExponentialMovingCovariance and Regression.
+The Regression object leverages Statistics internally for its calculations.
 Each can be initialized without arguments:
 
 .. code-block:: python
 
-   >>> from runstats import Statistics, Regression, ExponentialMovingStatistics
+   >>> from runstats import Statistics, Regression, ExponentialMovingStatistics, ExponentialMovingCovariance
    >>> stats = Statistics()
    >>> regr = Regression()
    >>> exp_stats = ExponentialMovingStatistics()
+   >>> exp_cov = ExponentialMovingCovariance()
 
 Statistics objects support four methods for modification. Use `push` to add
 values to the summary, `clear` to reset the the object to its initialization
@@ -208,7 +210,7 @@ the summary. Note that you may pass a generator as an iterable and the
 generator will be entirely consumed.
 
 The ExponentialMovingStatistics are constructed by providing a decay rate,
-initial mean, and initial variance. The decay rate has default 0.9 and must be
+initial mean, and initial variance. The decay rate defaults to 0.9 and must be
 between 0 and 1. The initial mean and variance default to zero.
 
 .. code-block:: python
@@ -257,7 +259,8 @@ mean and variance are simply added to create a new object. To weight each
 `ExponentialMovingStatistics`, multiply them by a constant factor.
 Note how this behaviour differs from the two previous classes. When two
 `ExponentialMovingStatistics` are added the decay of the left object is used for
-the new object. The `len` method is not supported.
+the new object. The `len` method as well as minimum and maximum are not
+supported.
 
 .. code-block:: python
 
@@ -271,19 +274,41 @@ the new object. The `len` method is not supported.
    >>> exp_stats.mean()
    6.187836645
 
+The `ExponentialMovingCovariance` works equivalently to
+`ExponentialMovingStatistics`.
+
+.. code-block:: python
+
+    >>> exp_cov = ExponentialMovingCovariance(
+    ... decay=0.9,
+    ... mean_x=0.0,
+    ... variance_x=0.0,
+    ... mean_y=0.0,
+    ... variance_y=0.0,
+    ... covariance=0.0,
+    ... iterable=(),
+    ... )
+    >>> for num in range(10):
+    ...     exp_cov.push(num, num + 5)
+    >>> round(exp_cov.covariance(), 2)
+    17.67
+    >>> round(exp_cov.correlation(), 2)
+    0.96
+
 `ExponentialMovingStatistics` can also work in a time-based mode i.e. old
 statistics are not simply discounted by the decay rate each time a value is
 pushed but an effective decay rate is calculated based on the provided decay
 rate and the time difference between the last push and the current push.
-`ExponentialMovingStatistics` operate in time based mode when a `delay` value is
-provided at construction. The delay is the no. of seconds that need to pass for
-the effective decay rate to be equal to the provided decay rate. For example, if
-a delay of 60 and a delay of 0.9 is provided, than after 60 seconds pass between
-calls to push() the effective decay rate for discounting the old statistics
-equals 0.9, when 120 seconds pass than it equals 0.9 ** 2 = 0.81 and so on.
-The exact formula for calculating the effective decay rate at a given call to
-push is: decay ** ((current_timestamp - timestamp_at_last_push) / delay). The
-initial timestamp is the timestamp at object construction.
+`ExponentialMovingStatistics` operate in time based mode when a `delay` value
+> 0 is provided at construction. The delay is the no. of seconds that need to
+pass for the effective decay rate to be equal to the provided decay rate.
+For example, if a delay of 60 and a delay of 0.9 is provided, than after 60
+seconds pass between calls to push() the effective decay rate for discounting
+the old statistics equals 0.9, when 120 seconds pass than it equals
+0.9 ** 2 = 0.81 and so on. The exact formula for calculating the effective
+decay rate at a given call to push is:
+decay ** ((current_timestamp - timestamp_at_last_push) / delay). The initial
+timestamp is the timestamp at object construction.
 
 .. code-block:: python
 

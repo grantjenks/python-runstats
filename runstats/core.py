@@ -245,6 +245,7 @@ def make_statistics(state):
 
 
 class ExponentialMovingStatistics:
+    # pylint: disable=too-many-instance-attributes
     """Compute exponential mean and variance in a single pass.
 
     ExponentialMovingStatistics objects may also be added and copied.
@@ -260,7 +261,7 @@ class ExponentialMovingStatistics:
 
     def __init__(
         self, decay=0.9, mean=0.0, variance=0.0, delay=None, iterable=()
-    ):
+    ):  # pylint: disable=too-many-arguments
         """Initialize ExponentialMovingStatistics object.
 
         Incrementally tracks mean and variance and exponentially discounts old
@@ -320,7 +321,9 @@ class ExponentialMovingStatistics:
 
     @delay.setter
     def delay(self, value):
-        if value:
+        if value is not None:
+            if value <= 0:
+                raise ValueError('delay must be > 0')
             self._current_time = (
                 self._current_time if self._current_time else time.time()
             )
@@ -425,7 +428,7 @@ class ExponentialMovingStatistics:
 
     def is_time_based(self):
         """Checks if object is time-based or not i.e. delay is set or None"""
-        return True if self.delay else False
+        return bool(self.delay)
 
     def push(self, value):
         """Add `value` to the ExponentialMovingStatistics summary."""

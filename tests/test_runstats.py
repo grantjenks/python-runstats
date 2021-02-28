@@ -1143,3 +1143,7 @@ def test_raise_if_not_time_exp_stats(ExponentialMovingStatistics):
         exp_stats.freeze()
         exp_stats.unfreeze()
         exp_stats_time.unfreeze()
+
+    with pytest.raises(ValueError):
+        exp_stats_time.delay = 0
+        exp_stats_time.delay = -1
