@@ -259,7 +259,8 @@ mean and variance are simply added to create a new object. To weight each
 `ExponentialMovingStatistics`, multiply them by a constant factor.
 Note how this behaviour differs from the two previous classes. When two
 `ExponentialMovingStatistics` are added the decay of the left object is used for
-the new object. The `len` method as well as minimum and maximum are not
+the new object. The clear method resets the object to its state at
+construction. The `len` method as well as minimum and maximum are not
 supported.
 
 .. code-block:: python
