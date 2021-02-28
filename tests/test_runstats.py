@@ -8,9 +8,9 @@ import math
 import pickle
 import random
 import time
-import pytest
-
 from unittest.mock import patch
+
+import pytest
 
 from runstats import ExponentialMovingCovariance as FastExponentialCovariance
 from runstats import ExponentialMovingStatistics as FastExponentialStatistics

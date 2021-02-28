@@ -5,6 +5,7 @@ Covariance in a single pass.
 
 """
 from __future__ import division
+
 import time
 
 

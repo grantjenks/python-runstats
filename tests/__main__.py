@@ -2,28 +2,26 @@ from __future__ import print_function
 
 import sys
 
+from runstats import ExponentialMovingCovariance as FastExponentialCoveriance
 from runstats import ExponentialMovingStatistics as FastExponentialStatistics
 from runstats import Regression as FastRegression
 from runstats import Statistics as FastStatistics
+from runstats.core import (
+    ExponentialMovingCovariance as CoreExponentialCoveriance,
+)
 from runstats.core import (
     ExponentialMovingStatistics as CoreExponentialStatistics,
 )
 from runstats.core import Regression as CoreRegression
 from runstats.core import Statistics as CoreStatistics
-
-from runstats import ExponentialMovingCovariance as FastExponentialCoveriance
-from runstats.core import (
-    ExponentialMovingCovariance as CoreExponentialCoveriance,
-)
-
 from tests.test_runstats import (
+    exp_cov_cor,
+    exp_mean_var,
     kurtosis,
     mean,
     skewness,
     stddev,
     variance,
-    exp_mean_var,
-    exp_cov_cor,
 )
 
 

@@ -8,7 +8,7 @@ Online statistics and regression.
 
 try:
     from ._core import (
-        ExponentialCovariance,
+        ExponentialMovingCovariance,
         ExponentialMovingStatistics,
         Regression,
         Statistics,
