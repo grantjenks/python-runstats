@@ -6,6 +6,8 @@ Compute Statistics, Exponential Statistics and Regression in a single pass.
 
 from __future__ import division
 
+NAN = float('nan')
+
 
 class Statistics:
     """Compute statistics in a single pass.
@@ -25,7 +27,7 @@ class Statistics:
         statistics summary.
         """
         self._count = self._eta = self._rho = self._tau = self._phi = 0.0
-        self._min = self._max = float('nan')
+        self._min = self._max = NAN
 
         for value in iterable:
             self.push(value)
@@ -33,7 +35,7 @@ class Statistics:
     def clear(self):
         """Clear Statistics object."""
         self._count = self._eta = self._rho = self._tau = self._phi = 0.0
-        self._min = self._max = float('nan')
+        self._min = self._max = NAN
 
     def __eq__(self, that):
         return self.get_state() == that.get_state()
@@ -88,8 +90,6 @@ class Statistics:
 
     def push(self, value):
         """Add `value` to the Statistics summary."""
-        value = float(value)
-
         if self._count == 0.0:
             self._min = value
             self._max = value
@@ -136,19 +136,21 @@ class Statistics:
 
     def skewness(self):
         """Skewness of values."""
-        return (self._count ** 0.5) * self._tau / pow(self._rho, 1.5)
+        return (self._count ** 0.5) * self._tau / (self._rho ** 1.5)
 
     def kurtosis(self):
         """Kurtosis of values."""
         return self._count * self._phi / (self._rho * self._rho) - 3.0
 
-    def __add__(self, that):
+    def _add(self, that):
         """Add two Statistics objects together."""
         sigma = self.copy()
-        sigma += that
+        sigma._iadd(that)
         return sigma
 
-    def __iadd__(self, that):
+    __add__ = _add
+
+    def _iadd(self, that):
         """Add another Statistics object to this one."""
         sum_count = self._count + that._count
         if sum_count == 0:
@@ -219,22 +221,26 @@ class Statistics:
 
         return self
 
-    def __mul__(self, that):
+    __iadd__ = _iadd
+
+    def _mul(self, that):
         """Multiply by a scalar to change Statistics weighting."""
         sigma = self.copy()
-        sigma *= that
+        sigma._imul(that)
         return sigma
 
+    __mul__ = _mul
     __rmul__ = __mul__
 
-    def __imul__(self, that):
+    def _imul(self, that):
         """Multiply by a scalar to change Statistics weighting in-place."""
-        that = float(that)
         self._count *= that
         self._rho *= that
         self._tau *= that
         self._phi *= that
         return self
+
+    __imul__ = _imul
 
 
 def make_statistics(state):
