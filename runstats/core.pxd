@@ -1,5 +1,6 @@
 import cython
 
+
 cdef public float NAN
 
 
