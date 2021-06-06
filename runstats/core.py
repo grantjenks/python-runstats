@@ -6,7 +6,6 @@ Compute Statistics, Exponential Statistics and Regression in a single pass.
 
 from __future__ import division
 
-CORE = True
 NAN = float('nan')
 
 
