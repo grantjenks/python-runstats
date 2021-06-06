@@ -69,4 +69,6 @@ jobs:
       run: pytest --cov-fail-under 0
 
     - name: Run benchmark
-      run: python tests/benchmark.py
+      run: |
+        pip install -e .
+        python tests/benchmark.py
