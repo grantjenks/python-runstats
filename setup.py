@@ -12,6 +12,8 @@ Create annotations for optimization:
 
 """
 
+import shutil
+
 from setuptools import Extension, setup
 from setuptools.command.test import test as TestCommand
 
@@ -65,7 +67,9 @@ args = dict(
 try:
     from Cython.Build import cythonize
 
-    ext_modules = [Extension('runstats._core', ['runstats/core.py'])]
+    shutil.copy2('runstats/core.py', 'runstats/_core.py')
+    shutil.copy2('runstats/core.pxd', 'runstats/_core.pxd')
+    ext_modules = [Extension('runstats._core', ['runstats/_core.py'])]
     setup(
         ext_modules=cythonize(ext_modules, language_level='3'),
         **args,
