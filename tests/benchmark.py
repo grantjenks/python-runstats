@@ -9,9 +9,7 @@ import timeit
 
 random.seed(0)
 VALUES = [random.random() for _ in range(int(1e4))]
-PAIRS = [
-    (pos, pos + (val * 2 - 1)) for pos, val in enumerate(VALUES)
-]
+PAIRS = [(pos, pos + (val * 2 - 1)) for pos, val in enumerate(VALUES)]
 
 
 def main():
