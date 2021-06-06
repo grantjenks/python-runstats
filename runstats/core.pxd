@@ -19,10 +19,10 @@ cdef class Statistics:
     cpdef Statistics copy(self, _=*)
 
     @cython.locals(
-        delta=cython.float,
-        delta_n=cython.float,
-        delta_n2=cython.float,
-        term=cython.float,
+        delta=float,
+        delta_n=float,
+        delta_n2=float,
+        term=float,
     )
     cpdef push(self, float value)
 
@@ -62,248 +62,91 @@ cdef class Statistics:
     cpdef Statistics _imul(self, float that)
 
 
-cpdef make_statistics(state)
+cpdef Statistics make_statistics(state)
 
 
-# cdef class ExponentialStatistics:
-#     cdef public float decay, mean, variance
+cdef class ExponentialStatistics:
+    cdef public float _decay, _mean, _variance
 
-#     @property
-#     cpdef decay(self)
+    cpdef _set_decay(self, float value)
 
-#     @decay.setter
-#     cpdef decay(self, float value)
+    cpdef clear(self, float mean=*, float variance=*, decay=*)
 
-#     def clear(self, mean=0.0, variance=0.0, decay=None):
-#         """Clear ExponentialStatistics object."""
-#         self._mean = float(mean)
-#         self._variance = float(variance)
-#         if decay is not None:
-#             self.decay = decay
+    cpdef get_state(self)
 
-#     def __eq__(self, that):
-#         return self.get_state() == that.get_state()
+    cpdef set_state(self, state)
 
-#     def __ne__(self, that):
-#         return self.get_state() != that.get_state()
+    cpdef __reduce__(self)
 
-#     def get_state(self):
-#         """Get internal state."""
-#         return self._decay, self._mean, self._variance
+    cpdef ExponentialStatistics copy(self, _=*)
 
-#     def set_state(self, state):
-#         """Set internal state."""
-#         (
-#             self._decay,
-#             self._mean,
-#             self._variance,
-#         ) = state
+    @cython.locals(
+        alpha=float,
+        diff=float,
+        incr=float,
+    )
+    cpdef push(self, float value)
 
-#     @classmethod
-#     def fromstate(cls, state):
-#         """Return ExponentialStatistics object from state."""
-#         stats = cls()
-#         stats.set_state(state)
-#         return stats
+    cpdef float mean(self)
 
-#     def __reduce__(self):
-#         return make_exponential_statistics, (self.get_state(),)
+    cpdef float variance(self)
 
-#     def copy(self, _=None):
-#         """Copy ExponentialStatistics object."""
-#         return self.fromstate(self.get_state())
+    cpdef float stddev(self)
 
-#     __copy__ = copy
-#     __deepcopy__ = copy
+    @cython.locals(
+        sigma=ExponentialStatistics,
+    )
+    cpdef ExponentialStatistics _add(self, ExponentialStatistics that)
 
-#     def push(self, value):
-#         """Add `value` to the ExponentialStatistics summary."""
-#         value = float(value)
-#         alpha = 1.0 - self._decay
-#         diff = value - self._mean
-#         incr = alpha * diff
-#         self._variance += alpha * (self._decay * diff ** 2 - self._variance)
-#         self._mean += incr
+    cpdef ExponentialStatistics _iadd(self, ExponentialStatistics that)
 
-#     def mean(self):
-#         """Exponential mean of values."""
-#         return self._mean
+    @cython.locals(
+        sigma=ExponentialStatistics,
+    )
+    cpdef ExponentialStatistics _mul(self, float that)
 
-#     def variance(self):
-#         """Exponential variance of values."""
-#         return self._variance
-
-#     def stddev(self):
-#         """Exponential standard deviation of values."""
-#         return self.variance() ** 0.5
-
-#     def __add__(self, that):
-#         """Add two ExponentialStatistics objects together."""
-#         sigma = self.copy()
-#         sigma += that
-#         return sigma
-
-#     def __iadd__(self, that):
-#         """Add another ExponentialStatistics object to this one."""
-#         self._mean += that.mean()
-#         self._variance += that.variance()
-#         return self
-
-#     def __mul__(self, that):
-#         """Multiply by a scalar to change ExponentialStatistics weighting."""
-#         sigma = self.copy()
-#         sigma *= that
-#         return sigma
-
-#     __rmul__ = __mul__
-
-#     def __imul__(self, that):
-#         """Multiply by a scalar to change ExponentialStatistics weighting
-#         in-place.
-
-#         """
-#         that = float(that)
-#         self._mean *= that
-#         self._variance *= that
-#         return self
+    cpdef ExponentialStatistics _imul(self, float that)
 
 
-# def make_exponential_statistics(state):
-#     """Make ExponentialStatistics object from state."""
-#     return ExponentialStatistics.fromstate(state)
+cpdef ExponentialStatistics make_exponential_statistics(state)
 
 
-# class Regression:
-#     """
-#     Compute simple linear regression in a single pass.
+cdef class Regression:
+    cdef public Statistics _xstats, _ystats
+    cdef public float _count, _sxy
 
-#     Computes the slope, intercept, and correlation.
-#     Regression objects may also be added together and copied.
+    cpdef clear(self)
 
-#     Based entirely on the C++ code by John D Cook at
-#     http://www.johndcook.com/running_regression.html
-#     """
+    cpdef get_state(self)
 
-#     def __init__(self, iterable=()):
-#         """Initialize Regression object.
+    cpdef set_state(self, state)
 
-#         Iterates optional parameter `iterable` and pushes each pair into the
-#         regression summary.
-#         """
-#         self._xstats = Statistics()
-#         self._ystats = Statistics()
-#         self._count = self._sxy = 0.0
+    cpdef __reduce__(self)
 
-#         for xcoord, ycoord in iterable:
-#             self.push(xcoord, ycoord)
+    cpdef Regression copy(self, _=*)
 
-#     def __eq__(self, that):
-#         return self.get_state() == that.get_state()
+    cpdef push(self, float xcoord, float ycoord)
 
-#     def __ne__(self, that):
-#         return self.get_state() != that.get_state()
+    @cython.locals(sxx=float)
+    cpdef float slope(self, float ddof=*)
 
-#     def clear(self):
-#         """Clear Regression object."""
-#         self._xstats.clear()
-#         self._ystats.clear()
-#         self._count = self._sxy = 0.0
+    cpdef float intercept(self, float ddof=*)
 
-#     def get_state(self):
-#         """Get internal state."""
-#         return (
-#             self._count,
-#             self._sxy,
-#             self._xstats.get_state(),
-#             self._ystats.get_state(),
-#         )
+    @cython.locals(term=float)
+    cpdef float correlation(self, float ddof=*)
 
-#     def set_state(self, state):
-#         """Set internal state."""
-#         count, sxy, xstats, ystats = state
-#         self._count = count
-#         self._sxy = sxy
-#         self._xstats.set_state(xstats)
-#         self._ystats.set_state(ystats)
+    @cython.locals(sigma=Regression)
+    cpdef Regression _add(self, Regression that)
 
-#     @classmethod
-#     def fromstate(cls, state):
-#         """Return Regression object from state."""
-#         regr = cls()
-#         regr.set_state(state)
-#         return regr
-
-#     def __reduce__(self):
-#         return make_regression, (self.get_state(),)
-
-#     def copy(self, _=None):
-#         """Copy Regression object."""
-#         return self.fromstate(self.get_state())
-
-#     __copy__ = copy
-#     __deepcopy__ = copy
-
-#     def __len__(self):
-#         """Number of values that have been pushed."""
-#         return int(self._count)
-
-#     def push(self, xcoord, ycoord):
-#         """Add a pair `(x, y)` to the Regression summary."""
-#         self._sxy += (
-#             (self._xstats.mean() - xcoord)
-#             * (self._ystats.mean() - ycoord)
-#             * self._count
-#             / (self._count + 1)
-#         )
-#         self._xstats.push(xcoord)
-#         self._ystats.push(ycoord)
-#         self._count += 1
-
-#     def slope(self, ddof=1.0):
-#         """Slope of values (with `ddof` degrees of freedom)."""
-#         sxx = self._xstats.variance(ddof) * (self._count - ddof)
-#         return self._sxy / sxx
-
-#     def intercept(self, ddof=1.0):
-#         """Intercept of values (with `ddof` degrees of freedom)."""
-#         return self._ystats.mean() - self.slope(ddof) * self._xstats.mean()
-
-#     def correlation(self, ddof=1.0):
-#         """Correlation of values (with `ddof` degrees of freedom)."""
-#         term = self._xstats.stddev(ddof) * self._ystats.stddev(ddof)
-#         return self._sxy / ((self._count - ddof) * term)
-
-#     def __add__(self, that):
-#         """Add two Regression objects together."""
-#         sigma = self.copy()
-#         sigma += that
-#         return sigma
-
-#     def __iadd__(self, that):
-#         """Add another Regression object to this one."""
-#         sum_count = self._count + that._count
-#         if sum_count == 0:
-#             return self
-
-#         sum_xstats = self._xstats + that._xstats
-#         sum_ystats = self._ystats + that._ystats
-
-#         deltax = that._xstats.mean() - self._xstats.mean()
-#         deltay = that._ystats.mean() - self._ystats.mean()
-#         sum_sxy = (
-#             self._sxy
-#             + that._sxy
-#             + self._count * that._count * deltax * deltay / sum_count
-#         )
-
-#         self._count = sum_count
-#         self._xstats = sum_xstats
-#         self._ystats = sum_ystats
-#         self._sxy = sum_sxy
-
-#         return self
+    @cython.locals(
+        sum_count=float,
+        sum_xstats=Statistics,
+        sum_ystats=Statistics,
+        deltax=float,
+        deltay=float,
+        sum_sxy=float,
+    )
+    cpdef Regression _iadd(self, Regression that)
 
 
-# def make_regression(state):
-#     """Make Regression object from state."""
-#     return Regression.fromstate(state)
+cpdef Regression make_regression(state)

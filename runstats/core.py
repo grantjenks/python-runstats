@@ -26,9 +26,7 @@ class Statistics:
         Iterates optional parameter `iterable` and pushes each value into the
         statistics summary.
         """
-        self._count = self._eta = self._rho = self._tau = self._phi = 0.0
-        self._min = self._max = NAN
-
+        self.clear()
         for value in iterable:
             self.push(value)
 
@@ -277,10 +275,7 @@ class ExponentialStatistics:
         statistics summary.
 
         """
-        self.decay = decay
-        self._mean = float(mean)
-        self._variance = float(variance)
-
+        self.clear(mean, variance, decay)
         for value in iterable:
             self.push(value)
 
@@ -291,17 +286,19 @@ class ExponentialStatistics:
 
     @decay.setter
     def decay(self, value):
-        value = float(value)
+        self._set_decay(value)
+
+    def _set_decay(self, value):
         if not 0 <= value <= 1:
             raise ValueError('decay must be between 0 and 1')
         self._decay = value
 
     def clear(self, mean=0.0, variance=0.0, decay=None):
         """Clear ExponentialStatistics object."""
-        self._mean = float(mean)
-        self._variance = float(variance)
+        self._mean = mean
+        self._variance = variance
         if decay is not None:
-            self.decay = decay
+            self._set_decay(decay)
 
     def __eq__(self, that):
         return self.get_state() == that.get_state()
@@ -340,7 +337,6 @@ class ExponentialStatistics:
 
     def push(self, value):
         """Add `value` to the ExponentialStatistics summary."""
-        value = float(value)
         alpha = 1.0 - self._decay
         diff = value - self._mean
         incr = alpha * diff
@@ -359,35 +355,41 @@ class ExponentialStatistics:
         """Exponential standard deviation of values."""
         return self.variance() ** 0.5
 
-    def __add__(self, that):
+    def _add(self, that):
         """Add two ExponentialStatistics objects together."""
         sigma = self.copy()
-        sigma += that
+        sigma._iadd(that)
         return sigma
 
-    def __iadd__(self, that):
+    __add__ = _add
+
+    def _iadd(self, that):
         """Add another ExponentialStatistics object to this one."""
         self._mean += that.mean()
         self._variance += that.variance()
         return self
 
-    def __mul__(self, that):
+    __iadd__ = _iadd
+
+    def _mul(self, that):
         """Multiply by a scalar to change ExponentialStatistics weighting."""
         sigma = self.copy()
-        sigma *= that
+        sigma._imul(that)
         return sigma
 
-    __rmul__ = __mul__
+    __mul__ = _mul
+    __rmul__ = _mul
 
-    def __imul__(self, that):
+    def _imul(self, that):
         """Multiply by a scalar to change ExponentialStatistics weighting
         in-place.
 
         """
-        that = float(that)
         self._mean *= that
         self._variance *= that
         return self
+
+    __imul__ = _imul
 
 
 def make_exponential_statistics(state):
@@ -495,20 +497,22 @@ class Regression:
         term = self._xstats.stddev(ddof) * self._ystats.stddev(ddof)
         return self._sxy / ((self._count - ddof) * term)
 
-    def __add__(self, that):
+    def _add(self, that):
         """Add two Regression objects together."""
         sigma = self.copy()
-        sigma += that
+        sigma._add(that)
         return sigma
 
-    def __iadd__(self, that):
+    __add__ = _add
+
+    def _iadd(self, that):
         """Add another Regression object to this one."""
         sum_count = self._count + that._count
         if sum_count == 0:
             return self
 
-        sum_xstats = self._xstats + that._xstats
-        sum_ystats = self._ystats + that._ystats
+        sum_xstats = self._xstats._add(that._xstats)
+        sum_ystats = self._ystats._add(that._ystats)
 
         deltax = that._xstats.mean() - self._xstats.mean()
         deltay = that._ystats.mean() - self._ystats.mean()
@@ -524,6 +528,8 @@ class Regression:
         self._sxy = sum_sxy
 
         return self
+
+    __iadd__ = _iadd
 
 
 def make_regression(state):
