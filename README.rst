@@ -101,7 +101,7 @@ summaries and multiply to weight summary Statistics by a scalar.
 .. code-block:: python
 
    >>> for num in range(10):
-   ...     stats.push(num)
+   ...     stats.push(float(num))
    >>> stats.mean()
    4.5
    >>> stats.maximum()

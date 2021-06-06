@@ -500,7 +500,7 @@ class Regression:
     def _add(self, that):
         """Add two Regression objects together."""
         sigma = self.copy()
-        sigma._add(that)
+        sigma._iadd(that)
         return sigma
 
     __add__ = _add
