@@ -221,6 +221,17 @@ def test_exponential_statistics(ExponentialStatistics):
 
 
 @pytest.mark.parametrize(
+    'ExponentialStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
+def test_bad_decay(ExponentialStatistics):
+    with pytest.raises(ValueError):
+        ExponentialStatistics(decay=2.0)
+    with pytest.raises(ValueError):
+        ExponentialStatistics(decay=-1.0)
+
+
+@pytest.mark.parametrize(
     'Statistics,Regression',
     [
         (CoreStatistics, CoreRegression),
@@ -306,6 +317,10 @@ def test_regression(Statistics, Regression):
     assert error(regr.slope(), regr_copy.slope()) < limit
     assert error(regr.intercept(), regr_copy.intercept()) < limit
     assert error(regr.correlation(), regr_copy.correlation()) < limit
+
+    regr.clear()
+
+    assert len(regr) == 0
 
 
 @pytest.mark.parametrize(
