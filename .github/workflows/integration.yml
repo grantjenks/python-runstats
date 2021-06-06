@@ -67,3 +67,6 @@ jobs:
 
     - name: Test with pytest
       run: pytest --cov-fail-under 0
+
+    - name: Run benchmark
+      run: python tests/benchmark.py
