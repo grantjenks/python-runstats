@@ -612,29 +612,3 @@ def test_expoential_batch(ExponentialStatistics):
     assert weighted_var == gamma_exp_stats.variance()
     assert alpha_exp_stats._decay == gamma_exp_stats._decay
     assert beta_exp_stats._decay != gamma_exp_stats._decay
-
-
-@pytest.mark.parametrize(
-    'Statistics,Regression',
-    [
-        (CoreStatistics, CoreRegression),
-        (FastStatistics, FastRegression),
-    ],
-)
-def test_raise_if_invalid_multiply(Statistics, Regression):
-    stats1 = Statistics(range(10))
-    stats2 = Statistics(range(10)) * 2
-    with pytest.raises(TypeError):
-        stats1 * stats2
-
-
-@pytest.mark.parametrize(
-    'ExponentialStatistics',
-    [CoreExponentialStatistics, FastExponentialStatistics],
-)
-def test_raise_if_invalid_multiply_exp(ExponentialStatistics):
-    with pytest.raises(ValueError):
-        ExponentialStatistics(0)
-        ExponentialStatistics(1)
-        ExponentialStatistics(-1)
-        ExponentialStatistics(2)
