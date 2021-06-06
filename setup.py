@@ -74,7 +74,7 @@ except Exception as exception:
     print('*' * 79)
     print(exception)
     print('*' * 79)
-    print('Failed to setup sksequitur with Cython. See error message above.')
+    print('Failed to setup runstats with Cython. See error message above.')
     print('Falling back to pure-Python implementation.')
     print('*' * 79)
     setup(**args)
