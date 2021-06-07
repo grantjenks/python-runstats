@@ -243,6 +243,7 @@ def test_add_statistics(Statistics, Regression):
     stats10 = Statistics(range(10))
     assert (stats0 + stats10) == stats10
     assert (stats10 + stats0) == stats10
+    stats0 += stats10
 
 
 @pytest.mark.parametrize(
@@ -254,6 +255,12 @@ def test_add_exponential_statistics(ExponentialStatistics):
     exp_stats10 = ExponentialStatistics(0.9, iterable=range(10))
     assert (exp_stats0 + exp_stats10) == exp_stats10
     assert (exp_stats10 + exp_stats0) == exp_stats10
+    exp_stats0 += exp_stats10
+    exp_stats0 *= 2
+    with pytest.raises(TypeError):
+        exp_stats0 * object()
+    with pytest.raises(TypeError):
+        object() * exp_stats0
 
 
 def correlation(values):
@@ -601,6 +608,10 @@ def test_multiply(Statistics, Regression):
     assert stats1 == stats4
     stats5 = math.e * stats1
     assert stats1.mean() == stats5.mean()
+    with pytest.raises(TypeError):
+        stats1 * object()
+    with pytest.raises(TypeError):
+        object() * stats1
 
 
 @pytest.mark.parametrize(
