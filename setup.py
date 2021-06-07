@@ -12,6 +12,7 @@ Create annotations for optimization:
 
 """
 
+import os
 import shutil
 
 from setuptools import Extension, setup
@@ -67,13 +68,23 @@ args = dict(
 try:
     from Cython.Build import cythonize
 
+    # Copy files to build binary.
+
     shutil.copy2('runstats/core.py', 'runstats/_core.py')
     shutil.copy2('runstats/core.pxd', 'runstats/_core.pxd')
+
+    # Build binary extension.
+
     ext_modules = [Extension('runstats._core', ['runstats/_core.py'])]
     setup(
         ext_modules=cythonize(ext_modules, language_level='3'),
         **args,
     )
+
+    # Remove copied files for static analysis and tests.
+
+    os.remove('runstats/_core.py')
+    os.remove('runstats/_core.pxd')
 except Exception as exception:
     print('*' * 79)
     print(exception)
