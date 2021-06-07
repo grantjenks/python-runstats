@@ -79,8 +79,11 @@ class Statistics:
         """Copy Statistics object."""
         return self.fromstate(self.get_state())
 
-    __copy__ = copy
-    __deepcopy__ = copy
+    def __copy__(self, _=None):
+        """Copy Statistics object."""
+        return self.copy(_)
+
+    __deepcopy__ = __copy__
 
     def __len__(self):
         """Number of values that have been pushed."""
@@ -146,7 +149,9 @@ class Statistics:
         sigma._iadd(that)
         return sigma
 
-    __add__ = _add
+    def __add__(self, that):
+        """Add two Statistics objects together."""
+        return self._add(that)
 
     def _iadd(self, that):
         """Add another Statistics object to this one."""
@@ -219,7 +224,9 @@ class Statistics:
 
         return self
 
-    __iadd__ = _iadd
+    def __iadd__(self, that):
+        """Add another Statistics object to this one."""
+        return self._iadd(that)
 
     def _mul(self, that):
         """Multiply by a scalar to change Statistics weighting."""
@@ -227,7 +234,13 @@ class Statistics:
         sigma._imul(that)
         return sigma
 
-    __mul__ = _mul
+    def __mul__(self, that):
+        """Multiply by a scalar to change Statistics weighting."""
+        if isinstance(self, Statistics):
+            return self._mul(that)
+        # https://stackoverflow.com/q/33218006/232571
+        return that._mul(self)  # pragma: no cover
+
     __rmul__ = __mul__
 
     def _imul(self, that):
@@ -238,7 +251,9 @@ class Statistics:
         self._phi *= that
         return self
 
-    __imul__ = _imul
+    def __imul__(self, that):
+        """Multiply by a scalar to change Statistics weighting in-place."""
+        return self._imul(that)
 
 
 def make_statistics(state):
@@ -332,8 +347,11 @@ class ExponentialStatistics:
         """Copy ExponentialStatistics object."""
         return self.fromstate(self.get_state())
 
-    __copy__ = copy
-    __deepcopy__ = copy
+    def __copy__(self, _=None):
+        """Copy ExponentialStatistics object."""
+        return self.copy(_)
+
+    __deepcopy__ = __copy__
 
     def push(self, value):
         """Add `value` to the ExponentialStatistics summary."""
@@ -361,7 +379,9 @@ class ExponentialStatistics:
         sigma._iadd(that)
         return sigma
 
-    __add__ = _add
+    def __add__(self, that):
+        """Add two ExponentialStatistics objects together."""
+        return self._add(that)
 
     def _iadd(self, that):
         """Add another ExponentialStatistics object to this one."""
@@ -369,7 +389,9 @@ class ExponentialStatistics:
         self._variance += that.variance()
         return self
 
-    __iadd__ = _iadd
+    def __iadd__(self, that):
+        """Add another ExponentialStatistics object to this one."""
+        return self._iadd(that)
 
     def _mul(self, that):
         """Multiply by a scalar to change ExponentialStatistics weighting."""
@@ -377,8 +399,12 @@ class ExponentialStatistics:
         sigma._imul(that)
         return sigma
 
-    __mul__ = _mul
-    __rmul__ = _mul
+    def __mul__(self, that):
+        """Multiply by a scalar to change ExponentialStatistics weighting."""
+        if isinstance(self, ExponentialStatistics):
+            return self._mul(that)
+        # https://stackoverflow.com/q/33218006/232571
+        return that._mul(self)  # pragma: no cover
 
     def _imul(self, that):
         """Multiply by a scalar to change ExponentialStatistics weighting
@@ -389,7 +415,12 @@ class ExponentialStatistics:
         self._variance *= that
         return self
 
-    __imul__ = _imul
+    def __imul__(self, that):
+        """Multiply by a scalar to change ExponentialStatistics weighting
+        in-place.
+
+        """
+        return self._imul(that)
 
 
 def make_exponential_statistics(state):
@@ -464,8 +495,11 @@ class Regression:
         """Copy Regression object."""
         return self.fromstate(self.get_state())
 
-    __copy__ = copy
-    __deepcopy__ = copy
+    def __copy__(self, _=None):
+        """Copy Regression object."""
+        return self.copy(_)
+
+    __deepcopy__ = __copy__
 
     def __len__(self):
         """Number of values that have been pushed."""
@@ -503,7 +537,9 @@ class Regression:
         sigma._iadd(that)
         return sigma
 
-    __add__ = _add
+    def __add__(self, that):
+        """Add two Regression objects together."""
+        return self._add(that)
 
     def _iadd(self, that):
         """Add another Regression object to this one."""
@@ -529,7 +565,9 @@ class Regression:
 
         return self
 
-    __iadd__ = _iadd
+    def __iadd__(self, that):
+        """Add another Regression object to this one."""
+        return self._iadd(that)
 
 
 def make_regression(state):
