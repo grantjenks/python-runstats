@@ -93,9 +93,7 @@ cdef class ExponentialStatistics:
 
     cpdef double stddev(self)
 
-    @cython.locals(
-        sigma=ExponentialStatistics,
-    )
+    @cython.locals(sigma=ExponentialStatistics)
     cpdef ExponentialStatistics _add(self, ExponentialStatistics that)
 
     cpdef ExponentialStatistics _iadd(self, ExponentialStatistics that)
