@@ -41,7 +41,7 @@ Features
 - Fully Documented
 - 100% Test Coverage
 - Numerically Stable
-- Optional Cython-optimized Extension (20-40 times faster)
+- Optional Cython-optimized Extension (5-100 times faster)
 - Statistics summary computes mean, variance, standard deviation, skewness,
   kurtosis, minimum and maximum.
 - Regression summary computes slope, intercept and correlation.
