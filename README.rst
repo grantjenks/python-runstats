@@ -138,7 +138,7 @@ maximum as sequences are expected instead. Therefore, there are `minimum` and
    >>> min(stats)
    Traceback (most recent call last):
        ...
-   TypeError: 'Statistics' object is not iterable
+   TypeError: ...
    >>> stats.minimum()
    0.00024069652516689466
    >>> stats.maximum()
