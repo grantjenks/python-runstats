@@ -23,7 +23,7 @@ jobs:
           CIBW_SKIP: cp27-* cp35-*
           CIBW_BEFORE_BUILD: pip install cython
           CIBW_TEST_REQUIRES: pytest pytest-cov pytest-xdist
-          CIBW_TEST_COMMAND: pytest --cov-fail-under 0
+          CIBW_TEST_COMMAND: pytest --cov-fail-under 0 {package}/tests
 
       - uses: actions/upload-artifact@v2
         with:
