@@ -22,7 +22,7 @@ jobs:
         env:
           CIBW_BEFORE_BUILD: pip install cython
           CIBW_TEST_REQUIRES: pytest pytest-cov pytest-xdist
-          CIBW_TEST_COMMAND: pytest --cov-fail-under 0 {project}/tests && python {project}/tests/benchmark.py
+          CIBW_TEST_COMMAND: pytest {project} && python {project}/tests/benchmark.py
 
       - uses: actions/upload-artifact@v2
         with:
