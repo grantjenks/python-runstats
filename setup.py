@@ -47,6 +47,7 @@ args = dict(
     url='http://www.grantjenks.com/docs/runstats/',
     license='Apache 2.0',
     packages=['runstats'],
+    python_requires='>=3.6',
     tests_require=['tox'],
     cmdclass={'test': Tox},
     install_requires=[],
