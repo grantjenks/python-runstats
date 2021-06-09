@@ -91,3 +91,4 @@ jobs:
           CIBW_BEFORE_BUILD: pip install cython
           CIBW_TEST_REQUIRES: pytest pytest-cov pytest-xdist
           CIBW_TEST_COMMAND: pytest {project}/tests && python {project}/tests/benchmark.py
+          CIBW_SKIP: pp*
