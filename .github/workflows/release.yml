@@ -62,7 +62,8 @@ jobs:
         path: wheels
     - run: mv -v wheels/* dist/
 
-    - name: Upload with twine
-      run: |
-        ls -l dist/*
-        echo TODO
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: foobar${{ secrets.PYPI_API_TOKEN }}
