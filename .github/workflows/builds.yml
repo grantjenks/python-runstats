@@ -20,10 +20,10 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_SKIP: cp27-* cp35-*
+          CIBW_SKIP: cp27-* pp27-* cp35-*
           CIBW_BEFORE_BUILD: pip install cython
           CIBW_TEST_REQUIRES: pytest pytest-cov pytest-xdist
-          CIBW_TEST_COMMAND: pytest --cov-fail-under 0 {package}/tests
+          CIBW_TEST_COMMAND: pytest --cov-fail-under 0 {project}/tests
 
       - uses: actions/upload-artifact@v2
         with:
