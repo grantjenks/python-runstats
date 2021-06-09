@@ -41,28 +41,34 @@ jobs:
         python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
-    - name: Install tox
-      run: |
-        pip install --upgrade pip
-        pip install tox
+      - uses: actions/checkout@v2
 
-    - name: Test with tox
-      run: tox -e py
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install cython and pytest
-      run: pip install cython pytest pytest-cov pytest-xdist
+      - name: Install tox
+        run: |
+          pip install --upgrade pip
+          pip install tox
 
-    - name: Build Cython extension
-      run: python setup.py build_ext --inplace
+      - name: Test with tox
+        run: tox -e py
 
-    - name: Test with pytest
-      run: pytest
+      - name: Install cython and pytest
+        run: pip install cython pytest pytest-cov pytest-xdist
 
-    - name: Run benchmark
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        pip install -e .
-        python tests/benchmark.py
+      - name: Build Cython extension
+        run: python setup.py build_ext --inplace
+
+      - name: Test with pytest
+        run: pytest
+
+      - name: Run benchmark
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          pip install -e .
+          python tests/benchmark.py
 
   builds:
     needs: tests
