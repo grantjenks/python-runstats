@@ -61,12 +61,6 @@ Installing `RunStats`_ is simple with `pip <http://www.pip-installer.org/>`_::
 
   $ pip install runstats
 
-If you want the Cython-optimized version then first install `Cython
-<http://cython.org/>`_::
-
-  $ pip install cython
-  $ pip install runstats
-
 You can access documentation in the interpreter with Python's built-in help
 function:
 
