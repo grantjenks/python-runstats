@@ -4,9 +4,6 @@ on:
   push:
     tags:
       - v*
-  pull_request:
-    branches:
-      - master
 
 jobs:
 
@@ -67,5 +64,5 @@ jobs:
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        user: foobar
+        user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
