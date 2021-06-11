@@ -52,6 +52,12 @@ args = dict(
     tests_require=['tox'],
     cmdclass={'test': Tox},
     install_requires=[],
+    project_urls={
+        'Documentation': 'http://www.grantjenks.com/docs/runstats/',
+        'Funding': 'http://gum.co/runstats',
+        'Source': 'https://github.com/grantjenks/python-runstats',
+        'Tracker': 'https://github.com/grantjenks/python-runstats/issues',
+    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
