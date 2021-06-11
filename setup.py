@@ -42,6 +42,7 @@ args = dict(
     version=runstats.__version__,
     description='Compute statistics and regression in one pass',
     long_description=readme,
+    long_description_content_type='text/x-rst',
     author='Grant Jenks',
     author_email='contact@grantjenks.com',
     url='http://www.grantjenks.com/docs/runstats/',
