@@ -34,6 +34,7 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
+          name: wheelhouse
           path: ./wheelhouse/*.whl
 
   upload:
@@ -59,12 +60,12 @@ jobs:
     - name: Stage wheels
       uses: actions/download-artifact@v2
       with:
-        name: wheels
-        path: wheels
-    - run: mv -v wheels/* dist/
+        name: wheelhouse
+        path: wheelhouse
+    - run: mv -v wheelhouse/* dist/
 
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        user: __token__
-        password: foobar${{ secrets.PYPI_API_TOKEN }}
+        user: foobar
+        password: ${{ secrets.PYPI_API_TOKEN }}
