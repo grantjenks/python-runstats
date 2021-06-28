@@ -413,7 +413,7 @@ class ExponentialMovingStatistics:
         return self.fromstate(self.get_state())
 
     def __copy__(self, _=None):
-        """Copy ExponentialStatistics object."""
+        """Copy ExponentialMovingStatistics object."""
         return self.copy(_)
 
     __deepcopy__ = __copy__
@@ -748,7 +748,9 @@ class ExponentialMovingCovariance:
 
     @decay.setter
     def decay(self, value):
-        value = float(value)
+        self._set_decay(value)
+
+    def _set_decay(self, value):
         self._xstats.decay = value
         self._ystats.decay = value
         self._decay = value
@@ -798,8 +800,11 @@ class ExponentialMovingCovariance:
         """Copy ExponentialMovingCovariance object."""
         return self.fromstate(self.get_state())
 
-    __copy__ = copy
-    __deepcopy__ = copy
+    def __copy__(self, _=None):
+        """Copy ExponentialMovingCovariance object."""
+        return self.copy(_)
+
+    __deepcopy__ = __copy__
 
     def push(self, x_val, y_val):
         """Add a pair `(x, y)` to the ExponentialMovingCovariance summary."""
@@ -819,28 +824,41 @@ class ExponentialMovingCovariance:
         denom = self._xstats.stddev() * self._ystats.stddev()
         return self.covariance() / denom
 
-    def __add__(self, that):
+    def _add(self, that):
         """Add two ExponentialMovingCovariance objects together."""
         sigma = self.copy()
-        sigma += that
+        sigma._iadd(that)
         return sigma
 
-    def __iadd__(self, that):
+    def __add__(self, that):
+        """Add two ExponentialMovingCovariance objects together."""
+        return self._add(that)
+
+    def _iadd(self, that):
         """Add another ExponentialMovingCovariance object to this one."""
         self._xstats += that._xstats
         self._ystats += that._ystats
         self._covariance += that.covariance()
         return self
 
-    def __mul__(self, that):
+    def __iadd__(self, that):
+        """Add another ExponentialMovingCovariance object to this one."""
+        return self._iadd(that)
+
+    def _mul(self, that):
         """Multiply by a scalar to change ExponentialMovingCovariance weighting."""
         sigma = self.copy()
-        sigma *= that
+        sigma._imul(that)
         return sigma
 
-    __rmul__ = __mul__
+    def __mul__(self, that):
+        """Multiply by a scalar to change ExponentialMovingCovariance weighting."""
+        if isinstance(self, ExponentialMovingCovariance):
+            return self._mul(that)
+        # https://stackoverflow.com/q/33218006/232571
+        return that._mul(self)  # pragma: no cover
 
-    def __imul__(self, that):
+    def _imul(self, that):
         """Multiply by a scalar to change ExponentialMovingCovariance weighting
         in-place.
 
@@ -850,6 +868,13 @@ class ExponentialMovingCovariance:
         self._ystats *= that
         self._covariance *= that
         return self
+
+    def __imul__(self, that):
+        """Multiply by a scalar to change ExponentialMovingCovariance weighting
+        in-place.
+
+        """
+        return self._imul(that)
 
 
 def make_exponential_covariance(state):
