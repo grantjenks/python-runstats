@@ -65,7 +65,7 @@ cdef class Statistics:
 cpdef Statistics make_statistics(state)
 
 
-cdef class ExponentialStatistics:
+cdef class ExponentialStatistics:  # TODO: adjust to new interface!
     cdef public double _decay, _mean, _variance
 
     cpdef _set_decay(self, double value)

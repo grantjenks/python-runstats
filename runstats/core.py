@@ -528,6 +528,8 @@ class ExponentialMovingStatistics:
         # https://stackoverflow.com/q/33218006/232571
         return that._mul(self)  # pragma: no cover
 
+    __rmul__ = __mul__
+
     def _imul(self, that):
         """Multiply by a scalar to change ExponentialMovingStatistics weighting
         in-place.
@@ -857,6 +859,8 @@ class ExponentialMovingCovariance:
             return self._mul(that)
         # https://stackoverflow.com/q/33218006/232571
         return that._mul(self)  # pragma: no cover
+
+    __rmul__ = __mul__
 
     def _imul(self, that):
         """Multiply by a scalar to change ExponentialMovingCovariance weighting

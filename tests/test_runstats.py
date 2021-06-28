@@ -300,11 +300,11 @@ def test_exponential_statistics(ExponentialMovingStatistics):
     'ExponentialMovingStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_bad_decay(ExponentialStatistics):
+def test_bad_decay(ExponentialMovingStatistics):
     with pytest.raises(ValueError):
-        ExponentialStatistics(decay=2.0)
+        ExponentialMovingStatistics(decay=2.0)
     with pytest.raises(ValueError):
-        ExponentialStatistics(decay=-1.0)
+        ExponentialMovingStatistics(decay=-1.0)
 
 
 @pytest.mark.parametrize(
@@ -1117,20 +1117,6 @@ def test_exponential_statistics_time_based_effective_decay(
     exp_stats.push(1000)
     assert error(exp_stats.mean(), exp_stats_time.mean()) < limit
     assert error(exp_stats.variance(), exp_stats_time.variance()) < limit
-
-
-@pytest.mark.parametrize(
-    'Statistics,Regression',
-    [
-        (CoreStatistics, CoreRegression),
-        (FastStatistics, FastRegression),
-    ],
-)
-def test_raise_if_invalid_multiply(Statistics, Regression):
-    stats1 = Statistics(range(10))
-    stats2 = Statistics(range(10)) * 2
-    with pytest.raises(TypeError):
-        stats1 * stats2
 
 
 @pytest.mark.parametrize(
