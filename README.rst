@@ -41,7 +41,7 @@ Features
 - Fully Documented
 - 100% Test Coverage
 - Numerically Stable
-- Optional Cython-optimized Extension (20-40 times faster)
+- Optional Cython-optimized Extension (5-100 times faster)
 - Statistics summary computes mean, variance, standard deviation, skewness,
   kurtosis, minimum and maximum.
 - Regression summary computes slope, intercept and correlation.
@@ -59,12 +59,6 @@ Quickstart
 
 Installing `RunStats`_ is simple with `pip <http://www.pip-installer.org/>`_::
 
-  $ pip install runstats
-
-If you want the Cython-optimized version then first install `Cython
-<http://cython.org/>`_::
-
-  $ pip install cython
   $ pip install runstats
 
 You can access documentation in the interpreter with Python's built-in help
@@ -104,7 +98,7 @@ Statistics by a scalar.
 .. code-block:: python
 
    >>> for num in range(10):
-   ...     stats.push(num)
+   ...     stats.push(float(num))
    >>> stats.mean()
    4.5
    >>> stats.maximum()
@@ -141,7 +135,7 @@ maximum as sequences are expected instead. Therefore, there are `minimum` and
    >>> min(stats)
    Traceback (most recent call last):
        ...
-   TypeError: 'Statistics' object is not iterable
+   TypeError: ...
    >>> stats.minimum()
    0.00024069652516689466
    >>> stats.maximum()

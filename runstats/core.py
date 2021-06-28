@@ -4,9 +4,12 @@ Compute Statistics, Exponential Statistics, Regression and Exponential
 Covariance in a single pass.
 
 """
+
 from __future__ import division
 
 import time
+
+NAN = float('nan')
 
 
 class Statistics:
@@ -26,16 +29,14 @@ class Statistics:
         Iterates optional parameter `iterable` and pushes each value into the
         statistics summary.
         """
-        self._count = self._eta = self._rho = self._tau = self._phi = 0.0
-        self._min = self._max = float('nan')
-
+        self.clear()
         for value in iterable:
             self.push(value)
 
     def clear(self):
         """Clear Statistics object."""
         self._count = self._eta = self._rho = self._tau = self._phi = 0.0
-        self._min = self._max = float('nan')
+        self._min = self._max = NAN
 
     def __eq__(self, that):
         return self.get_state() == that.get_state()
@@ -81,8 +82,11 @@ class Statistics:
         """Copy Statistics object."""
         return self.fromstate(self.get_state())
 
-    __copy__ = copy
-    __deepcopy__ = copy
+    def __copy__(self, _=None):
+        """Copy Statistics object."""
+        return self.copy(_)
+
+    __deepcopy__ = __copy__
 
     def __len__(self):
         """Number of values that have been pushed."""
@@ -90,8 +94,6 @@ class Statistics:
 
     def push(self, value):
         """Add `value` to the Statistics summary."""
-        value = float(value)
-
         if self._count == 0.0:
             self._min = value
             self._max = value
@@ -138,19 +140,23 @@ class Statistics:
 
     def skewness(self):
         """Skewness of values."""
-        return (self._count ** 0.5) * self._tau / pow(self._rho, 1.5)
+        return (self._count ** 0.5) * self._tau / (self._rho ** 1.5)
 
     def kurtosis(self):
         """Kurtosis of values."""
         return self._count * self._phi / (self._rho * self._rho) - 3.0
 
-    def __add__(self, that):
+    def _add(self, that):
         """Add two Statistics objects together."""
         sigma = self.copy()
-        sigma += that
+        sigma._iadd(that)
         return sigma
 
-    def __iadd__(self, that):
+    def __add__(self, that):
+        """Add two Statistics objects together."""
+        return self._add(that)
+
+    def _iadd(self, that):
         """Add another Statistics object to this one."""
         sum_count = self._count + that._count
         if sum_count == 0:
@@ -221,22 +227,36 @@ class Statistics:
 
         return self
 
-    def __mul__(self, that):
+    def __iadd__(self, that):
+        """Add another Statistics object to this one."""
+        return self._iadd(that)
+
+    def _mul(self, that):
         """Multiply by a scalar to change Statistics weighting."""
         sigma = self.copy()
-        sigma *= that
+        sigma._imul(that)
         return sigma
+
+    def __mul__(self, that):
+        """Multiply by a scalar to change Statistics weighting."""
+        if isinstance(self, Statistics):
+            return self._mul(that)
+        # https://stackoverflow.com/q/33218006/232571
+        return that._mul(self)  # pragma: no cover
 
     __rmul__ = __mul__
 
-    def __imul__(self, that):
+    def _imul(self, that):
         """Multiply by a scalar to change Statistics weighting in-place."""
-        that = float(that)
         self._count *= that
         self._rho *= that
         self._tau *= that
         self._phi *= that
         return self
+
+    def __imul__(self, that):
+        """Multiply by a scalar to change Statistics weighting in-place."""
+        return self._imul(that)
 
 
 def make_statistics(state):
@@ -276,7 +296,7 @@ class ExponentialMovingStatistics:
         statistics summary.
 
         Can discount values based on time passed instead of position if delay is
-        set from None to a value. Setting delay (in seconds) computes a dynamic
+        set. Setting delay (in seconds) computes a dynamic
         decay rate each time a value is pushed for weighting that value:
         dynamic_decay = decay ** (sec_from_last_push / delay).
         When the first value x is pushed, sec_from_last_push is the difference
@@ -289,10 +309,11 @@ class ExponentialMovingStatistics:
         as if delay has not been set.
         """
         self.decay = decay
-        self._initial_mean = float(mean)
-        self._initial_variance = float(variance)
+        self._initial_mean = mean
+        self._initial_variance = variance
         self._mean = self._initial_mean
         self._variance = self._initial_variance
+
         self._current_time = None
         self._time_diff = None
         self.delay = None
@@ -304,12 +325,14 @@ class ExponentialMovingStatistics:
 
     @property
     def decay(self):
-        """Decay rate for old values."""
+        """Exponential decay rate of old values."""
         return self._decay
 
     @decay.setter
     def decay(self, value):
-        value = float(value)
+        self._set_decay(value)
+
+    def _set_decay(self, value):
         if not 0 <= value <= 1:
             raise ValueError('decay must be between 0 and 1')
         self._decay = value
@@ -321,6 +344,9 @@ class ExponentialMovingStatistics:
 
     @delay.setter
     def delay(self, value):
+        self._set_delay(value)
+
+    def _set_delay(self, value):
         if value is not None:
             if value <= 0:
                 raise ValueError('delay must be > 0')
@@ -386,8 +412,11 @@ class ExponentialMovingStatistics:
         """Copy ExponentialMovingStatistics object."""
         return self.fromstate(self.get_state())
 
-    __copy__ = copy
-    __deepcopy__ = copy
+    def __copy__(self, _=None):
+        """Copy ExponentialStatistics object."""
+        return self.copy(_)
+
+    __deepcopy__ = __copy__
 
     def clear_timer(self):
         """Reset time counter"""
@@ -444,7 +473,6 @@ class ExponentialMovingStatistics:
         else:
             decay = self.decay
 
-        value = float(value)
         alpha = 1.0 - decay
         diff = value - self._mean
         incr = alpha * diff
@@ -463,42 +491,58 @@ class ExponentialMovingStatistics:
         """Exponential standard deviation of values."""
         return self.variance() ** 0.5
 
-    def __add__(self, that):
+    def _add(self, that):
         """Add two ExponentialMovingStatistics objects together."""
         sigma = self.copy()
-        sigma += that
+        sigma._iadd(that)
 
         if sigma.is_time_based():
             sigma.clear_timer()
 
         return sigma
 
-    def __iadd__(self, that):
+    def __add__(self, that):
+        """Add two ExponentialMovingStatistics objects together."""
+        return self._add(that)
+
+    def _iadd(self, that):
         """Add another ExponentialMovingStatistics object to this one."""
         self._mean += that.mean()
         self._variance += that.variance()
         return self
 
-    def __mul__(self, that):
-        """Multiply by a scalar to change ExponentialMovingStatistics
-        weighting.
+    def __iadd__(self, that):
+        """Add another ExponentialMovingStatistics object to this one."""
+        return self._iadd(that)
 
-        """
+    def _mul(self, that):
+        """Multiply by a scalar to change ExponentialMovingStatistics weighting."""
         sigma = self.copy()
-        sigma *= that
+        sigma._imul(that)
         return sigma
 
-    __rmul__ = __mul__
+    def __mul__(self, that):
+        """Multiply by a scalar to change ExponentialMovingStatistics weighting."""
+        if isinstance(self, ExponentialMovingStatistics):
+            return self._mul(that)
+        # https://stackoverflow.com/q/33218006/232571
+        return that._mul(self)  # pragma: no cover
+
+    def _imul(self, that):
+        """Multiply by a scalar to change ExponentialMovingStatistics weighting
+        in-place.
+
+        """
+        self._mean *= that
+        self._variance *= that
+        return self
 
     def __imul__(self, that):
         """Multiply by a scalar to change ExponentialMovingStatistics weighting
         in-place.
 
         """
-        that = float(that)
-        self._mean *= that
-        self._variance *= that
-        return self
+        return self._imul(that)
 
 
 def make_exponential_statistics(state):
@@ -573,8 +617,11 @@ class Regression:
         """Copy Regression object."""
         return self.fromstate(self.get_state())
 
-    __copy__ = copy
-    __deepcopy__ = copy
+    def __copy__(self, _=None):
+        """Copy Regression object."""
+        return self.copy(_)
+
+    __deepcopy__ = __copy__
 
     def __len__(self):
         """Number of values that have been pushed."""
@@ -606,20 +653,24 @@ class Regression:
         term = self._xstats.stddev(ddof) * self._ystats.stddev(ddof)
         return self._sxy / ((self._count - ddof) * term)
 
-    def __add__(self, that):
+    def _add(self, that):
         """Add two Regression objects together."""
         sigma = self.copy()
-        sigma += that
+        sigma._iadd(that)
         return sigma
 
-    def __iadd__(self, that):
+    def __add__(self, that):
+        """Add two Regression objects together."""
+        return self._add(that)
+
+    def _iadd(self, that):
         """Add another Regression object to this one."""
         sum_count = self._count + that._count
         if sum_count == 0:
             return self
 
-        sum_xstats = self._xstats + that._xstats
-        sum_ystats = self._ystats + that._ystats
+        sum_xstats = self._xstats._add(that._xstats)
+        sum_ystats = self._ystats._add(that._ystats)
 
         deltax = that._xstats.mean() - self._xstats.mean()
         deltay = that._ystats.mean() - self._ystats.mean()
@@ -635,6 +686,10 @@ class Regression:
         self._sxy = sum_sxy
 
         return self
+
+    def __iadd__(self, that):
+        """Add another Regression object to this one."""
+        return self._iadd(that)
 
 
 def make_regression(state):
@@ -673,7 +728,7 @@ class ExponentialMovingCovariance:
         statistics summary.
 
         """
-        self._initial_covariance = float(covariance)
+        self._initial_covariance = covariance
         self._covariance = self._initial_covariance
         self._xstats = ExponentialMovingStatistics(
             decay=decay, mean=mean_x, variance=variance_x
@@ -800,10 +855,3 @@ class ExponentialMovingCovariance:
 def make_exponential_covariance(state):
     """Make Regression object from state."""
     return ExponentialMovingCovariance.fromstate(state)
-
-
-if __name__ == 'runstats.core':  # pragma: no cover
-    try:
-        from ._core import *  # noqa # pylint: disable=wildcard-import
-    except ImportError:
-        pass

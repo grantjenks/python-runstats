@@ -297,6 +297,17 @@ def test_exponential_statistics(ExponentialMovingStatistics):
 
 
 @pytest.mark.parametrize(
+    'ExponentialMovingStatistics',
+    [CoreExponentialStatistics, FastExponentialStatistics],
+)
+def test_bad_decay(ExponentialStatistics):
+    with pytest.raises(ValueError):
+        ExponentialStatistics(decay=2.0)
+    with pytest.raises(ValueError):
+        ExponentialStatistics(decay=-1.0)
+
+
+@pytest.mark.parametrize(
     'ExponentialMovingCovariance',
     [CoreExponentialCovariance, FastExponentialCovariance],
 )
@@ -338,7 +349,6 @@ def test_exponential_covariance(ExponentialMovingCovariance):
     exp_cov_3 = exp_cov * 0.5 + exp_cov * 0.5
     assert exp_cov_3 == exp_cov
 
-
 @pytest.mark.parametrize(
     'Statistics,Regression',
     [
@@ -351,6 +361,7 @@ def test_add_statistics(Statistics, Regression):
     stats10 = Statistics(range(10))
     assert (stats0 + stats10) == stats10
     assert (stats10 + stats0) == stats10
+    stats0 += stats10
 
 
 @patch('runstats.ExponentialMovingStatistics.clear_timer')
@@ -365,6 +376,12 @@ def test_add_exponential_statistics(
     exp_stats10 = ExponentialMovingStatistics(0.9, iterable=range(10))
     assert (exp_stats0 + exp_stats10) == exp_stats10
     assert (exp_stats10 + exp_stats0) == exp_stats10
+    exp_stats0 += exp_stats10
+    exp_stats0 *= 2
+    with pytest.raises(TypeError):
+        exp_stats0 * object()
+    with pytest.raises(TypeError):
+        object() * exp_stats0
 
     exp_stats0.decay = 0.8
     exp_stats0.delay = 60
@@ -442,6 +459,10 @@ def test_regression(Statistics, Regression):
     assert error(regr.slope(), regr_copy.slope()) < limit
     assert error(regr.intercept(), regr_copy.intercept()) < limit
     assert error(regr.correlation(), regr_copy.correlation()) < limit
+
+    regr.clear()
+
+    assert len(regr) == 0
 
 
 @pytest.mark.parametrize(
@@ -806,6 +827,10 @@ def test_multiply(Statistics, Regression):
     assert stats1 == stats4
     stats5 = math.e * stats1
     assert stats1.mean() == stats5.mean()
+    with pytest.raises(TypeError):
+        stats1 * object()
+    with pytest.raises(TypeError):
+        object() * stats1
 
 
 @pytest.mark.parametrize(
