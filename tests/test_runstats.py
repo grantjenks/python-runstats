@@ -349,6 +349,7 @@ def test_exponential_covariance(ExponentialMovingCovariance):
     exp_cov_3 = exp_cov * 0.5 + exp_cov * 0.5
     assert exp_cov_3 == exp_cov
 
+
 @pytest.mark.parametrize(
     'Statistics,Regression',
     [

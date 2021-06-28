@@ -148,3 +148,47 @@ cdef class Regression:
 
 
 cpdef Regression make_regression(state)
+
+
+cdef class ExponentialMovingCovariance:
+    cdef public ExponentialStatistics _xstats, _ystats
+    cdef public double _decay, _initial_covariance, _covariance
+
+    cpdef _set_decay(self, double value)
+
+    cpdef clear(self)
+
+    cpdef get_state(self)
+
+    cpdef set_state(self, state)
+
+    cpdef __reduce__(self)
+
+    cpdef ExponentialMovingCovariance copy(self, _=*)
+
+    @cython.locals(
+        alpha=double
+    )
+    cpdef push(self, double x_val, double y_val)
+
+    cpdef double covariance(self)
+
+    @cython.locals(
+        denom=double
+    )
+    cpdef double correlation(self)
+
+    @cython.locals(sigma=ExponentialMovingCovariance)
+    cpdef ExponentialMovingCovariance _add(self, ExponentialMovingCovariance that)
+
+    cpdef ExponentialMovingCovariance _iadd(self, ExponentialMovingCovariance that)
+
+    @cython.locals(
+        sigma=ExponentialMovingCovariance,
+    )
+    cpdef ExponentialMovingCovariance _mul(self, double that)
+
+    cpdef ExponentialMovingCovariance _imul(self, double that)
+
+
+cpdef ExponentialStatistics make_exponential_statistics(state)
