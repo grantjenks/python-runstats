@@ -333,7 +333,7 @@ class ExponentialMovingStatistics:
         self._set_decay(value)
 
     def _set_decay(self, value):
-        if not 0 <= value <= 1:
+        if not 0 < value < 1:
             raise ValueError('decay must be between 0 and 1')
         self._decay = value
 

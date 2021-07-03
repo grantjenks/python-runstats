@@ -1091,13 +1091,14 @@ def test_exponential_statistics_time_based_on_off(ExponentialMovingStatistics):
 def test_exponential_statistics_time_based_effective_decay(
     ExponentialMovingStatistics,
 ):
+    time_limit = 0.02
     exp_stats = ExponentialMovingStatistics()
     exp_stats_time = ExponentialMovingStatistics(delay=0.5)
     time.sleep(0.5)
     exp_stats_time.push(10)
     exp_stats.push(10)
-    assert error(exp_stats.mean(), exp_stats_time.mean()) < limit
-    assert error(exp_stats.variance(), exp_stats_time.variance()) < limit
+    assert error(exp_stats.mean(), exp_stats_time.mean()) < time_limit
+    assert error(exp_stats.variance(), exp_stats_time.variance()) < time_limit
 
     exp_stats_time.clear_timer()
     time.sleep(0.5)
@@ -1105,16 +1106,16 @@ def test_exponential_statistics_time_based_effective_decay(
     time.sleep(0.5)
     exp_stats_time.push(100)
     exp_stats.push(100)
-    assert error(exp_stats.mean(), exp_stats_time.mean()) < limit
-    assert error(exp_stats.variance(), exp_stats_time.variance()) < limit
+    assert error(exp_stats.mean(), exp_stats_time.mean()) < time_limit
+    assert error(exp_stats.variance(), exp_stats_time.variance()) < time_limit
 
     exp_stats.decay = 0.81
     exp_stats_time.unfreeze()
     time.sleep(0.5)
     exp_stats_time.push(1000)
     exp_stats.push(1000)
-    assert error(exp_stats.mean(), exp_stats_time.mean()) < limit
-    assert error(exp_stats.variance(), exp_stats_time.variance()) < limit
+    assert error(exp_stats.mean(), exp_stats_time.mean()) < time_limit
+    assert error(exp_stats.variance(), exp_stats_time.variance()) < time_limit
 
 
 @pytest.mark.parametrize(
@@ -1124,8 +1125,11 @@ def test_exponential_statistics_time_based_effective_decay(
 def test_raise_if_invalid_decay_exp_stats(ExponentialMovingStatistics):
     with pytest.raises(ValueError):
         ExponentialMovingStatistics(0)
+    with pytest.raises(ValueError):
         ExponentialMovingStatistics(1)
+    with pytest.raises(ValueError):
         ExponentialMovingStatistics(-1)
+    with pytest.raises(ValueError):
         ExponentialMovingStatistics(2)
 
 
@@ -1136,8 +1140,11 @@ def test_raise_if_invalid_decay_exp_stats(ExponentialMovingStatistics):
 def test_raise_if_invalid_decay_exp_cov(ExponentialMovingCovariance):
     with pytest.raises(ValueError):
         ExponentialMovingCovariance(0)
+    with pytest.raises(ValueError):
         ExponentialMovingCovariance(1)
+    with pytest.raises(ValueError):
         ExponentialMovingCovariance(-1)
+    with pytest.raises(ValueError):
         ExponentialMovingCovariance(2)
 
 
@@ -1150,10 +1157,14 @@ def test_raise_if_not_time_exp_stats(ExponentialMovingStatistics):
     exp_stats_time = ExponentialMovingStatistics(delay=60)
     with pytest.raises(AttributeError):
         exp_stats.clear_timer()
+    with pytest.raises(AttributeError):
         exp_stats.freeze()
+    with pytest.raises(AttributeError):
         exp_stats.unfreeze()
+    with pytest.raises(AttributeError):
         exp_stats_time.unfreeze()
 
     with pytest.raises(ValueError):
         exp_stats_time.delay = 0
+    with pytest.raises(ValueError):
         exp_stats_time.delay = -1
