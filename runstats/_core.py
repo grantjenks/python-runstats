@@ -495,8 +495,10 @@ class ExponentialMovingStatistics:
         """Add two ExponentialMovingStatistics objects together."""
         sigma = self.copy()
         sigma._iadd(that)
+        print("test1")  # TODO
 
         if sigma.is_time_based():
+            print("test2")  # TODO
             sigma.clear_timer()
 
         return sigma

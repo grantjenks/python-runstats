@@ -8,7 +8,6 @@ import math
 import pickle
 import random
 import time
-from unittest.mock import patch
 
 import pytest
 
@@ -365,14 +364,11 @@ def test_add_statistics(Statistics, Regression):
     stats0 += stats10
 
 
-@patch('runstats.ExponentialMovingStatistics.clear_timer')
 @pytest.mark.parametrize(
     'ExponentialMovingStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_add_exponential_statistics(
-    clear_timer_mock, ExponentialMovingStatistics
-):
+def test_add_exponential_statistics(ExponentialMovingStatistics):
     exp_stats0 = ExponentialMovingStatistics(0.9)
     exp_stats10 = ExponentialMovingStatistics(0.9, iterable=range(10))
     assert (exp_stats0 + exp_stats10) == exp_stats10
@@ -387,14 +383,16 @@ def test_add_exponential_statistics(
     exp_stats0.decay = 0.8
     exp_stats0.delay = 60
     exp_stats10.delay = 120
+    exp_stats0._time_diff = -1  # To check if clear_timer was called for add and not for iadd
     exp_stats = exp_stats0 + exp_stats10
     assert exp_stats.delay == exp_stats0.delay != exp_stats10.delay
     assert exp_stats.decay == exp_stats0.decay != exp_stats10.decay
+    assert exp_stats._time_diff is None
 
     exp_stats0 += exp_stats10
     assert exp_stats0.decay == 0.8
     assert exp_stats0.delay == 60
-    clear_timer_mock.assert_called_once()
+    assert exp_stats0._time_diff == -1
 
 
 @pytest.mark.parametrize(
