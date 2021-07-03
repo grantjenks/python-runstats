@@ -383,7 +383,9 @@ def test_add_exponential_statistics(ExponentialMovingStatistics):
     exp_stats0.decay = 0.8
     exp_stats0.delay = 60
     exp_stats10.delay = 120
-    exp_stats0._time_diff = -1  # To check if clear_timer was called for add and not for iadd
+    exp_stats0._time_diff = (
+        -1
+    )  # To check if clear_timer was called for add and not for iadd
     exp_stats = exp_stats0 + exp_stats10
     assert exp_stats.delay == exp_stats0.delay != exp_stats10.delay
     assert exp_stats.decay == exp_stats0.decay != exp_stats10.decay
