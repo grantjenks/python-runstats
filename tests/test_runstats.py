@@ -407,6 +407,9 @@ def test_add_exponential_covariance(ExponentialMovingCovariance):
     assert (exp_cov0 + exp_cov10) == exp_cov10
     assert (exp_cov10 + exp_cov0) == exp_cov10
 
+    exp_cov0 += exp_cov10
+    assert exp_cov0 == exp_cov10
+
 
 @pytest.mark.parametrize(
     'Statistics,Regression',
@@ -887,6 +890,10 @@ def test_exponential_covariance_batch(ExponentialMovingCovariance):
     assert alpha_exp_cov._decay == gamma_exp_cov._decay
     assert beta_exp_cov._decay != gamma_exp_cov._decay
 
+    alpha_exp_cov *= 0.3
+    beta_exp_cov *= 0.7
+    assert (alpha_exp_cov + beta_exp_cov) == gamma_exp_cov
+
 
 @pytest.mark.parametrize(
     'ExponentialMovingStatistics, decay',
@@ -1091,31 +1098,50 @@ def test_exponential_statistics_time_based_on_off(ExponentialMovingStatistics):
 def test_exponential_statistics_time_based_effective_decay(
     ExponentialMovingStatistics,
 ):
-    time_limit = 0.02
+    def calc_effective_decay(diff, delay, nominal_decay):
+        norm_diff = diff / delay
+        eff_decay = nominal_decay ** norm_diff
+        return eff_decay
+
+    delay = 0.5
+    nominal_decay = 0.9
     exp_stats = ExponentialMovingStatistics()
     exp_stats_time = ExponentialMovingStatistics(delay=0.5)
+    past = exp_stats_time._current_time
     time.sleep(0.5)
     exp_stats_time.push(10)
+    now = exp_stats_time._current_time
+    effective_decay = calc_effective_decay(now - past, delay, nominal_decay)
+    exp_stats.decay = effective_decay
     exp_stats.push(10)
-    assert error(exp_stats.mean(), exp_stats_time.mean()) < time_limit
-    assert error(exp_stats.variance(), exp_stats_time.variance()) < time_limit
+
+    assert exp_stats.mean() == exp_stats_time.mean()
+    assert exp_stats.variance() == exp_stats_time.variance()
 
     exp_stats_time.clear_timer()
     time.sleep(0.5)
     exp_stats_time.freeze()
     time.sleep(0.5)
+    diff = exp_stats_time._time_diff
     exp_stats_time.push(100)
+    effective_decay = calc_effective_decay(diff, delay, nominal_decay)
+    exp_stats.decay = effective_decay
     exp_stats.push(100)
-    assert error(exp_stats.mean(), exp_stats_time.mean()) < time_limit
-    assert error(exp_stats.variance(), exp_stats_time.variance()) < time_limit
 
-    exp_stats.decay = 0.81
+    assert exp_stats.mean() == exp_stats_time.mean()
+    assert exp_stats.variance() == exp_stats_time.variance()
+
     exp_stats_time.unfreeze()
+    past = exp_stats_time._current_time
     time.sleep(0.5)
     exp_stats_time.push(1000)
+    now = exp_stats_time._current_time
+    effective_decay = calc_effective_decay(now - past, delay, nominal_decay)
+    exp_stats.decay = effective_decay
     exp_stats.push(1000)
-    assert error(exp_stats.mean(), exp_stats_time.mean()) < time_limit
-    assert error(exp_stats.variance(), exp_stats_time.variance()) < time_limit
+
+    assert exp_stats.mean() == exp_stats_time.mean()
+    assert exp_stats.variance() == exp_stats_time.variance()
 
 
 @pytest.mark.parametrize(

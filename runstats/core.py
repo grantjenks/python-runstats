@@ -462,14 +462,15 @@ class ExponentialMovingStatistics:
     def push(self, value):
         """Add `value` to the ExponentialMovingStatistics summary."""
         if self.is_time_based():
+            now = time.time()
             diff = (
                 self._time_diff
                 if self._time_diff
-                else (time.time() - self._current_time)
+                else (now - self._current_time)
             )
             norm_diff = diff / self.delay
             decay = self.decay ** norm_diff
-            self._current_time = time.time()
+            self._current_time = now
         else:
             decay = self.decay
 
