@@ -65,7 +65,7 @@ cdef class Statistics:
 cpdef Statistics make_statistics(state)
 
 
-cdef class ExponentialMovingStatistics:  # TODO: adjust to new interface!, check docstrings, check readme
+cdef class ExponentialMovingStatistics:
     cdef public double _decay, _mean, _variance, _initial_mean, _initial_variance, _delay, _time_diff, _current_time
 
     cpdef _set_decay(self, double value)
@@ -95,7 +95,8 @@ cdef class ExponentialMovingStatistics:  # TODO: adjust to new interface!, check
         diff=double,
         incr=double,
         norm_diff=double,
-        decay=double
+        decay=double,
+        now=double
     )
     cpdef push(self, double value)
 
