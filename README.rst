@@ -386,6 +386,8 @@ Statistics and Regression by calling `push` repeatedly shows the
 Cython-optimized extension as 20-40 times faster than the pure-Python
 extension.
 
+.. _`RunStats`: http://www.grantjenks.com/docs/runstats/
+
 
 Reference and Indices
 ---------------------
