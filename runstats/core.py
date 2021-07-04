@@ -314,13 +314,15 @@ class ExponentialMovingStatistics:
         self._mean = self._initial_mean
         self._variance = self._initial_variance
 
-        self._current_time = None
-        self._time_diff = None
-        self.delay = None
+        # using float('nan') for cython compatibility
+        self._current_time = NAN
+        self._time_diff = NAN
+        self.delay = NAN
 
         for value in iterable:
             self.push(value)
 
+        delay = NAN if delay is None else delay
         self.delay = delay
 
     @property
@@ -347,15 +349,17 @@ class ExponentialMovingStatistics:
         self._set_delay(value)
 
     def _set_delay(self, value):
-        if value is not None:
-            if value <= 0:
+        if value is not NAN:
+            if value <= 0.0:
                 raise ValueError('delay must be > 0')
             self._current_time = (
-                self._current_time if self._current_time else time.time()
+                self._current_time
+                if self._current_time is not NAN
+                else time.time()
             )
         else:
-            self._current_time = None
-            self._time_diff = None
+            self._current_time = NAN
+            self._time_diff = NAN
 
         self._delay = value
 
@@ -363,8 +367,8 @@ class ExponentialMovingStatistics:
         """Clear ExponentialMovingStatistics object."""
         self._mean = self._initial_mean
         self._variance = self._initial_variance
-        self._current_time = time.time() if self.is_time_based() else None
-        self._time_diff = None
+        self._current_time = time.time() if self.is_time_based() else NAN
+        self._time_diff = NAN
 
     def __eq__(self, that):
         return self.get_state() == that.get_state()
@@ -422,7 +426,7 @@ class ExponentialMovingStatistics:
         """Reset time counter"""
         if self.is_time_based():
             self._current_time = time.time()
-            self._time_diff = None
+            self._time_diff = NAN
         else:
             raise AttributeError(
                 'clear_timer on a non-time time based (i.e. delay == None) '
@@ -447,17 +451,17 @@ class ExponentialMovingStatistics:
                 'ExponentialMovingStatistics object is illegal'
             )
 
-        if self._time_diff is None:
+        if self._time_diff is NAN:
             raise AttributeError(
                 'Time must be freezed first before it can be unfreezed'
             )
 
         self._current_time = time.time() - self._time_diff
-        self._time_diff = None
+        self._time_diff = NAN
 
     def is_time_based(self):
         """Checks if object is time-based or not i.e. delay is set or None"""
-        return self.delay is not None
+        return self.delay is not NAN
 
     def push(self, value):
         """Add `value` to the ExponentialMovingStatistics summary."""
@@ -465,7 +469,7 @@ class ExponentialMovingStatistics:
             now = time.time()
             diff = (
                 self._time_diff
-                if self._time_diff
+                if self._time_diff is not NAN
                 else (now - self._current_time)
             )
             norm_diff = diff / self.delay
