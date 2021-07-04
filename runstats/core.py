@@ -887,5 +887,5 @@ class ExponentialMovingCovariance:
 
 
 def make_exponential_covariance(state):
-    """Make Regression object from state."""
+    """Make ExponentialMovingCovariance object from state."""
     return ExponentialMovingCovariance.fromstate(state)

@@ -204,4 +204,4 @@ cdef class ExponentialMovingCovariance:
     cpdef ExponentialMovingCovariance _imul(self, double that)
 
 
-cpdef ExponentialMovingCovariance make_exponential_statistics(state)
+cpdef ExponentialMovingCovariance make_exponential_covariance(state)
