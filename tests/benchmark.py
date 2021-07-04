@@ -107,14 +107,14 @@ regr.slope()
 
     core_exp_cov = timeit.repeat(
         setup='''
-    from __main__ import PAIRS
-    from runstats.core import ExponentialMovingCovariance
-    exp_cov = ExponentialMovingCovariance()
+from __main__ import PAIRS
+from runstats.core import ExponentialMovingCovariance
+exp_cov = ExponentialMovingCovariance()
             ''',
         stmt='''
-    for pos, val in PAIRS:
-        exp_cov.push(pos, val)
-    exp_cov.covariance()
+for pos, val in PAIRS:
+    exp_cov.push(pos, val)
+exp_cov.covariance()
             ''',
         number=1,
         repeat=7,
@@ -122,14 +122,14 @@ regr.slope()
 
     fast_exp_cov = timeit.repeat(
         setup='''
-    from __main__ import PAIRS
-    from runstats._core import ExponentialMovingCovariance
-    exp_cov = ExponentialMovingCovariance()
+from __main__ import PAIRS
+from runstats._core import ExponentialMovingCovariance
+exp_cov = ExponentialMovingCovariance()
             ''',
         stmt='''
-    for pos, val in PAIRS:
-        exp_cov.push(pos, val)
-    exp_cov.covariance()
+for pos, val in PAIRS:
+    exp_cov.push(pos, val)
+exp_cov.covariance()
             ''',
         number=1,
         repeat=7,
