@@ -45,7 +45,7 @@ stats.mean()
         setup='''
 from __main__ import VALUES
 from runstats.core import ExponentialMovingStatistics
-exp_stats = ExponentialStatistics()
+exp_stats = ExponentialMovingStatistics()
         ''',
         stmt='''
 for value in VALUES:
@@ -60,7 +60,7 @@ exp_stats.mean()
         setup='''
 from __main__ import VALUES
 from runstats._core import ExponentialMovingStatistics
-exp_stats = ExponentialStatistics()
+exp_stats = ExponentialMovingStatistics()
         ''',
         stmt='''
 for value in VALUES:
