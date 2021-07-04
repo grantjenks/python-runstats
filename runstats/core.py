@@ -295,9 +295,9 @@ class ExponentialMovingStatistics:
         Iterates optional parameter `iterable` and pushes each value into the
         statistics summary.
 
-        Can discount values based on time passed instead of position if delay is
+        Can discount values based on time passed instead of position if 'delay' is
         set. Setting delay (in seconds) computes a dynamic
-        decay rate each time a value is pushed for weighting that value:
+        decay rate each time a value is pushed:
         dynamic_decay = decay ** (sec_from_last_push / delay).
         When the first value x is pushed, sec_from_last_push is the difference
         (in sec) between setting the delay from None to a value t (usually at

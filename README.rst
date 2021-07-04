@@ -25,7 +25,8 @@ the system based on the recent past. In these cases exponential statistics are
 used. Instead of weighting all values uniformly in the statistics computation,
 an exponential decay weight is applied to older values. The decay rate is
 configurable and provides a mechanism for balancing recent values with past
-values.
+values. The exponential weighting may be on a 'per data point' or 'per time
+step' basis.
 
 The Python `RunStats`_ module was designed for these cases by providing classes
 for computing online summary statistics and online linear regression in a
@@ -71,6 +72,7 @@ function:
    >>> help(runstats.Statistics)                  # doctest: +SKIP
    >>> help(runstats.Regression)                  # doctest: +SKIP
    >>> help(runstats.ExponentialMovingStatistics)       # doctest: +SKIP
+   >>> help(runstats.ExponentialMovingCovariance)       # doctest: +SKIP
 
 
 Tutorial
@@ -79,7 +81,8 @@ Tutorial
 The Python `RunStats`_ module provides four types for computing running
 statistics: Statistics, ExponentialMovingStatistics,
 ExponentialMovingCovariance and Regression.
-The Regression object leverages Statistics internally for its calculations.
+The Regression object leverages Statistics internally for its calculations
+while ExponentialMovingCovariance uses ExponentialMovingStatistics.
 Each can be initialized without arguments:
 
 .. code-block:: python
@@ -254,8 +257,7 @@ mean and variance are simply added to create a new object. To weight each
 Note how this behaviour differs from the two previous classes. When two
 `ExponentialMovingStatistics` are added the decay of the left object is used for
 the new object. The clear method resets the object to its state at
-construction. The `len` method as well as minimum and maximum are not
-supported.
+construction. `len`, minimum and maximum are not supported.
 
 .. code-block:: python
 
@@ -292,18 +294,18 @@ The `ExponentialMovingCovariance` works equivalently to
 
 `ExponentialMovingStatistics` can also work in a time-based mode i.e. old
 statistics are not simply discounted by the decay rate each time a value is
-pushed but an effective decay rate is calculated based on the provided decay
-rate and the time difference between the last push and the current push.
-`ExponentialMovingStatistics` operate in time based mode when a `delay` value
-> 0 is provided at construction. The delay is the no. of seconds that need to
-pass for the effective decay rate to be equal to the provided decay rate.
-For example, if a delay of 60 and a delay of 0.9 is provided, than after 60
+pushed. Instead an effective decay rate is calculated based on the provided
+'nominal' decay rate as well as the time difference between the last push and
+the current push.`ExponentialMovingStatistics` operate in time based mode when
+a `delay > 0` is provided at construction. The delay is the no. of seconds that
+need to pass for the effective decay rate to be equal to the provided decay rate.
+For example, if a delay of 60 and a decay of 0.9 is provided, then after 60
 seconds pass between calls to push() the effective decay rate for discounting
 the old statistics equals 0.9, when 120 seconds pass than it equals
 0.9 ** 2 = 0.81 and so on. The exact formula for calculating the effective
 decay rate at a given call to push is:
-decay ** ((current_timestamp - timestamp_at_last_push) / delay). The initial
-timestamp is the timestamp at object construction.
+`decay ** ((current_timestamp - timestamp_at_last_push) / delay)`. The initial
+timestamp is the timestamp when delay has been set.
 
 .. code-block:: python
 
@@ -331,12 +333,13 @@ mode.
 is taken from the left object. If the left object is time-based (non `None`
 delay) the timer is reset during an regular __add__ (a + b) for the resulting
 object while it is not during an incremental add __iadd__ (a += b).
-- Last but not least the timer can be stopped with a call to freeze(). This can
-be useful when saving the state of the object (get_state()) for later usage.
-With a call to unfreeze() the timer continues where it left of (e.g. after
-loading). Note that pushes onto a freezed object use a effective decay rate
-based on the time difference between the last call to push and the moment
-freeze was called().
+- The timer can be stopped with a call to `freeze()`. This can
+be useful when saving the state of the object (`get_state()`) for later usage.
+With a call to `unfreeze()` the timer continues where it left of (e.g. after
+loading).
+- Pushes onto a freezed object use a effective decay rate based on the time
+difference between the last call to push and the moment `freeze()` was called.
+- With a call to `clear_timer()` the timer can be reset.
 - It is not recommended to use time based discounting for use cases that
 require high precision on below seconds granularity.
 
@@ -357,6 +360,10 @@ require high precision on below seconds granularity.
    >>> round(beta_stats.mean())
    3
 
+
+Sources
+-------
+
 All internal calculations of the Statistics and Regression classes are based
 entirely on the C++ code by John Cook as posted in a couple of articles:
 
@@ -371,6 +378,10 @@ The ExponentialMovingStatistics implementation is based on:
 * `Finch, 2009, Incremental Calculation of Weighted Mean and Variance`_
 
 .. _`Finch, 2009, Incremental Calculation of Weighted Mean and Variance`: https://fanf2.user.srcf.net/hermes/doc/antiforgery/stats.pdf
+
+
+Pure Python and Cython
+----------------------
 
 The pure-Python version of `RunStats`_ is directly available if preferred.
 
