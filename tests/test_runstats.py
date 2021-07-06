@@ -985,7 +985,7 @@ def test_exponential_statistics_clear(ExponentialMovingStatistics):
     assert not math.isnan(exp_stats._time_diff)
     exp_stats.clear()
     new_current_time = exp_stats._current_time
-    assert not  math.isnan(exp_stats._current_time)
+    assert not math.isnan(exp_stats._current_time)
     assert exp_stats._current_time != current_time
     assert math.isnan(exp_stats._time_diff)
     exp_stats.freeze()
