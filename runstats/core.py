@@ -8,6 +8,7 @@ Covariance in a single pass.
 from __future__ import division
 
 import time
+from math import isnan
 
 NAN = float('nan')
 
@@ -322,7 +323,6 @@ class ExponentialMovingStatistics:
         for value in iterable:
             self.push(value)
 
-        delay = NAN if delay is None else delay
         self.delay = delay
 
     @property
@@ -349,12 +349,13 @@ class ExponentialMovingStatistics:
         self._set_delay(value)
 
     def _set_delay(self, value):
-        if value is not NAN:
+        value = NAN if value is None else value
+        if not isnan(value):
             if value <= 0.0:
                 raise ValueError('delay must be > 0')
             self._current_time = (
                 self._current_time
-                if self._current_time is not NAN
+                if not isnan(self._current_time)
                 else time.time()
             )
         else:
@@ -378,7 +379,7 @@ class ExponentialMovingStatistics:
 
     def get_state(self):
         """Get internal state."""
-        return (
+        state = [
             self._decay,
             self._initial_mean,
             self._initial_variance,
@@ -387,10 +388,15 @@ class ExponentialMovingStatistics:
             self._delay,
             self._current_time,
             self._time_diff,
-        )
+        ]
+        state = [None if isnan(i) else i for i in state]
+        return tuple(state)
 
     def set_state(self, state):
         """Set internal state."""
+        state = list(state)
+        state = [NAN if i is None else i for i in state]
+
         (
             self._decay,
             self._initial_mean,
@@ -451,7 +457,7 @@ class ExponentialMovingStatistics:
                 'ExponentialMovingStatistics object is illegal'
             )
 
-        if self._time_diff is NAN:
+        if isnan(self._time_diff):
             raise AttributeError(
                 'Time must be freezed first before it can be unfreezed'
             )
@@ -461,7 +467,7 @@ class ExponentialMovingStatistics:
 
     def is_time_based(self):
         """Checks if object is time-based or not i.e. delay is set or None"""
-        return self.delay is not NAN
+        return not isnan(self.delay)
 
     def push(self, value):
         """Add `value` to the ExponentialMovingStatistics summary."""
@@ -469,7 +475,7 @@ class ExponentialMovingStatistics:
             now = time.time()
             diff = (
                 self._time_diff
-                if self._time_diff is not NAN
+                if not isnan(self._time_diff)
                 else (now - self._current_time)
             )
             norm_diff = diff / self.delay

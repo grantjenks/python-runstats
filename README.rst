@@ -334,7 +334,8 @@ is taken from the left object. If the left object is time-based (non `None`
 delay) the timer is reset during an regular __add__ (a + b) for the resulting
 object while it is not during an incremental add __iadd__ (a += b).
 - The timer can be stopped with a call to `freeze()`. This can
-be useful when saving the state of the object (`get_state()`) for later usage.
+be useful when saving the state of the object (`get_state()`) for later usage
+or when serializing the object to pickle.
 With a call to `unfreeze()` the timer continues where it left of (e.g. after
 loading).
 - Pushes onto a freezed object use a effective decay rate based on the time
