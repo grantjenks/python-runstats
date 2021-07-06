@@ -620,7 +620,7 @@ def test_pickle_statistics(Statistics, Regression):
     'ExponentialMovingStatistics',
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
-def test_pickle_exponential_statistics_time_based(ExponentialMovingStatistics):
+def test_pickle_exponential_statistics(ExponentialMovingStatistics):
     exp_stats = ExponentialMovingStatistics(0.9, iterable=range(10))
     for num in range(pickle.HIGHEST_PROTOCOL):
         pickled_exp_stats = pickle.dumps(exp_stats, protocol=num)
