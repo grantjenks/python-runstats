@@ -346,10 +346,10 @@ class ExponentialMovingStatistics:
 
     @delay.setter
     def delay(self, value):
+        value = NAN if value is None else value
         self._set_delay(value)
 
     def _set_delay(self, value):
-        value = NAN if value is None else value
         if not isnan(value):
             if value <= 0.0:
                 raise ValueError('delay must be > 0')
