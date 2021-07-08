@@ -1063,10 +1063,10 @@ def test_exponential_statistics_freeze_unfreeze(ExponentialMovingStatistics):
     current_time = exp_stats._current_time
     assert math.isnan(exp_stats._time_diff)
     exp_stats.freeze()
-    time.sleep(0.01)
+    time.sleep(0.5)
     assert not math.isnan(exp_stats._time_diff)
     time_diff = exp_stats._time_diff
-    time.sleep(0.01)
+    time.sleep(0.5)
     exp_stats.unfreeze()
     future = time.time()
     assert exp_stats._current_time > current_time
@@ -1089,7 +1089,7 @@ def test_exponential_statistics_time_based_on_off(ExponentialMovingStatistics):
     assert exp_stats.delay == 30
     assert not math.isnan(exp_stats._current_time)
     current_time = exp_stats._current_time
-    time.sleep(0.01)
+    time.sleep(0.5)
     exp_stats.delay = 60
     assert exp_stats.delay == 60
     assert exp_stats._current_time == current_time
