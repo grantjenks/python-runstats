@@ -133,8 +133,8 @@ def error(value, test):
 
 def get_time_patch(ExponentialMovingStatistics):
     module = ExponentialMovingStatistics.__module__
-    core = "_core" if module == "runstats._core" else "core"
-    patch_path = f"runstats.{core}.time"
+    core = '_core' if module == 'runstats._core' else 'core'
+    patch_path = f'runstats.{core}.time'
     time_patch = patch(patch_path)
     return time_patch
 
