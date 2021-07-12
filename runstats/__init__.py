@@ -6,6 +6,8 @@ Online statistics and regression.
 
 """
 
+import time
+
 try:
     from ._core import (
         ExponentialMovingCovariance,

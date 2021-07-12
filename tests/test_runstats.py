@@ -8,6 +8,7 @@ import math
 import pickle
 import random
 import time
+from unittest.mock import patch
 
 import pytest
 
@@ -128,6 +129,14 @@ def exp_cov_cor(decay, iterable):
 
 def error(value, test):
     return abs((test - value) / value)
+
+
+def get_time_patch(ExponentialMovingStatistics):
+    module = ExponentialMovingStatistics.__module__
+    core = "_core" if module == "runstats._core" else "core"
+    patch_path = f"runstats.{core}.time"
+    time_patch = patch(patch_path)
+    return time_patch
 
 
 @pytest.mark.parametrize(
@@ -962,6 +971,7 @@ def test_exponential_statistics_clear(ExponentialMovingStatistics):
     alpha = [random.random() for _ in range(count)]
     mean = 10
     variance = 100
+    injected_time = 1625756332.6573758
     exp_stats = ExponentialMovingStatistics(mean=mean, variance=variance)
 
     for val in alpha:
@@ -978,20 +988,20 @@ def test_exponential_statistics_clear(ExponentialMovingStatistics):
     assert math.isnan(exp_stats._time_diff)
 
     exp_stats.delay = 60
-    current_time = exp_stats._current_time
     assert not math.isnan(exp_stats._current_time)
     assert math.isnan(exp_stats._time_diff)
     exp_stats.freeze()
     assert not math.isnan(exp_stats._time_diff)
+    exp_stats._current_time = injected_time
     exp_stats.clear()
-    new_current_time = exp_stats._current_time
     assert not math.isnan(exp_stats._current_time)
-    assert exp_stats._current_time != current_time
+    assert exp_stats._current_time != injected_time
     assert math.isnan(exp_stats._time_diff)
+    exp_stats._current_time = injected_time
     exp_stats.freeze()
     exp_stats.clear_timer()
     assert not math.isnan(exp_stats._current_time)
-    assert exp_stats._current_time != new_current_time
+    assert exp_stats._current_time != injected_time
     assert math.isnan(exp_stats._time_diff)
 
 
@@ -1059,19 +1069,22 @@ def test_exponential_statistics_is_time(ExponentialMovingStatistics):
     [CoreExponentialStatistics, FastExponentialStatistics],
 )
 def test_exponential_statistics_freeze_unfreeze(ExponentialMovingStatistics):
-    exp_stats = ExponentialMovingStatistics(delay=30)
-    current_time = exp_stats._current_time
-    assert math.isnan(exp_stats._time_diff)
-    exp_stats.freeze()
-    time.sleep(0.5)
-    assert not math.isnan(exp_stats._time_diff)
-    time_diff = exp_stats._time_diff
-    time.sleep(0.5)
-    exp_stats.unfreeze()
-    future = time.time()
-    assert exp_stats._current_time > current_time
-    assert exp_stats._current_time < future - time_diff
-    assert math.isnan(exp_stats._time_diff)
+    time_patch = get_time_patch(ExponentialMovingStatistics)
+    with time_patch as time_mock:
+        time_mock.time.return_value = 1000.1
+        exp_stats = ExponentialMovingStatistics(delay=30)
+
+        assert exp_stats._current_time == 1000.1
+        assert math.isnan(exp_stats._time_diff)
+
+        time_mock.time.return_value = 1010.1
+        exp_stats.freeze()
+        assert exp_stats._time_diff == 10.0
+
+        time_mock.time.return_value = 1110.0
+        exp_stats.unfreeze()
+        assert exp_stats._current_time == 1100.0
+        assert math.isnan(exp_stats._time_diff)
 
 
 @pytest.mark.parametrize(
