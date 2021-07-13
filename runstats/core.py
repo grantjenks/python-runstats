@@ -470,6 +470,7 @@ class ExponentialMovingStatistics:
         self._time_diff = NAN
 
     def is_freezed(self):
+        """Check if object is in a freezed state"""
         if not self.is_time_based():
             raise AttributeError('Only time-based objects can be freezed')
 
