@@ -25,7 +25,8 @@ the system based on the recent past. In these cases exponential statistics are
 used. Instead of weighting all values uniformly in the statistics computation,
 an exponential decay weight is applied to older values. The decay rate is
 configurable and provides a mechanism for balancing recent values with past
-values.
+values. The exponential weighting may be on a 'per data point' or 'per time
+step' basis.
 
 The Python `RunStats`_ module was designed for these cases by providing classes
 for computing online summary statistics and online linear regression in a
@@ -70,27 +71,32 @@ function:
    >>> help(runstats)                             # doctest: +SKIP
    >>> help(runstats.Statistics)                  # doctest: +SKIP
    >>> help(runstats.Regression)                  # doctest: +SKIP
-   >>> help(runstats.ExponentialStatistics)       # doctest: +SKIP
+   >>> help(runstats.ExponentialMovingStatistics)       # doctest: +SKIP
+   >>> help(runstats.ExponentialMovingCovariance)       # doctest: +SKIP
 
 
 Tutorial
 --------
 
-The Python `RunStats`_ module provides three types for computing running
-statistics: Statistics, ExponentialStatistics and Regression.The Regression
-object leverages Statistics internally for its calculations. Each can be
-initialized without arguments:
+The Python `RunStats`_ module provides four types for computing running
+statistics: Statistics, ExponentialMovingStatistics,
+ExponentialMovingCovariance and Regression.
+The Regression object leverages Statistics internally for its calculations
+while ExponentialMovingCovariance uses ExponentialMovingStatistics.
+Each can be initialized without arguments:
 
 .. code-block:: python
 
-   >>> from runstats import Statistics, Regression, ExponentialStatistics
+   >>> from runstats import Statistics, Regression, ExponentialMovingStatistics, ExponentialMovingCovariance
    >>> stats = Statistics()
    >>> regr = Regression()
-   >>> exp_stats = ExponentialStatistics()
+   >>> exp_stats = ExponentialMovingStatistics()
+   >>> exp_cov = ExponentialMovingCovariance()
 
 Statistics objects support four methods for modification. Use `push` to add
-values to the summary, `clear` to reset the summary, sum to combine Statistics
-summaries and multiply to weight summary Statistics by a scalar.
+values to the summary, `clear` to reset the the object to its initialization
+state, sum to combine Statistics summaries and multiply to weight summary
+Statistics by a scalar.
 
 .. code-block:: python
 
@@ -200,13 +206,13 @@ Both constructors accept an optional iterable that is consumed and pushed into
 the summary. Note that you may pass a generator as an iterable and the
 generator will be entirely consumed.
 
-The ExponentialStatistics are constructed by providing a decay rate, initial
-mean, and initial variance. The decay rate has default 0.9 and must be between
-0 and 1. The initial mean and variance default to zero.
+The ExponentialMovingStatistics are constructed by providing a decay rate,
+initial mean, and initial variance. The decay rate defaults to 0.9 and must be
+between 0 and 1. The initial mean and variance default to zero.
 
 .. code-block:: python
 
-   >>> exp_stats = ExponentialStatistics()
+   >>> exp_stats = ExponentialMovingStatistics()
    >>> exp_stats.decay
    0.9
    >>> exp_stats.mean()
@@ -215,9 +221,9 @@ mean, and initial variance. The decay rate has default 0.9 and must be between
    0.0
 
 The decay rate is the weight by which the current statistics are discounted
-by. Consequently, (1 - decay) is the weight of the new value. Like the `Statistics` class,
-there are four methods for modification: `push`, `clear`, sum and
-multiply.
+by. Consequently, (1 - decay) is the weight of the new value. Like the
+`Statistics` class, there are four methods for modification: `push`, `clear`,
+sum and multiply.
 
 .. code-block:: python
 
@@ -230,8 +236,8 @@ multiply.
    >>> exp_stats.stddev()
    3.4049127627507683
 
-The decay of the exponential statistics can also be changed. The value must be
-between 0 and 1.
+The decay of the exponential statistics can also be changed during the lifetime
+of the object.
 
 .. code-block:: python
 
@@ -245,30 +251,18 @@ between 0 and 1.
      ...
    ValueError: decay must be between 0 and 1
 
-The clear method allows to optionally set a new mean, new variance and new
-decay. If none are provided mean and variance reset to zero, while the decay is
-not changed.
+Combining `ExponentialMovingStatistics` is done by adding them together. The
+mean and variance are simply added to create a new object. To weight each
+`ExponentialMovingStatistics`, multiply them by a constant factor.
+Note how this behaviour differs from the two previous classes. When two
+`ExponentialMovingStatistics` are added the decay of the left object is used for
+the new object. The clear method resets the object to its state at
+construction. `len`, minimum and maximum are not supported.
 
 .. code-block:: python
 
-   >>> exp_stats.clear()
-   >>> exp_stats.decay
-   0.5
-   >>> exp_stats.mean()
-   0.0
-   >>> exp_stats.variance()
-   0.0
-
-Combining `ExponentialStatistics` is done by adding them together. The mean and
-variance are simply added to create a new object. To weight each
-`ExponentialStatistics`, multiply them by a constant factor. If two
-`ExponentialStatistics` are added then the leftmost decay is used for the new
-object. The `len` method is not supported.
-
-.. code-block:: python
-
-   >>> alpha_stats = ExponentialStatistics(iterable=range(10))
-   >>> beta_stats = ExponentialStatistics(decay=0.1)
+   >>> alpha_stats = ExponentialMovingStatistics(iterable=range(10))
+   >>> beta_stats = ExponentialMovingStatistics(decay=0.1)
    >>> for num in range(10):
    ...     beta_stats.push(num)
    >>> exp_stats = beta_stats * 0.5 + alpha_stats * 0.5
@@ -276,6 +270,100 @@ object. The `len` method is not supported.
    0.1
    >>> exp_stats.mean()
    6.187836645
+
+The `ExponentialMovingCovariance` works equivalently to
+`ExponentialMovingStatistics`.
+
+.. code-block:: python
+
+    >>> exp_cov = ExponentialMovingCovariance(
+    ... decay=0.9,
+    ... mean_x=0.0,
+    ... variance_x=0.0,
+    ... mean_y=0.0,
+    ... variance_y=0.0,
+    ... covariance=0.0,
+    ... iterable=(),
+    ... )
+    >>> for num in range(10):
+    ...     exp_cov.push(num, num + 5)
+    >>> round(exp_cov.covariance(), 2)
+    17.67
+    >>> round(exp_cov.correlation(), 2)
+    0.96
+
+`ExponentialMovingStatistics` can also work in a time-based mode i.e. old
+statistics are not simply discounted by the decay rate each time a value is
+pushed. Instead an effective decay rate is calculated based on the provided
+'nominal' decay rate as well as the time difference between the last push and
+the current push.`ExponentialMovingStatistics` operate in time based mode when
+a `delay > 0` is provided at construction. The delay is the no. of seconds that
+need to pass for the effective decay rate to be equal to the provided decay rate.
+For example, if a delay of 60 and a decay of 0.9 is provided, then after 60
+seconds pass between calls to push() the effective decay rate for discounting
+the old statistics equals 0.9, when 120 seconds pass than it equals
+0.9 ** 2 = 0.81 and so on. The exact formula for calculating the effective
+decay rate at a given call to push is:
+`decay ** ((current_timestamp - timestamp_at_last_push) / delay)`. The initial
+timestamp is the timestamp when delay has been set.
+
+.. code-block:: python
+
+   >>> import time
+   >>> alpha_stats = ExponentialMovingStatistics(decay=0.9, delay=1)
+   >>> time.sleep(1)
+   >>> alpha_stats.push(100)
+   >>> round(alpha_stats.mean())
+   10
+   >>> alpha_stats.clear()  # note that clear() resets the timer as well
+   >>> time.sleep(2)
+   >>> alpha_stats.push(100)
+   >>> round(alpha_stats.mean())
+   19
+
+There are a few things to note about an time_based
+`ExponentialMovingStatistics` object:
+- When providing an iterable at construction together with a delay, the iterable
+is first processed in non-time based mode i.e. as if there would be no delay
+- The delay can also be set after object construction. In this case the initial
+timestamp is the time when the delay is set. If a non `None` delay is changed,
+this does not effect the timer. Setting delay to `None` deactivates time based
+mode.
+- When two ExponentialMovingStatistics objects are added the state of the delay
+is taken from the left object. If the left object is time-based (non `None`
+delay) the timer is reset during an regular __add__ (a + b) for the resulting
+object while it is not during an incremental add __iadd__ (a += b).
+- The timer can be stopped with a call to `freeze()`. This can
+be useful when saving the state of the object (`get_state()`) for later usage
+or when serializing the object to pickle.
+With a call to `unfreeze()` the timer continues where it left of (e.g. after
+loading).
+- Pushes onto a freezed object use a effective decay rate based on the time
+difference between the last call to push and the moment `freeze()` was called.
+- With a call to `clear_timer()` the timer can be reset.
+- It is not recommended to use time based discounting for use cases that
+require high precision on below seconds granularity.
+
+.. code-block:: python
+
+   >>> alpha_stats = ExponentialMovingStatistics(decay=0.9, delay=1)
+   >>> time.sleep(1)
+   >>> alpha_stats.freeze()
+   >>> saved_state = alpha_stats.get_state()
+   >>> time.sleep(2)
+   >>> beta_stats = ExponentialMovingStatistics.fromstate(saved_state)
+   >>> beta_stats.push(10)
+   >>> round(beta_stats.mean())
+   1
+   >>> beta_stats.unfreeze()
+   >>> time.sleep(1)
+   >>> beta_stats.push(10)
+   >>> round(beta_stats.mean())
+   3
+
+
+Sources
+-------
 
 All internal calculations of the Statistics and Regression classes are based
 entirely on the C++ code by John Cook as posted in a couple of articles:
@@ -286,9 +374,15 @@ entirely on the C++ code by John Cook as posted in a couple of articles:
 .. _`Computing Skewness and Kurtosis in One Pass`: http://www.johndcook.com/blog/skewness_kurtosis/
 .. _`Computing Linear Regression in One Pass`: http://www.johndcook.com/blog/running_regression/
 
-The ExponentialStatistics implementation is based on:
+The ExponentialMovingStatistics implementation is based on:
 
-* Finch, 2009, Incremental Calculation of Weighted Mean and Variance
+* `Finch, 2009, Incremental Calculation of Weighted Mean and Variance`_
+
+.. _`Finch, 2009, Incremental Calculation of Weighted Mean and Variance`: https://fanf2.user.srcf.net/hermes/doc/antiforgery/stats.pdf
+
+
+Pure Python and Cython
+----------------------
 
 The pure-Python version of `RunStats`_ is directly available if preferred.
 

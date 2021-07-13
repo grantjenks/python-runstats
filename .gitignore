@@ -19,3 +19,7 @@
 
 # macOS metadata
 .DS_Store
+
+# compiled files
+runstats/_core.pxd
+runstats/_core.py

@@ -44,8 +44,8 @@ stats.mean()
     core_exp_stats = timeit.repeat(
         setup='''
 from __main__ import VALUES
-from runstats.core import ExponentialStatistics
-exp_stats = ExponentialStatistics()
+from runstats.core import ExponentialMovingStatistics
+exp_stats = ExponentialMovingStatistics()
         ''',
         stmt='''
 for value in VALUES:
@@ -59,8 +59,8 @@ exp_stats.mean()
     fast_exp_stats = timeit.repeat(
         setup='''
 from __main__ import VALUES
-from runstats._core import ExponentialStatistics
-exp_stats = ExponentialStatistics()
+from runstats._core import ExponentialMovingStatistics
+exp_stats = ExponentialMovingStatistics()
         ''',
         stmt='''
 for value in VALUES:
@@ -105,17 +105,53 @@ regr.slope()
 
     speedup_regr = core_regr / fast_regr - 1
 
+    core_exp_cov = timeit.repeat(
+        setup='''
+from __main__ import PAIRS
+from runstats.core import ExponentialMovingCovariance
+exp_cov = ExponentialMovingCovariance()
+            ''',
+        stmt='''
+for pos, val in PAIRS:
+    exp_cov.push(pos, val)
+exp_cov.covariance()
+            ''',
+        number=1,
+        repeat=7,
+    )[2]
+
+    fast_exp_cov = timeit.repeat(
+        setup='''
+from __main__ import PAIRS
+from runstats._core import ExponentialMovingCovariance
+exp_cov = ExponentialMovingCovariance()
+            ''',
+        stmt='''
+for pos, val in PAIRS:
+    exp_cov.push(pos, val)
+exp_cov.covariance()
+            ''',
+        number=1,
+        repeat=7,
+    )[2]
+
+    speedup_exp_cov = core_exp_cov / fast_exp_cov - 1
+
     print('core.Statistics:', core_stats)
     print('_core.Statistics:', fast_stats)
     print('  Stats Speedup: %.2fx faster' % speedup_stats)
 
-    print('core.ExponentialStatistics:', core_exp_stats)
-    print('_core.ExponentialStatistics:', fast_exp_stats)
+    print('core.ExponentialMovingStatistics:', core_exp_stats)
+    print('_core.ExponentialMovingStatistics:', fast_exp_stats)
     print('  ExpStats Speedup: %.2fx faster' % speedup_exp_stats)
 
     print('core.Regression:', core_regr)
     print('_core.Regression:', fast_regr)
     print('   Regr Speedup: %.2fx faster' % speedup_regr)
+
+    print('core.ExponentialMovingCovariance:', core_exp_cov)
+    print('_core.ExponentialMovingCovariance:', fast_exp_cov)
+    print('  ExpCov Speedup: %.2fx faster' % speedup_exp_cov)
 
 
 if __name__ == '__main__':
