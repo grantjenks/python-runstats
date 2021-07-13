@@ -91,7 +91,7 @@ cdef class ExponentialMovingStatistics:
     cpdef unfreeze(self)
 
     @cython.locals(
-        freezed=bool
+        freezed=bint
     )
     cpdef is_freezed(self)
 
