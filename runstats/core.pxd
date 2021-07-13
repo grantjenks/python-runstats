@@ -74,6 +74,10 @@ cdef class ExponentialMovingStatistics:
 
     cpdef clear(self)
 
+    cpdef clear_timer(self)
+
+    cpdef is_time_based(self)
+
     cpdef get_state(self)
 
     cpdef set_state(self, state)
@@ -82,23 +86,30 @@ cdef class ExponentialMovingStatistics:
 
     cpdef ExponentialMovingStatistics copy(self, _=*)
 
-    cpdef clear_timer(self)
-
     cpdef freeze(self)
 
     cpdef unfreeze(self)
 
-    cpdef is_time_based(self)
+    @cython.locals(
+        freezed=bool
+    )
+    cpdef is_freezed(self)
 
     @cython.locals(
+        decay=double,
         alpha=double,
         diff=double,
-        incr=double,
-        norm_diff=double,
-        decay=double,
-        now=double
+        incr=double
     )
     cpdef push(self, double value)
+
+    @cython.locals(
+        now=double,
+        diff=double,
+        norm_diff=double,
+        decay=double
+    )
+    cpdef _effective_decay(self)
 
     cpdef double mean(self)
 

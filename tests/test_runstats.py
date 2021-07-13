@@ -7,7 +7,6 @@ import itertools
 import math
 import pickle
 import random
-import time
 from unittest.mock import patch
 
 import pytest
@@ -129,6 +128,12 @@ def exp_cov_cor(decay, iterable):
 
 def error(value, test):
     return abs((test - value) / value)
+
+
+def calc_effective_decay(diff, delay, nominal_decay):
+    norm_diff = diff / delay
+    eff_decay = nominal_decay ** norm_diff
+    return eff_decay
 
 
 def get_time_patch(ExponentialMovingStatistics):
@@ -302,6 +307,26 @@ def test_exponential_statistics(ExponentialMovingStatistics):
 
     assert (error(current_mean, alpha_exp_stats.mean())) > limit
     assert (error(current_variance, alpha_exp_stats.variance())) > limit
+
+    # test time based to calculate correct mean/variance
+    time_patch = get_time_patch(ExponentialMovingStatistics)
+    with time_patch as time_mock:
+        delay = 0.5
+        nominal_decay = 0.9
+
+        past = 100.0
+        time_mock.time.return_value = past
+        gamma_exp_stats = ExponentialMovingStatistics()
+        exp_stats_time = ExponentialMovingStatistics(delay=0.5)
+        now = 110.55
+        time_mock.time.return_value = now
+        exp_stats_time.push(10)
+        effective_decay = calc_effective_decay(now - past, delay, nominal_decay)
+        gamma_exp_stats.decay = effective_decay
+        gamma_exp_stats.push(10)
+
+        assert gamma_exp_stats.mean() == exp_stats_time.mean()
+        assert gamma_exp_stats.variance() == exp_stats_time.variance()
 
 
 @pytest.mark.parametrize(
@@ -1138,11 +1163,6 @@ def test_exponential_statistics_time_based_on_off(ExponentialMovingStatistics):
 def test_exponential_statistics_time_based_effective_decay(
     ExponentialMovingStatistics,
 ):
-    def calc_effective_decay(diff, delay, nominal_decay):
-        norm_diff = diff / delay
-        eff_decay = nominal_decay ** norm_diff
-        return eff_decay
-
     time_patch = get_time_patch(ExponentialMovingStatistics)
     with time_patch as time_mock:
         delay = 0.5
@@ -1215,6 +1235,8 @@ def test_raise_if_not_time_exp_stats(ExponentialMovingStatistics):
     with pytest.raises(AttributeError):
         exp_stats.clear_timer()
     with pytest.raises(AttributeError):
+        exp_stats._effective_decay()
+    with pytest.raises(AttributeError):
         exp_stats.freeze()
     with pytest.raises(AttributeError):
         exp_stats.unfreeze()
@@ -1222,8 +1244,6 @@ def test_raise_if_not_time_exp_stats(ExponentialMovingStatistics):
         exp_stats.is_freezed()
     with pytest.raises(AttributeError):
         exp_stats_time.unfreeze()
-    with pytest.raises(AttributeError):
-        exp_stats_time._effective_decay()
 
     with pytest.raises(ValueError):
         exp_stats_time.delay = 0
