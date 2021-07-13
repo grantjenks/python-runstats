@@ -321,7 +321,9 @@ def test_exponential_statistics(ExponentialMovingStatistics):
         now = 110.55
         time_mock.time.return_value = now
         exp_stats_time.push(10)
-        effective_decay = calc_effective_decay(now - past, delay, nominal_decay)
+        effective_decay = calc_effective_decay(
+            now - past, delay, nominal_decay
+        )
         gamma_exp_stats.decay = effective_decay
         gamma_exp_stats.push(10)
 
