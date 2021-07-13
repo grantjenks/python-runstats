@@ -392,9 +392,9 @@ def test_add_exponential_statistics(ExponentialMovingStatistics):
     exp_stats0.decay = 0.8
     exp_stats0.delay = 60
     exp_stats10.delay = 120
-    exp_stats0._time_diff = (
-        -1
-    )  # To check if clear_timer was called for add and not for iadd
+    # To check if clear_timer was called for add and not for iadd
+    exp_stats0._time_diff = -1
+
     exp_stats = exp_stats0 + exp_stats10
     assert exp_stats.delay == exp_stats0.delay != exp_stats10.delay
     assert exp_stats.decay == exp_stats0.decay != exp_stats10.decay
@@ -544,6 +544,11 @@ def test_get_set_state_exponential_statistics(ExponentialMovingStatistics):
     assert exp_stats != new_exp_stats
     exp_stats.freeze()
 
+    assert exp_stats == ExponentialMovingStatistics.fromstate(
+        exp_stats.get_state()
+    )
+
+    exp_stats.unfreeze()
     assert exp_stats == ExponentialMovingStatistics.fromstate(
         exp_stats.get_state()
     )
@@ -971,7 +976,6 @@ def test_exponential_statistics_clear(ExponentialMovingStatistics):
     alpha = [random.random() for _ in range(count)]
     mean = 10
     variance = 100
-    injected_time = 1625756332.6573758
     exp_stats = ExponentialMovingStatistics(mean=mean, variance=variance)
 
     for val in alpha:
@@ -987,22 +991,24 @@ def test_exponential_statistics_clear(ExponentialMovingStatistics):
     assert math.isnan(exp_stats._current_time)
     assert math.isnan(exp_stats._time_diff)
 
-    exp_stats.delay = 60
-    assert not math.isnan(exp_stats._current_time)
-    assert math.isnan(exp_stats._time_diff)
-    exp_stats.freeze()
-    assert not math.isnan(exp_stats._time_diff)
-    exp_stats._current_time = injected_time
-    exp_stats.clear()
-    assert not math.isnan(exp_stats._current_time)
-    assert exp_stats._current_time != injected_time
-    assert math.isnan(exp_stats._time_diff)
-    exp_stats._current_time = injected_time
-    exp_stats.freeze()
-    exp_stats.clear_timer()
-    assert not math.isnan(exp_stats._current_time)
-    assert exp_stats._current_time != injected_time
-    assert math.isnan(exp_stats._time_diff)
+    time_patch = get_time_patch(ExponentialMovingStatistics)
+    with time_patch as time_mock:
+        time_mock.time.return_value = 1000.1
+
+        exp_stats.delay = 60
+        assert exp_stats._current_time == 1000.1
+        assert math.isnan(exp_stats._time_diff)
+        exp_stats.freeze()
+        assert not math.isnan(exp_stats._time_diff)
+        time_mock.time.return_value = 5000.5
+        exp_stats.clear()
+        assert exp_stats._current_time == 5000.5
+        assert math.isnan(exp_stats._time_diff)
+        exp_stats.freeze()
+        time_mock.time.return_value = 100.358
+        exp_stats.clear_timer()
+        assert exp_stats._current_time == 100.358
+        assert math.isnan(exp_stats._time_diff)
 
 
 @pytest.mark.parametrize(
@@ -1076,15 +1082,17 @@ def test_exponential_statistics_freeze_unfreeze(ExponentialMovingStatistics):
 
         assert exp_stats._current_time == 1000.1
         assert math.isnan(exp_stats._time_diff)
+        assert not exp_stats.is_freezed()
 
         time_mock.time.return_value = 1010.1
         exp_stats.freeze()
         assert exp_stats._time_diff == 10.0
+        assert exp_stats.is_freezed()
 
         time_mock.time.return_value = 1110.0
         exp_stats.unfreeze()
         assert exp_stats._current_time == 1100.0
-        assert math.isnan(exp_stats._time_diff)
+        assert not exp_stats.is_freezed()
 
 
 @pytest.mark.parametrize(
@@ -1102,7 +1110,6 @@ def test_exponential_statistics_time_based_on_off(ExponentialMovingStatistics):
     assert exp_stats.delay == 30
     assert not math.isnan(exp_stats._current_time)
     current_time = exp_stats._current_time
-    time.sleep(0.5)
     exp_stats.delay = 60
     assert exp_stats.delay == 60
     assert exp_stats._current_time == current_time
@@ -1136,45 +1143,36 @@ def test_exponential_statistics_time_based_effective_decay(
         eff_decay = nominal_decay ** norm_diff
         return eff_decay
 
-    delay = 0.5
-    nominal_decay = 0.9
-    exp_stats = ExponentialMovingStatistics()
-    exp_stats_time = ExponentialMovingStatistics(delay=0.5)
-    past = exp_stats_time._current_time
-    time.sleep(0.5)
-    exp_stats_time.push(10)
-    now = exp_stats_time._current_time
-    effective_decay = calc_effective_decay(now - past, delay, nominal_decay)
-    exp_stats.decay = effective_decay
-    exp_stats.push(10)
+    time_patch = get_time_patch(ExponentialMovingStatistics)
+    with time_patch as time_mock:
+        delay = 0.5
+        nominal_decay = 0.9
 
-    assert exp_stats.mean() == exp_stats_time.mean()
-    assert exp_stats.variance() == exp_stats_time.variance()
+        past = 100.0
+        time_mock.time.return_value = past
+        exp_stats_time = ExponentialMovingStatistics(delay=0.5)
+        assert exp_stats_time._current_time == past
+        now = 110.0
+        time_mock.time.return_value = now
+        expected_effective_decay = calc_effective_decay(
+            now - past, delay, nominal_decay
+        )
+        true_effective_decay = exp_stats_time._effective_decay()
 
-    exp_stats_time.clear_timer()
-    time.sleep(0.5)
-    exp_stats_time.freeze()
-    time.sleep(0.5)
-    diff = exp_stats_time._time_diff
-    exp_stats_time.push(100)
-    effective_decay = calc_effective_decay(diff, delay, nominal_decay)
-    exp_stats.decay = effective_decay
-    exp_stats.push(100)
+        assert expected_effective_decay == true_effective_decay
+        assert exp_stats_time._current_time == now
 
-    assert exp_stats.mean() == exp_stats_time.mean()
-    assert exp_stats.variance() == exp_stats_time.variance()
+        later = 120.0
+        time_mock.time.return_value = later
+        exp_stats_time.freeze()
+        diff = later - now
+        expected_effective_decay = calc_effective_decay(
+            diff, delay, nominal_decay
+        )
+        true_effective_decay = exp_stats_time._effective_decay()
 
-    exp_stats_time.unfreeze()
-    past = exp_stats_time._current_time
-    time.sleep(0.5)
-    exp_stats_time.push(1000)
-    now = exp_stats_time._current_time
-    effective_decay = calc_effective_decay(now - past, delay, nominal_decay)
-    exp_stats.decay = effective_decay
-    exp_stats.push(1000)
-
-    assert exp_stats.mean() == exp_stats_time.mean()
-    assert exp_stats.variance() == exp_stats_time.variance()
+        assert expected_effective_decay == true_effective_decay
+        assert exp_stats_time._current_time == later
 
 
 @pytest.mark.parametrize(
@@ -1221,7 +1219,11 @@ def test_raise_if_not_time_exp_stats(ExponentialMovingStatistics):
     with pytest.raises(AttributeError):
         exp_stats.unfreeze()
     with pytest.raises(AttributeError):
+        exp_stats.is_freezed()
+    with pytest.raises(AttributeError):
         exp_stats_time.unfreeze()
+    with pytest.raises(AttributeError):
+        exp_stats_time._effective_decay()
 
     with pytest.raises(ValueError):
         exp_stats_time.delay = 0

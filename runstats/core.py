@@ -371,6 +371,21 @@ class ExponentialMovingStatistics:
         self._current_time = time.time() if self.is_time_based() else NAN
         self._time_diff = NAN
 
+    def clear_timer(self):
+        """Reset time counter"""
+        if self.is_time_based():
+            self._current_time = time.time()
+            self._time_diff = NAN
+        else:
+            raise AttributeError(
+                'clear_timer on a non-time time based (i.e. delay == None) '
+                'ExponentialMovingStatistics object is illegal'
+            )
+
+    def is_time_based(self):
+        """Checks if object is time-based or not i.e. delay is set or None"""
+        return not isnan(self.delay)
+
     def __eq__(self, that):
         return self.get_state() == that.get_state()
 
@@ -428,17 +443,6 @@ class ExponentialMovingStatistics:
 
     __deepcopy__ = __copy__
 
-    def clear_timer(self):
-        """Reset time counter"""
-        if self.is_time_based():
-            self._current_time = time.time()
-            self._time_diff = NAN
-        else:
-            raise AttributeError(
-                'clear_timer on a non-time time based (i.e. delay == None) '
-                'ExponentialMovingStatistics object is illegal'
-            )
-
     def freeze(self):
         """Freeze time i.e. save the difference between now and the last push"""
         if self.is_time_based():
@@ -457,7 +461,7 @@ class ExponentialMovingStatistics:
                 'ExponentialMovingStatistics object is illegal'
             )
 
-        if isnan(self._time_diff):
+        if not self.is_freezed():
             raise AttributeError(
                 'Time must be freezed first before it can be unfreezed'
             )
@@ -465,22 +469,17 @@ class ExponentialMovingStatistics:
         self._current_time = time.time() - self._time_diff
         self._time_diff = NAN
 
-    def is_time_based(self):
-        """Checks if object is time-based or not i.e. delay is set or None"""
-        return not isnan(self.delay)
+    def is_freezed(self):
+        if not self.is_time_based():
+            raise AttributeError('Only time-based objects can be freezed')
+
+        freezed = not isnan(self._time_diff)
+        return freezed
 
     def push(self, value):
         """Add `value` to the ExponentialMovingStatistics summary."""
         if self.is_time_based():
-            now = time.time()
-            diff = (
-                self._time_diff
-                if not isnan(self._time_diff)
-                else (now - self._current_time)
-            )
-            norm_diff = diff / self.delay
-            decay = self.decay ** norm_diff
-            self._current_time = now
+            decay = self._effective_decay()
         else:
             decay = self.decay
 
@@ -489,6 +488,24 @@ class ExponentialMovingStatistics:
         incr = alpha * diff
         self._variance += alpha * (decay * diff ** 2 - self._variance)
         self._mean += incr
+
+    def _effective_decay(self):
+        """Calculate effective decay rate for time based ExponentialMovingStatistics"""
+        if not self.is_time_based():
+            raise AttributeError(
+                'Forbidden to call _effective_decay on non-time based object'
+            )
+
+        now = time.time()
+        diff = (
+            self._time_diff
+            if self.is_freezed()
+            else (now - self._current_time)
+        )
+        norm_diff = diff / self.delay
+        decay = self.decay ** norm_diff
+        self._current_time = now
+        return decay
 
     def mean(self):
         """Exponential mean of values."""
